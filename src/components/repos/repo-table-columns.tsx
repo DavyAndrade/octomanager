@@ -68,6 +68,7 @@ export function buildRepoColumns(
       enableSorting: false,
       enableHiding: false,
       size: 40,
+      meta: { className: "w-10 pr-0" },
     },
 
     // ── Name ──────────────────────────────────────────────────────────────────
@@ -87,8 +88,8 @@ export function buildRepoColumns(
       cell: ({ row }) => {
         const repo = row.original;
         return (
-          <div className="flex min-w-0 flex-col gap-1">
-            <div className="flex items-center gap-1.5">
+          <div className="flex min-w-0 flex-col gap-0.5">
+            <div className="flex min-w-0 items-center gap-1.5">
               <Link
                 href={repo.html_url}
                 target="_blank"
@@ -99,12 +100,12 @@ export function buildRepoColumns(
               </Link>
               <ExternalLink className="h-3 w-3 shrink-0 text-muted-foreground opacity-60" />
               {repo.fork && (
-                <Badge variant="outline" className="h-4 px-1 text-[10px] text-muted-foreground">
+                <Badge variant="outline" className="h-4 shrink-0 px-1 text-[10px] text-muted-foreground">
                   Fork
                 </Badge>
               )}
               {repo.archived && (
-                <Badge variant="secondary" className="h-4 px-1 text-[10px]">
+                <Badge variant="secondary" className="h-4 shrink-0 px-1 text-[10px]">
                   Archived
                 </Badge>
               )}
@@ -117,6 +118,8 @@ export function buildRepoColumns(
           </div>
         );
       },
+      // Takes up remaining space — no explicit size so table can flex it
+      meta: { className: "min-w-0" },
     },
 
     // ── Visibility ────────────────────────────────────────────────────────────
@@ -129,7 +132,7 @@ export function buildRepoColumns(
           <div className="flex items-center gap-2">
             <Badge
               variant={repo.private ? "secondary" : "outline"}
-              className="h-5 w-16 justify-center gap-1 text-[11px] font-medium"
+              className="h-5 w-16 shrink-0 justify-center gap-1 text-[11px] font-medium"
             >
               {repo.private ? "Private" : "Public"}
             </Badge>
@@ -150,6 +153,8 @@ export function buildRepoColumns(
         if (value === "public") return !row.original.private;
         return true;
       },
+      size: 150,
+      meta: { className: "w-[150px] whitespace-nowrap" },
     },
 
     // ── Language ──────────────────────────────────────────────────────────────
@@ -166,10 +171,12 @@ export function buildRepoColumns(
               className="h-2.5 w-2.5 shrink-0 rounded-full"
               style={{ backgroundColor: color }}
             />
-            {lang}
+            <span className="truncate">{lang}</span>
           </span>
         );
       },
+      size: 110,
+      meta: { className: "w-[110px]" },
     },
 
     // ── Stars ─────────────────────────────────────────────────────────────────
@@ -191,6 +198,8 @@ export function buildRepoColumns(
           {formatRepoCount(row.original.stargazers_count)}
         </span>
       ),
+      size: 80,
+      meta: { className: "w-20 whitespace-nowrap" },
     },
 
     // ── Updated ───────────────────────────────────────────────────────────────
@@ -215,6 +224,8 @@ export function buildRepoColumns(
           {formatRelativeTime(row.original.updated_at)}
         </span>
       ),
+      size: 110,
+      meta: { className: "w-[110px] whitespace-nowrap" },
     },
 
     // ── Actions ───────────────────────────────────────────────────────────────
@@ -259,6 +270,8 @@ export function buildRepoColumns(
           </div>
         );
       },
+      size: 80,
+      meta: { className: "w-20 whitespace-nowrap" },
     },
   ];
 }
