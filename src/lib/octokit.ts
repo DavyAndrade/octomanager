@@ -40,7 +40,7 @@ export async function listRepos(
 ): Promise<PaginatedResponse<Repository>> {
   const octokit = getOctokit(token);
   const {
-    type = "owner",
+    type = "all",
     sort = "updated",
     direction = "desc",
     per_page = 30,

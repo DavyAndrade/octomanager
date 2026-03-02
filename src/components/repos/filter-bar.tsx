@@ -13,8 +13,7 @@ import { SlidersHorizontal } from "lucide-react";
 import type { RepoTypeFilter, RepoSortField } from "@/types/github";
 
 const VISIBILITY_OPTIONS: { value: RepoTypeFilter; label: string }[] = [
-  { value: "owner", label: "My repos" },
-  { value: "all", label: "All (+ collabs)" },
+  { value: "all", label: "All" },
   { value: "public", label: "Public" },
   { value: "private", label: "Private" },
   { value: "forks", label: "Forks" },
@@ -39,7 +38,7 @@ export function FilterBar() {
   } = useUIStore();
 
   const isFiltered =
-    visibilityFilter !== "owner" || sortBy !== "updated" || searchQuery !== "";
+    visibilityFilter !== "all" || sortBy !== "updated" || searchQuery !== "";
 
   return (
     <div className="flex flex-wrap items-center gap-2">

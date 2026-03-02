@@ -40,7 +40,7 @@ interface UIState {
 
 const defaultState = {
   searchQuery: "",
-  visibilityFilter: "owner" as RepoTypeFilter,
+  visibilityFilter: "all" as RepoTypeFilter,
   sortBy: "updated" as RepoSortField,
   sortDirection: "desc" as const,
   selectedRepoIds: new Set<number>(),
