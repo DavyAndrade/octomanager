@@ -1,11 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useDeleteRepo } from "@/hooks/use-repo-mutations";
 import { useUIStore } from "@/store/ui-store";
-import { deleteRepoSchema, type DeleteRepoInput } from "@/schemas/repo";
 import {
   Dialog,
   DialogContent,

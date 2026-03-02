@@ -225,3 +225,122 @@ export function useDeleteRepo() {
     },
   });
 }
+
+// ─── Bulk Delete ─────────────────────────────────────────────────────────────
+
+export function useBulkDeleteRepos() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (repos: Array<{ owner: string; repo: string; repoId: number }>) => {
+      const results = await Promise.allSettled(
+        repos.map(({ owner, repo }) => destroyRepo(owner, repo))
+      );
+      const failed = results.filter((r) => r.status === "rejected").length;
+      if (failed > 0) throw new Error(`${failed} of ${repos.length} deletions failed`);
+    },
+
+    onMutate: async (repos) => {
+      await queryClient.cancelQueries({ queryKey: repoKeys.all });
+      const previousData = queryClient.getQueriesData<PaginatedResponse<Repository>>(
+        { queryKey: repoKeys.all }
+      );
+      const ids = new Set(repos.map((r) => r.repoId));
+      queryClient.setQueriesData<PaginatedResponse<Repository>>(
+        { queryKey: repoKeys.all },
+        (old) => {
+          if (!old) return old;
+          return {
+            ...old,
+            items: old.items.filter((r) => !ids.has(r.id)),
+            total_count: old.total_count - ids.size,
+          };
+        }
+      );
+      return { previousData };
+    },
+
+    onError: (_err, _vars, context) => {
+      if (context?.previousData) {
+        for (const [queryKey, data] of context.previousData) {
+          queryClient.setQueryData(queryKey, data);
+        }
+      }
+      toast.error("Bulk delete failed — changes rolled back");
+    },
+
+    onSuccess: (_data, repos) => {
+      toast.success(`${repos.length} ${repos.length === 1 ? "repository" : "repositories"} deleted`);
+    },
+
+    onSettled: () => {
+      void queryClient.invalidateQueries({ queryKey: repoKeys.all });
+    },
+  });
+}
+
+// ─── Bulk Toggle Visibility ───────────────────────────────────────────────────
+
+export function useBulkToggleVisibility() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      repos,
+      makePrivate,
+    }: {
+      repos: Array<{ owner: string; repo: string; repoId: number }>;
+      makePrivate: boolean;
+    }) => {
+      const results = await Promise.allSettled(
+        repos.map(({ owner, repo }) =>
+          patchRepo(owner, repo, { private: makePrivate })
+        )
+      );
+      const failed = results.filter((r) => r.status === "rejected").length;
+      if (failed > 0) throw new Error(`${failed} of ${repos.length} updates failed`);
+    },
+
+    onMutate: async ({ repos, makePrivate }) => {
+      await queryClient.cancelQueries({ queryKey: repoKeys.all });
+      const previousData = queryClient.getQueriesData<PaginatedResponse<Repository>>(
+        { queryKey: repoKeys.all }
+      );
+      const ids = new Set(repos.map((r) => r.repoId));
+      queryClient.setQueriesData<PaginatedResponse<Repository>>(
+        { queryKey: repoKeys.all },
+        (old) => {
+          if (!old) return old;
+          return {
+            ...old,
+            items: old.items.map((r) =>
+              ids.has(r.id)
+                ? { ...r, private: makePrivate, visibility: makePrivate ? "private" : "public" }
+                : r
+            ),
+          };
+        }
+      );
+      return { previousData };
+    },
+
+    onError: (_err, _vars, context) => {
+      if (context?.previousData) {
+        for (const [queryKey, data] of context.previousData) {
+          queryClient.setQueryData(queryKey, data);
+        }
+      }
+      toast.error("Bulk visibility update failed — changes rolled back");
+    },
+
+    onSuccess: (_data, { repos, makePrivate }) => {
+      toast.success(
+        `${repos.length} ${repos.length === 1 ? "repository" : "repositories"} made ${makePrivate ? "private" : "public"}`
+      );
+    },
+
+    onSettled: () => {
+      void queryClient.invalidateQueries({ queryKey: repoKeys.all });
+    },
+  });
+}
