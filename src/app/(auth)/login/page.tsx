@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { Github } from "lucide-react";
 import { SignInButton } from "@/components/auth/sign-in-button";
+import { DevSignInButton } from "@/components/auth/dev-sign-in-button";
 
 export const metadata: Metadata = {
   title: "Sign in",
@@ -11,6 +12,9 @@ export const metadata: Metadata = {
 export default async function LoginPage() {
   const session = await auth();
   if (session) redirect("/dashboard");
+
+  const isDevMode =
+    process.env.NODE_ENV === "development" && !!process.env.GITHUB_DEV_TOKEN;
 
   return (
     <main className="flex min-h-screen items-center justify-center px-4">
@@ -29,7 +33,16 @@ export default async function LoginPage() {
           </div>
         </div>
 
-        <SignInButton className="w-full" />
+        {isDevMode ? (
+          <div className="space-y-3">
+            <DevSignInButton className="w-full" />
+            <p className="text-xs text-amber-600 dark:text-amber-400">
+              ⚠ Dev mode — using local gh CLI token
+            </p>
+          </div>
+        ) : (
+          <SignInButton className="w-full" />
+        )}
 
         <p className="text-xs text-muted-foreground">
           OctoManager only requests access to your repositories.
