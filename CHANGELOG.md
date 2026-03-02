@@ -11,6 +11,25 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.5.0] — 2026-03-02
+
+### Added
+- **Unit test suite**: 107 tests across 7 test files achieving **87.74% coverage** (≥80% threshold enforced)
+  - `tests/unit/store.test.ts` — 22 tests for Zustand `ui-store` (100% coverage)
+  - `tests/unit/octokit.test.ts` — 20 tests for `listRepos`, `updateRepo`, `deleteRepo` (100% coverage)
+  - `tests/unit/components.test.tsx` — 10 tests for `EmptyState`, `ErrorState`, `RepoListSkeleton`
+  - `tests/unit/search-filter.test.tsx` — 11 tests for `SearchBar`, `FilterBar`
+  - `tests/unit/visibility-toggle.test.tsx` — 7 tests for `VisibilityToggle`
+- `@vitest/coverage-v8` for V8-based code coverage
+- Coverage thresholds enforced: 80% statements, branches, functions, lines
+- `vi.hoisted()` pattern used to resolve mock hoisting with `vi.mock` factories
+
+### Changed
+- `vitest.config.ts`: added coverage thresholds and extended exclude list for infra/config files
+- `tests/setup.ts`: global `vi.mock("server-only", () => ({}))` to allow server-side module imports in tests
+
+---
+
 ## [0.4.2] — 2026-03-02
 
 ### Added
