@@ -48,6 +48,8 @@ A modern, open-source web application for managing your GitHub repositories — 
 
 ## ⚙️ Environment Variables
 
+> **This is deployer configuration, not end-user configuration.** Users of the app just click "Sign in with GitHub" — they never touch these variables. The env vars below are filled in once by whoever hosts/deploys the application.
+
 Create a `.env.local` file at the project root (copy from `.env.local.example`):
 
 ```bash
@@ -60,6 +62,14 @@ cp .env.local.example .env.local
 | `AUTH_GITHUB_ID` | GitHub OAuth App Client ID |
 | `AUTH_GITHUB_SECRET` | GitHub OAuth App Client Secret |
 | `NEXTAUTH_URL` | App URL (`http://localhost:3000` for dev) |
+
+### How the OAuth flow works
+
+1. The deployer registers a **GitHub OAuth App** once (see below).
+2. Any user visits the app and clicks **Sign in with GitHub**.
+3. GitHub redirects them to the authorization page — they approve the requested scopes (`repo`, `delete_repo`).
+4. GitHub redirects back with an access token. Auth.js stores it server-side in a JWT cookie.
+5. The app uses that token (via Octokit) to manage **that user's own repositories** — never the deployer's.
 
 ### Creating a GitHub OAuth App
 
@@ -166,8 +176,10 @@ src/
 ├── schemas/          Zod validation schemas
 ├── store/            Zustand UI state (search, filters, bulk selection)
 ├── types/            TypeScript type definitions
-└── middleware.ts     Route protection
+└── proxy.ts              Route protection
 ```
+
+> **Note on the proxy file:** Next.js 16 renamed the middleware convention from `middleware.ts` to `proxy.ts`. The file lives at `src/proxy.ts` — do not recreate `src/middleware.ts`.
 
 See [`docs/CLAUDE.md`](docs/CLAUDE.md) or [`docs/GEMINI.md`](docs/GEMINI.md) for a full architecture and conventions guide (also useful for human contributors).
 

@@ -66,7 +66,7 @@ Development is broken into 7 phases. Each phase maps directly to one or more git
 - [x] `src/schemas/repo.ts` — Zod schemas: `updateRepoSchema`, `deleteRepoSchema`, `repoListParamsSchema`
 - [x] `src/lib/auth.ts` — Auth.js config: GitHub provider, `jwt` + `session` callbacks, custom sign-in page
 - [x] `src/app/api/auth/[...nextauth]/route.ts` — export `GET` and `POST` handlers
-- [x] `src/middleware.ts` — protect `/dashboard` and `/api/repos`, redirect authenticated users from `/login`
+- [x] `src/proxy.ts` — route protection (replaces `src/middleware.ts`; Next.js 16 proxy convention)
 - [x] `src/lib/utils.ts` — `cn()`, `formatRepoCount()`, `formatRelativeTime()`, `slugify()`
 
 ### Acceptance Criteria

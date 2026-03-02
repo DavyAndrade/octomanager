@@ -11,6 +11,12 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.4.1] — 2026-03-02
+
+### Fixed
+- Renamed `src/middleware.ts` → `src/proxy.ts` to resolve Next.js 16 deprecation warning
+- Clarified in README that `.env.local` / OAuth App credentials are deployer config, not per-user
+
 ## [0.4.0] — 2025-07-04
 
 ### Added

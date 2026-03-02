@@ -70,7 +70,7 @@ src/
 ├── store/                 Zustand stores (UI state only)
 │   └── ui-store.ts        search, filter, sort, modal IDs, bulk selection
 ├── types/                 TypeScript interfaces and types
-└── middleware.ts          Route protection
+└── proxy.ts               Route protection (Next.js 16 proxy convention)
 ```
 
 ### Zustand Store Shape
