@@ -45,7 +45,7 @@ export function useRepos(page = 1) {
     type: visibilityFilter,
     sort: sortBy,
     direction: sortDirection,
-    per_page: 100,
+    per_page: 10,
     page,
     ...(searchQuery ? { search: searchQuery } : {}),
   };

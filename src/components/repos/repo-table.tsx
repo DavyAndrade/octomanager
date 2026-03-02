@@ -28,7 +28,7 @@ import { EditRepoModal } from "@/components/repos/edit-repo-modal";
 import { useUIStore } from "@/store/ui-store";
 import type { Repository } from "@/types/github";
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 10;
 
 interface RepoTableProps {
   repos: Repository[];
