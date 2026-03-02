@@ -42,20 +42,19 @@ const devProvider =
       ]
     : [];
 
-const githubProvider =
-  process.env.AUTH_GITHUB_ID && process.env.AUTH_GITHUB_SECRET
-    ? [
-        GitHub({
-          clientId: process.env.AUTH_GITHUB_ID,
-          clientSecret: process.env.AUTH_GITHUB_SECRET,
-          authorization: {
-            params: {
-              scope: "read:user user:email repo delete_repo",
-            },
-          },
-        }),
-      ]
-    : [];
+// Always register the GitHub OAuth provider. In production (Vercel) the env
+// vars MUST be set; locally they are optional when GITHUB_DEV_TOKEN is used.
+const githubProvider = [
+  GitHub({
+    clientId: process.env.AUTH_GITHUB_ID ?? "",
+    clientSecret: process.env.AUTH_GITHUB_SECRET ?? "",
+    authorization: {
+      params: {
+        scope: "read:user user:email repo delete_repo",
+      },
+    },
+  }),
+];
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [...githubProvider, ...devProvider],

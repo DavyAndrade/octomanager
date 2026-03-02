@@ -10,8 +10,14 @@ export const metadata: Metadata = {
 };
 
 export default async function LoginPage() {
-  const session = await auth();
-  if (session) redirect("/dashboard");
+  // Wrap in try/catch: if AUTH_SECRET is not set, auth() throws and we still
+  // want the login page to render instead of a blank 500.
+  try {
+    const session = await auth();
+    if (session) redirect("/dashboard");
+  } catch {
+    // Auth not configured yet — fall through and show the login UI.
+  }
 
   const isDevMode =
     process.env.NODE_ENV === "development" && !!process.env.GITHUB_DEV_TOKEN;
