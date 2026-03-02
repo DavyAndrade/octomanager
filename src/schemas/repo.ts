@@ -33,7 +33,7 @@ export const updateRepoSchema = z.object({
 
 export const deleteRepoSchema = z.object({
   confirm: z.literal(true, {
-    errorMap: () => ({ message: "You must confirm deletion" }),
+    error: "You must confirm deletion",
   }),
 });
 

@@ -48,9 +48,15 @@ export async function listRepos(
     search,
   } = params;
 
+  // GitHub API only accepts these values for listForAuthenticatedUser.
+  // "forks" and "sources" are handled via client-side post-filtering.
+  type ApiType = "all" | "owner" | "public" | "private" | "member";
+  const apiType: ApiType =
+    type === "forks" || type === "sources" ? "all" : (type as ApiType);
+
   try {
     const response = await octokit.rest.repos.listForAuthenticatedUser({
-      type,
+      type: apiType,
       sort,
       direction,
       per_page,
@@ -58,6 +64,13 @@ export async function listRepos(
     });
 
     let repos = response.data as unknown as Repository[];
+
+    // Client-side post-filters for types the API does not natively support
+    if (type === "forks") {
+      repos = repos.filter((r) => r.fork);
+    } else if (type === "sources") {
+      repos = repos.filter((r) => !r.fork);
+    }
 
     if (search) {
       const query = search.toLowerCase();
@@ -110,10 +123,17 @@ export async function updateRepo(
       return data as unknown as Repository;
     }
 
+    // Octokit types don't accept null — convert to undefined to clear fields
+    const sanitizedPayload = {
+      ...repoPayload,
+      description: repoPayload.description ?? undefined,
+      homepage: repoPayload.homepage ?? undefined,
+    };
+
     const { data } = await octokit.rest.repos.update({
       owner,
       repo,
-      ...repoPayload,
+      ...sanitizedPayload,
     });
 
     return data as unknown as Repository;
