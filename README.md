@@ -146,18 +146,6 @@ bun run test:coverage # Coverage report
 
 ---
 
-## 🚢 Deployment (Vercel)
-
-1. Push the repository to GitHub
-2. Import the project on [vercel.com](https://vercel.com)
-3. Add all environment variables in the Vercel dashboard
-4. Set the **Framework Preset** to `Next.js`
-5. Deploy — Vercel auto-detects Bun as the package manager
-
-> **Important:** Update `NEXTAUTH_URL` to your production domain and update the GitHub OAuth App callback URL accordingly.
-
----
-
 ## 🏗️ Architecture
 
 ```
@@ -178,8 +166,6 @@ src/
 ├── types/            TypeScript type definitions
 └── proxy.ts              Route protection
 ```
-
-> **Note on the proxy file:** Next.js 16 renamed the middleware convention from `middleware.ts` to `proxy.ts`. The file lives at `src/proxy.ts` — do not recreate `src/middleware.ts`.
 
 See [`docs/CLAUDE.md`](docs/CLAUDE.md) or [`docs/GEMINI.md`](docs/GEMINI.md) for a full architecture and conventions guide (also useful for human contributors).
 
