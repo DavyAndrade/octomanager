@@ -1,0 +1,187 @@
+# OctoManager — Milestones
+
+Development is broken into 7 phases. Each phase maps directly to one or more git commits and has explicit acceptance criteria that define "done".
+
+> **How to use this file:** Work through each task in order. Every phase ends with a commit. Check off tasks as you complete them. Update `CHANGELOG.md` at the end of each phase.
+
+---
+
+## Phase 1 — Base Setup
+
+**Branch:** `main`
+**Commit prefix:** `chore:` / `build:`
+**Goal:** Production-ready scaffold with all tooling configured and documented.
+
+### Tasks
+- [x] Install runtime dependencies: `next-auth`, `octokit`, `@tanstack/react-query`, `zod`, `zustand`, `react-hook-form`, `@hookform/resolvers`, `framer-motion`, `server-only`, `sonner`, `lucide-react`
+- [x] Install dev dependencies: `vitest`, `@vitejs/plugin-react`, `@vitest/ui`, `@testing-library/react`, `@testing-library/user-event`, `jsdom`, `@playwright/test`, `msw`
+- [x] Configure `next.config.ts` — security headers, GitHub avatar image domain
+- [x] Configure `src/app/globals.css` — Zinc CSS variables for Tailwind v4 (light + dark)
+- [x] Create `components.json` for shadcn/ui (zinc theme, CSS variables)
+- [x] Create `.env.local.example` with all required variables documented
+- [x] Add `!.env.local.example` exception to `.gitignore`
+- [x] Add `vitest.config.ts`, `playwright.config.ts` (configured but not yet used)
+- [x] Add `test`, `test:ui`, `test:e2e`, `test:coverage` scripts to `package.json`
+
+### Acceptance Criteria
+- `bun install` runs without errors
+- `bun run build` or `bun run lint` exits 0
+- `.env.local.example` is tracked by git
+- `globals.css` defines all Zinc design tokens
+
+**Commit:** `chore: project setup — deps, tooling, env template`
+
+---
+
+## Phase 2 — Documentation & AI Agent Guides
+
+**Commit prefix:** `docs:`
+**Goal:** Full project documentation that serves both human contributors and AI coding agents.
+
+### Tasks
+- [x] Write `README.md` — project description, tech stack, env vars, setup (manual + scripts), testing, deployment, contributing
+- [x] Write `MILESTONES.md` (this file) — phased roadmap with acceptance criteria
+- [x] Write `docs/CLAUDE.md` — architecture, conventions, security guardrails for Claude agents
+- [x] Write `docs/GEMINI.md` — same guide for Gemini agents
+- [x] Write `LICENSE` (MIT)
+- [x] Create `CHANGELOG.md` following Keep a Changelog format
+
+### Acceptance Criteria
+- All docs reference the correct file paths and scripts
+- `docs/CLAUDE.md` and `docs/GEMINI.md` each contain: architecture overview, conventions, security guardrails, forbidden actions
+
+**Commit:** `docs: add README, MILESTONES, CHANGELOG, LICENSE, AI agent guides`
+
+---
+
+## Phase 3 — Types, Schemas & Auth
+
+**Commit prefix:** `feat:`
+**Goal:** Type-safe foundation and working GitHub OAuth authentication.
+
+### Tasks
+- [x] `src/types/github.ts` — `Repository`, `RepoOwner`, `RepoUpdatePayload`, `RepoVisibility`, `RepoListParams`
+- [x] `src/types/auth.ts` — extended `Session` with `accessToken` and `user.login`
+- [x] `src/types/api.ts` — `ApiResponse<T>`, `ApiError`, `PaginatedResponse<T>`
+- [x] `src/schemas/repo.ts` — Zod schemas: `updateRepoSchema`, `deleteRepoSchema`, `repoListParamsSchema`
+- [x] `src/lib/auth.ts` — Auth.js config: GitHub provider, `jwt` + `session` callbacks, custom sign-in page
+- [x] `src/app/api/auth/[...nextauth]/route.ts` — export `GET` and `POST` handlers
+- [x] `src/middleware.ts` — protect `/dashboard` and `/api/repos`, redirect authenticated users from `/login`
+- [x] `src/lib/utils.ts` — `cn()`, `formatRepoCount()`, `formatRelativeTime()`, `slugify()`
+
+### Acceptance Criteria
+- TypeScript compiles with zero errors on these files
+- `session.accessToken` is populated after sign-in (server-side only)
+- Visiting `/dashboard` while logged out redirects to `/login`
+- `/api/repos` without session returns `401`
+
+**Commit:** `feat: add types, Zod schemas, Auth.js GitHub OAuth, and middleware`
+
+---
+
+## Phase 4 — GitHub API Layer
+
+**Commit prefix:** `feat:`
+**Goal:** Fully typed, error-handled server-side GitHub API with REST endpoints.
+
+### Tasks
+- [x] `src/lib/octokit.ts` — `server-only`, `getOctokit(token)` factory, `listRepos`, `updateRepo`, `deleteRepo`, rate-limit + HTTP error mapping
+- [x] `src/app/api/repos/route.ts` — `GET` handler: list repos with search, type, sort, pagination
+- [x] `src/app/api/repos/[owner]/[repo]/route.ts` — `PATCH` handler: update repo, `DELETE` handler: delete repo
+- [ ] Manual smoke test: `GET /api/repos` returns repo list after sign-in
+
+### Acceptance Criteria
+- `src/lib/octokit.ts` cannot be imported client-side (enforced by `server-only`)
+- All handlers validate inputs with Zod and return typed `ApiResponse<T>`
+- `404`, `403`, `401`, `429` GitHub errors map to correct HTTP status codes
+- No access token in any response body
+
+**Commit:** `feat: implement Octokit integration and GitHub API routes`
+
+---
+
+## Phase 5 — State Management & Query Hooks
+
+**Commit prefix:** `feat:`
+**Goal:** Client-side data layer with caching, optimistic updates, and UI state.
+
+### Tasks
+- [x] `src/lib/query-client.ts` — singleton `QueryClient` with retry logic, stale/gc times
+- [x] `src/store/ui-store.ts` — Zustand: search query, visibility filter, sort, modal state (delete/edit target)
+- [x] `src/hooks/use-repos.ts` — `useRepos(page)`, query key factory `repoKeys`
+- [x] `src/hooks/use-repo-mutations.ts` — `useToggleVisibility`, `useUpdateRepo`, `useDeleteRepo` — all with optimistic updates and Sonner toasts
+
+### Acceptance Criteria
+- Toggling visibility updates the UI immediately without a loading spinner
+- On mutation error, the cache is rolled back to the previous state
+- `useRepos` re-fetches when `searchQuery`, `visibilityFilter`, or `sortBy` changes
+
+**Commit:** `feat: add Zustand store, QueryClient, and TanStack Query hooks`
+
+---
+
+## Phase 6 — UI Layer
+
+**Commit prefix:** `feat:`
+**Goal:** Complete, accessible, and responsive repository management interface.
+
+### Tasks
+- [x] Init shadcn/ui: `button`, `badge`, `dialog`, `input`, `textarea`, `label`, `separator`, `avatar`, `dropdown-menu`, `tooltip`, `card`, `skeleton`, `switch`, `form`, `select`
+- [x] `src/components/layout/providers.tsx` — `SessionProvider` + `QueryClientProvider` + `Toaster`
+- [x] `src/components/layout/app-header.tsx` — logo, user avatar, dropdown (profile, sign out)
+- [x] `src/components/auth/sign-in-button.tsx`
+- [x] `src/components/repos/search-bar.tsx` — debounced input (300ms), clear button
+- [x] `src/components/repos/filter-bar.tsx` — visibility filter + sort selector + reset
+- [x] `src/components/repos/visibility-toggle.tsx` — Switch with optimistic feedback and tooltip
+- [x] `src/components/repos/delete-repo-modal.tsx` — Dialog with repo name confirmation
+- [x] `src/components/repos/edit-repo-modal.tsx` — Dialog form (React Hook Form + Zod)
+- [x] `src/components/repos/repo-card.tsx` — card with badges, stats, action buttons
+- [ ] `src/components/repos/repo-list.tsx` — grid/list with `AnimatePresence` (Framer Motion)
+- [ ] `src/components/repos/repo-list-skeleton.tsx` — loading skeleton for repo list
+- [ ] `src/components/repos/empty-state.tsx` — shown when no repos match
+- [ ] `src/components/repos/error-state.tsx` — shown on fetch error
+- [ ] `src/app/layout.tsx` — root layout with `Providers` wrapper
+- [ ] `src/app/page.tsx` — landing page with hero, features, `SignInButton`
+- [ ] `src/app/(auth)/login/page.tsx` — minimal sign-in page
+- [ ] `src/app/(dashboard)/layout.tsx` — protected layout with `AppHeader`
+- [ ] `src/app/(dashboard)/dashboard/page.tsx` — dashboard with `<Suspense>` + SearchBar + FilterBar + RepoList
+
+### Acceptance Criteria
+- Dashboard renders repo list from GitHub API
+- Search + filter work and update the list
+- Visibility toggle works with optimistic UI
+- Edit modal pre-fills form and submits changes
+- Delete modal requires typing repo name before enabling confirm button
+- Skeleton shown during loading; empty state when filtered to zero results; error state on failure
+- Fully keyboard navigable (Tab, Enter, Escape)
+
+**Commit:** `feat: implement full UI — components, pages, and layout`
+
+---
+
+## Phase 7 — Scripts, Tests & Open Source Readiness
+
+**Commit prefix:** `chore:` / `test:`
+**Goal:** Fully automated setup, test coverage, and ready for public contributors.
+
+### Tasks
+- [ ] `scripts/setup.sh` — `bun install`, copy `.env.local.example` → `.env.local`, print next steps
+- [ ] `scripts/setup.bat` — Windows equivalent
+- [ ] `scripts/start.sh` — `bun run dev`
+- [ ] `scripts/start.bat` — Windows equivalent
+- [ ] `vitest.config.ts` — jsdom env, path aliases, coverage config
+- [ ] `playwright.config.ts` — Chromium, base URL, CI config
+- [ ] `tests/unit/utils.test.ts` — unit tests for `formatRepoCount`, `formatRelativeTime`, `slugify`
+- [ ] `tests/unit/schemas.test.ts` — Zod schema validation tests (valid + invalid cases)
+- [ ] `tests/e2e/auth.spec.ts` — e2e: unauthenticated redirect, sign-in flow
+- [ ] Add `test`, `test:e2e`, `test:coverage` scripts to `package.json`
+- [ ] Final `bun run build` passes with zero TypeScript errors
+
+### Acceptance Criteria
+- `./scripts/setup.sh` fully bootstraps a fresh clone
+- `bun run test` passes all unit tests
+- `bun run build` exits 0 with no type errors
+- Repository is ready to be made public
+
+**Commit:** `chore: add setup scripts, test infrastructure, and finalize open source prep`
+
