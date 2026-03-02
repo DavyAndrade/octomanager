@@ -69,7 +69,7 @@ export default async function HomePage() {
         <div className="flex flex-col items-center gap-4 sm:flex-row">
           <SignInButton />
           <Link
-            href="https://github.com/your-org/octomanager"
+            href="https://github.com/DavyAndrade/octomanager"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
@@ -101,7 +101,7 @@ export default async function HomePage() {
       <footer className="border-t border-border py-6 text-center text-xs text-muted-foreground">
         MIT License ·{" "}
         <Link
-          href="https://github.com/your-org/octomanager"
+          href="https://github.com/DavyAndrade/octomanager"
           className="underline underline-offset-2 hover:text-foreground"
         >
           Source code
