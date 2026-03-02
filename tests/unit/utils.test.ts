@@ -64,4 +64,16 @@ describe("formatRelativeTime()", () => {
   it("returns days ago", () => {
     expect(formatRelativeTime(new Date(now.getTime() - 2 * 86_400_000).toISOString())).toBe("2d ago");
   });
+
+  it("returns months ago", () => {
+    const d = new Date(now);
+    d.setDate(d.getDate() - 45); // ~1.5 months
+    expect(formatRelativeTime(d.toISOString())).toBe("1mo ago");
+  });
+
+  it("returns years ago", () => {
+    const d = new Date(now);
+    d.setFullYear(d.getFullYear() - 2);
+    expect(formatRelativeTime(d.toISOString())).toBe("2y ago");
+  });
 });
