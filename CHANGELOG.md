@@ -11,6 +11,17 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.4.2] — 2026-03-02
+
+### Added
+- Dev-mode auto-login via local `gh` CLI token (`GITHUB_DEV_TOKEN` env var)
+- `src/components/auth/dev-sign-in-button.tsx` — shown on login page in dev mode
+- Auth.js `Credentials` provider (`dev-github`) active only in development
+
+### Fixed
+- `AUTH_GITHUB_ID`/`SECRET` providers are now conditionally loaded (no crash when absent)
+- `AUTH_SECRET` auto-generated and written to `.env.local` on dev setup
+
 ## [0.4.1] — 2026-03-02
 
 ### Fixed
