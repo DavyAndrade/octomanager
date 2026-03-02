@@ -136,15 +136,21 @@ Development is broken into 7 phases. Each phase maps directly to one or more git
 - [x] `src/components/repos/delete-repo-modal.tsx` — Dialog with repo name confirmation
 - [x] `src/components/repos/edit-repo-modal.tsx` — Dialog form (React Hook Form + Zod)
 - [x] `src/components/repos/repo-card.tsx` — card with badges, stats, action buttons
-- [ ] `src/components/repos/repo-list.tsx` — grid/list with `AnimatePresence` (Framer Motion)
-- [ ] `src/components/repos/repo-list-skeleton.tsx` — loading skeleton for repo list
-- [ ] `src/components/repos/empty-state.tsx` — shown when no repos match
-- [ ] `src/components/repos/error-state.tsx` — shown on fetch error
-- [ ] `src/app/layout.tsx` — root layout with `Providers` wrapper
-- [ ] `src/app/page.tsx` — landing page with hero, features, `SignInButton`
-- [ ] `src/app/(auth)/login/page.tsx` — minimal sign-in page
-- [ ] `src/app/(dashboard)/layout.tsx` — protected layout with `AppHeader`
-- [ ] `src/app/(dashboard)/dashboard/page.tsx` — dashboard with `<Suspense>` + SearchBar + FilterBar + RepoList
+- [x] `src/components/repos/repo-list.tsx` — DataTable wrapper with `AnimatePresence` (Framer Motion)
+- [x] `src/components/repos/repo-list-skeleton.tsx` — loading skeleton for repo list
+- [x] `src/components/repos/empty-state.tsx` — shown when no repos match
+- [x] `src/components/repos/error-state.tsx` — shown on fetch error
+- [x] `src/components/repos/repo-table-columns.tsx` — TanStack Table column definitions
+- [x] `src/components/repos/repo-table.tsx` — DataTable with sorting, pagination, bulk row selection
+- [x] `src/components/repos/bulk-action-bar.tsx` — floating Framer Motion bar for bulk operations
+- [x] `src/components/repos/bulk-delete-modal.tsx` — bulk delete confirmation dialog
+- [x] `src/hooks/use-repo-mutations.ts` extended with `useBulkDeleteRepos`, `useBulkToggleVisibility`
+- [x] `src/store/ui-store.ts` extended with bulk selection state (`selectedRepoIds`, `toggleSelected`, `selectAll`, `clearSelection`, `bulkDeleteOpen`)
+- [x] `src/app/layout.tsx` — root layout with `Providers` wrapper
+- [x] `src/app/page.tsx` — landing page with hero, features, `SignInButton`
+- [x] `src/app/(auth)/login/page.tsx` — minimal sign-in page
+- [x] `src/app/(dashboard)/layout.tsx` — protected layout with `AppHeader`
+- [x] `src/app/(dashboard)/dashboard/page.tsx` — dashboard with `<Suspense>` + SearchBar + FilterBar + RepoList
 
 ### Acceptance Criteria
 - Dashboard renders repo list from GitHub API
@@ -165,17 +171,17 @@ Development is broken into 7 phases. Each phase maps directly to one or more git
 **Goal:** Fully automated setup, test coverage, and ready for public contributors.
 
 ### Tasks
-- [ ] `scripts/setup.sh` — `bun install`, copy `.env.local.example` → `.env.local`, print next steps
-- [ ] `scripts/setup.bat` — Windows equivalent
-- [ ] `scripts/start.sh` — `bun run dev`
-- [ ] `scripts/start.bat` — Windows equivalent
-- [ ] `vitest.config.ts` — jsdom env, path aliases, coverage config
-- [ ] `playwright.config.ts` — Chromium, base URL, CI config
-- [ ] `tests/unit/utils.test.ts` — unit tests for `formatRepoCount`, `formatRelativeTime`, `slugify`
-- [ ] `tests/unit/schemas.test.ts` — Zod schema validation tests (valid + invalid cases)
-- [ ] `tests/e2e/auth.spec.ts` — e2e: unauthenticated redirect, sign-in flow
-- [ ] Add `test`, `test:e2e`, `test:coverage` scripts to `package.json`
-- [ ] Final `bun run build` passes with zero TypeScript errors
+- [x] `scripts/setup.sh` — `bun install`, copy `.env.local.example` → `.env.local`, print next steps
+- [x] `scripts/setup.bat` — Windows equivalent
+- [x] `scripts/start.sh` — `bun run dev`
+- [x] `scripts/start.bat` — Windows equivalent
+- [x] `vitest.config.ts` — jsdom env, path aliases, unit-only include pattern, coverage config
+- [x] `playwright.config.ts` — Chromium, base URL, CI config
+- [x] `tests/unit/utils.test.ts` — unit tests for `formatRepoCount`, `formatRelativeTime`, `slugify`
+- [x] `tests/unit/schemas.test.ts` — Zod schema validation tests (valid + invalid cases)
+- [x] `tests/e2e/auth.spec.ts` — e2e: unauthenticated redirect, sign-in flow
+- [x] Add `test`, `test:e2e`, `test:coverage` scripts to `package.json`
+- [x] Final `bun run build` passes with zero TypeScript errors
 
 ### Acceptance Criteria
 - `./scripts/setup.sh` fully bootstraps a fresh clone

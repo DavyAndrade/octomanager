@@ -9,11 +9,12 @@ A modern, open-source web application for managing your GitHub repositories — 
 ## ✨ Features
 
 - 🔐 **GitHub OAuth** via Auth.js — secure, session-based authentication
-- 📦 **Repository list** with search, filtering by visibility, and sorting
-- 👁️ **Toggle visibility** (public ↔ private) with a single click and optimistic UI
+- 📦 **Repository DataTable** — sortable columns, pagination, and full-text search
+- ☑️ **Bulk select** — checkbox column, floating action bar to act on multiple repos at once
+- 👁️ **Toggle visibility** (public ↔ private) per-row or in bulk, with optimistic UI
 - ✏️ **Edit metadata** — name, description, website, topics
-- 🗑️ **Safe deletion** — requires typing the repository name to confirm
-- ⚡ **Optimistic updates** — UI responds instantly, syncs in the background
+- 🗑️ **Safe deletion** — single repo requires name confirmation; bulk delete shows a summary modal
+- ⚡ **Optimistic updates** — UI responds instantly, rolls back automatically on error
 - 🎨 **Zinc-only design** — clean, minimal aesthetic with full dark mode support
 
 ---
@@ -27,6 +28,7 @@ A modern, open-source web application for managing your GitHub repositories — 
 | Auth | [Auth.js v5](https://authjs.dev) (GitHub provider) |
 | GitHub API | [Octokit v5](https://github.com/octokit/octokit.js) |
 | Server state | [TanStack Query v5](https://tanstack.com/query) |
+| Table | [TanStack Table v8](https://tanstack.com/table) |
 | UI state | [Zustand](https://zustand-demo.pmnd.rs) |
 | UI components | [shadcn/ui](https://ui.shadcn.com) + [Tailwind CSS v4](https://tailwindcss.com) |
 | Forms | [React Hook Form](https://react-hook-form.com) + [Zod](https://zod.dev) |
@@ -151,11 +153,18 @@ bun run test:coverage # Coverage report
 ```
 src/
 ├── app/              Pages and API routes (Next.js App Router)
-├── components/       UI components (shadcn/ui + custom)
+│   ├── (auth)/       Unauthenticated pages (login)
+│   ├── (dashboard)/  Protected route group (dashboard)
+│   └── api/          Server-only route handlers
+├── components/
+│   ├── ui/           shadcn/ui primitives (do not edit directly)
+│   ├── auth/         Sign-in button
+│   ├── repos/        Repository table, bulk actions, modals
+│   └── layout/       App header, providers
 ├── hooks/            TanStack Query hooks
 ├── lib/              Core utilities (auth, octokit, query-client)
 ├── schemas/          Zod validation schemas
-├── store/            Zustand UI state
+├── store/            Zustand UI state (search, filters, bulk selection)
 ├── types/            TypeScript type definitions
 └── middleware.ts     Route protection
 ```

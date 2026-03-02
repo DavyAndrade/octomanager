@@ -14,6 +14,7 @@ OctoManager is a Next.js 16 (App Router) application that allows authenticated G
 | Auth | Auth.js v5 (next-auth beta) | `src/lib/auth.ts` |
 | GitHub API | Octokit v5 | `src/lib/octokit.ts` |
 | Server state | TanStack Query v5 | `src/hooks/` |
+| Table | TanStack Table v8 | `src/components/repos/repo-table.tsx` |
 | UI state | Zustand | `src/store/` |
 | UI components | shadcn/ui + Tailwind CSS v4 (Zinc only) | `src/components/` |
 | Forms | React Hook Form + Zod | `src/components/repos/` |
@@ -45,6 +46,19 @@ src/
 │   ├── ui/                shadcn/ui primitives — DO NOT modify manually
 │   ├── auth/              Auth-related UI (sign-in button)
 │   ├── repos/             Repository management components
+│   │   ├── repo-table-columns.tsx   Column definitions (TanStack Table)
+│   │   ├── repo-table.tsx           DataTable with sorting, pagination, row selection
+│   │   ├── repo-list.tsx            Thin wrapper rendering RepoTable
+│   │   ├── bulk-action-bar.tsx      Floating bar (Framer Motion) for bulk operations
+│   │   ├── bulk-delete-modal.tsx    Confirmation dialog for bulk delete
+│   │   ├── delete-repo-modal.tsx    Name-confirmation dialog for single delete
+│   │   ├── edit-repo-modal.tsx      RHF + Zod form for updating repo metadata
+│   │   ├── visibility-toggle.tsx    Optimistic Switch component
+│   │   ├── search-bar.tsx           Debounced search input (300 ms)
+│   │   ├── filter-bar.tsx           Visibility + sort filter controls
+│   │   ├── repo-list-skeleton.tsx   Loading skeleton
+│   │   ├── empty-state.tsx          No repos found state
+│   │   └── error-state.tsx          API error state
 │   └── layout/            App shell (header, providers)
 ├── hooks/                 TanStack Query hooks (client-side)
 ├── lib/
@@ -54,9 +68,47 @@ src/
 │   └── utils.ts           Shared utilities (cn, formatters)
 ├── schemas/               Zod validation schemas
 ├── store/                 Zustand stores (UI state only)
+│   └── ui-store.ts        search, filter, sort, modal IDs, bulk selection
 ├── types/                 TypeScript interfaces and types
 └── middleware.ts          Route protection
 ```
+
+### Zustand Store Shape
+
+`useUIStore` (`src/store/ui-store.ts`) manages **UI-only** state:
+
+```ts
+// Search / filter / sort
+searchQuery: string
+visibilityFilter: "all" | "public" | "private" | "forks" | "sources"
+sortBy: "updated" | "name" | "stars" | "forks"
+
+// Single-repo modals (identified by repo full_name string)
+editingRepoId: string | null
+deletingRepoId: string | null
+
+// Bulk selection (keyed by repo numeric id)
+selectedRepoIds: Set<number>
+toggleSelected(id: number): void
+selectAll(ids: number[]): void
+clearSelection(): void
+
+// Bulk delete modal
+bulkDeleteOpen: boolean
+openBulkDelete(): void
+closeBulkDelete(): void
+```
+
+> **Never** store `Repository` objects in Zustand. Only IDs and UI flags.
+
+### DataTable Architecture
+
+The repository list uses **TanStack Table v8** (`@tanstack/react-table`):
+
+- Column definitions live in `repo-table-columns.tsx` — exported as `buildRepoColumns(handlers)` factory.
+- `repo-table.tsx` owns the `useReactTable` instance and local state for row selection, sorting, and pagination.
+- Row selection is stored in TanStack Table's `RowSelectionState` (keyed by row index string) **and** mirrored to Zustand as `Set<number>` (keyed by `repo.id`). They are bridged by `onRowSelectionChange`.
+- `BulkActionBar` reads `selectedRepoIds.size` from Zustand — it does not directly interact with TanStack Table.
 
 ---
 
@@ -126,6 +178,12 @@ src/
 4. Add a typed Octokit wrapper in `src/lib/octokit.ts` if calling a new GitHub endpoint.
 5. Add query keys to `src/hooks/use-repos.ts` (or a new hooks file) for cache management.
 
+### Adding a bulk operation
+1. Add the mutation in `src/hooks/use-repo-mutations.ts`.
+2. Extend `useUIStore` if new UI state is needed (e.g. a new modal flag).
+3. Wire the trigger in `bulk-action-bar.tsx` — it reads `selectedRepoIds` from Zustand.
+4. If a confirmation modal is needed, follow the pattern of `bulk-delete-modal.tsx`.
+
 ### Adding a new UI feature
 1. Check `src/components/ui/` for existing shadcn/ui primitives.
 2. Create new components in `src/components/repos/`, `auth/`, or `layout/`.
@@ -167,3 +225,7 @@ bun add -d <package>     # dev dependency
 - Do not skip Zod validation on API route inputs.
 - Do not commit `.env.local` to version control — only `.env.local.example`.
 - Do not use `any` type — use `unknown` and narrow with guards or Zod.
+- Do not store `Repository` objects in Zustand — only IDs and UI flags.
+- Do not use `errorMap` in Zod schemas — this is Zod v3 API. Use `error` (Zod v4).
+- Do not add DataTable columns in `repo-table.tsx` — column definitions belong in `repo-table-columns.tsx`.
+- Do not sync TanStack Table row selection to Zustand by row index — always map to `repo.id` (number).

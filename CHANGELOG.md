@@ -9,16 +9,28 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-### Added
-- Repository list with search, visibility filter, and sort controls
-- Visibility toggle (public ↔ private) with optimistic update
-- Edit repository modal (name, description, website, topics)
-- Delete repository modal with name-confirmation safety check
-- Dashboard page with Suspense-based streaming layout
-- Landing page with hero section and sign-in CTA
-- Login page with GitHub OAuth redirect
-
 ---
+
+## [0.4.0] — 2025-07-04
+
+### Added
+- DataTable with TanStack Table: sortable columns, pagination (20/page), row selection
+- Bulk select with floating action bar (Framer Motion AnimatePresence)
+- Bulk delete modal listing all selected repositories with confirmation
+- Bulk toggle visibility (make public / make private) for selected repos
+- `useBulkDeleteRepos` and `useBulkToggleVisibility` hooks with optimistic updates
+- `selectedRepoIds` (Set<number>), `toggleSelected`, `selectAll`, `clearSelection` in Zustand store
+- Dashboard page, landing page, login page, root layout, and protected dashboard layout
+- Setup and start scripts: `setup.sh`, `setup.bat`, `start.sh`, `start.bat`
+- Vitest config with unit-only include pattern (excludes Playwright e2e)
+- Playwright config for e2e tests
+- Unit tests: 29 passing (utils + Zod schemas)
+- E2e test scaffold: `tests/e2e/auth.spec.ts`
+
+### Fixed
+- `octokit.ts`: `null` description/homepage converted to `undefined` for Octokit type compatibility
+- `schemas/repo.ts`: `deleteRepoSchema` — migrated Zod v3 `errorMap` to Zod v4 `error` option
+- Removed unused `useForm`/`zodResolver`/`deleteRepoSchema` imports from `delete-repo-modal.tsx`
 
 ## [0.3.0] — 2026-03-02
 
