@@ -51,6 +51,7 @@ export type RepoSortField =
 
 export type RepoTypeFilter =
   | "all"
+  | "owner"
   | "public"
   | "private"
   | "forks"

@@ -82,6 +82,30 @@ describe("repoListParamsSchema", () => {
     }
   });
 
+  it("accepts type=owner", () => {
+    expect(repoListParamsSchema.safeParse({ type: "owner" }).success).toBe(true);
+  });
+
+  it("accepts type=all", () => {
+    expect(repoListParamsSchema.safeParse({ type: "all" }).success).toBe(true);
+  });
+
+  it("accepts type=public", () => {
+    expect(repoListParamsSchema.safeParse({ type: "public" }).success).toBe(true);
+  });
+
+  it("accepts type=private", () => {
+    expect(repoListParamsSchema.safeParse({ type: "private" }).success).toBe(true);
+  });
+
+  it("accepts type=forks", () => {
+    expect(repoListParamsSchema.safeParse({ type: "forks" }).success).toBe(true);
+  });
+
+  it("accepts type=sources", () => {
+    expect(repoListParamsSchema.safeParse({ type: "sources" }).success).toBe(true);
+  });
+
   it("coerces string numbers to number", () => {
     const result = repoListParamsSchema.safeParse({ per_page: "50" });
     expect(result.success).toBe(true);

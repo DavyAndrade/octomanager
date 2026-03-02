@@ -38,7 +38,7 @@ export const deleteRepoSchema = z.object({
 });
 
 export const repoListParamsSchema = z.object({
-  type: z.enum(["all", "public", "private", "forks", "sources"]).optional(),
+  type: z.enum(["all", "owner", "public", "private", "forks", "sources"]).optional(),
   sort: z.enum(["full_name", "created", "updated", "pushed"]).optional(),
   direction: z.enum(["asc", "desc"]).optional(),
   per_page: z.coerce.number().min(1).max(100).optional(),
