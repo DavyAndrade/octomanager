@@ -55,15 +55,14 @@ export async function listRepos(
     type === "forks" || type === "sources" ? "all" : (type as ApiType);
 
   try {
-    const response = await octokit.rest.repos.listForAuthenticatedUser({
-      type: apiType,
-      sort,
-      direction,
-      per_page,
-      page,
-    });
+    // Paginate through ALL GitHub pages so total_count reflects the real count,
+    // not just the first 100 results. The table paginates locally.
+    const allRepos = (await octokit.paginate(
+      octokit.rest.repos.listForAuthenticatedUser,
+      { type: apiType, sort, direction, per_page: 100 }
+    )) as unknown as Repository[];
 
-    let repos = response.data as unknown as Repository[];
+    let repos = allRepos;
 
     // Client-side post-filters for types the API does not natively support
     if (type === "forks") {
@@ -82,15 +81,12 @@ export async function listRepos(
       );
     }
 
-    const linkHeader = response.headers.link ?? "";
-    const hasNextPage = linkHeader.includes('rel="next"');
-
     return {
       items: repos,
       total_count: repos.length,
       page,
       per_page,
-      has_next_page: hasNextPage,
+      has_next_page: false, // all pages already fetched
     };
   } catch (error) {
     handleGitHubError(error);
