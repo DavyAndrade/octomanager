@@ -1,5 +1,5 @@
-import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+import { NextResponse, type NextRequest } from "next/server";
+import { getToken } from "next-auth/jwt";
 import { updateRepo, deleteRepo } from "@/lib/octokit";
 import { updateRepoSchema } from "@/schemas/repo";
 import type { ApiError } from "@/types/api";
@@ -9,12 +9,12 @@ interface RouteContext {
 }
 
 export async function PATCH(
-  request: Request,
+  request: NextRequest,
   { params }: RouteContext
 ): Promise<NextResponse> {
-  const session = await auth();
+  const token = await getToken({ req: request });
 
-  if (!session?.accessToken) {
+  if (!token?.accessToken) {
     return NextResponse.json<ApiError>(
       { error: "Unauthorized" },
       { status: 401 }
@@ -49,7 +49,7 @@ export async function PATCH(
 
   try {
     const updated = await updateRepo(
-      session.accessToken,
+      token.accessToken as string,
       owner,
       repo,
       parseResult.data
@@ -68,12 +68,12 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  _request: Request,
+  request: NextRequest,
   { params }: RouteContext
 ): Promise<NextResponse> {
-  const session = await auth();
+  const token = await getToken({ req: request });
 
-  if (!session?.accessToken) {
+  if (!token?.accessToken) {
     return NextResponse.json<ApiError>(
       { error: "Unauthorized" },
       { status: 401 }
@@ -83,7 +83,7 @@ export async function DELETE(
   const { owner, repo } = await params;
 
   try {
-    await deleteRepo(session.accessToken, owner, repo);
+    await deleteRepo(token.accessToken as string, owner, repo);
     return new NextResponse(null, { status: 204 });
   } catch (error) {
     const message =
