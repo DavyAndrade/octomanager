@@ -77,7 +77,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return token;
     },
     async session({ session, token }) {
-      session.accessToken = token.accessToken as string | undefined;
+      // The accessToken is intentionally NOT exposed to the client-side session
+      // for security reasons. It is retrieved server-side directly from the JWT.
       if (session.user) {
         session.user.login = token.login as string | undefined;
       }
