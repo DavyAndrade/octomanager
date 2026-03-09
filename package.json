@@ -6,6 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "prod:local": "next build && NEXTAUTH_URL=http://localhost:3000 next start",
+    "prod:start": "NEXTAUTH_URL=http://localhost:3000 next start",
     "lint": "eslint",
     "test": "vitest run",
     "test:ui": "vitest --ui",
