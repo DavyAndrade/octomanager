@@ -73,6 +73,25 @@ src/
 └── proxy.ts               Route protection (Next.js 16 proxy convention)
 ```
 
+### Dependency Direction
+
+Dependencies must flow **inward**: outer layers may import from inner layers, never the reverse.
+
+```
+components/ → hooks/ → app/api/ → lib/ → schemas/ / types/
+```
+
+- `src/lib/` (auth, octokit, utils) must not import from `components/`, `hooks/`, or `app/`.
+- `src/hooks/` must not import from `components/` or `app/api/`.
+- `src/schemas/` and `src/types/` must not import from any other local layer.
+
+Forbidden examples:
+- An Octokit wrapper importing a React hook
+- A Zod schema importing a UI component
+- `src/lib/` importing framework-specific route objects
+
+---
+
 ### Zustand Store Shape
 
 `useUIStore` (`src/store/ui-store.ts`) manages **UI-only** state:

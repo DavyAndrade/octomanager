@@ -178,7 +178,7 @@ Contributions are welcome! Please follow these steps:
 1. Fork the repository
 2. Create a feature branch: `git checkout -b feat/my-feature`
 3. Read [`docs/CLAUDE.md`](docs/CLAUDE.md) for conventions and security guardrails
-4. Make your changes with tests
+4. Follow **Agentic TDD**: write a failing test first (RED), then the minimal implementation to pass it (GREEN), then refactor — never generate test and implementation in the same step
 5. Run `bun run lint && bun run test` before committing
 6. Open a Pull Request with a clear description
 
