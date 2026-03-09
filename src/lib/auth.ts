@@ -77,6 +77,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return token;
     },
     async session({ session, token }) {
+      // IMPORTANT: accessToken is intentionally forwarded through the session
+      // so that server-side API route handlers (using `auth()`) can access it.
+      //
+      // DO NOT remove this line or replace `auth()` with `getToken()` in API routes.
+      // Auth.js v5 changed the session cookie name from `next-auth.session-token`
+      // to `authjs.session-token`, which breaks `getToken()` from `next-auth/jwt`
+      // in this setup. The token is only readable server-side (never sent to the
+      // browser as plain text) because Next.js API routes run exclusively on the
+      // server. The session cookie itself is HttpOnly and encrypted.
       session.accessToken = token.accessToken as string | undefined;
       if (session.user) {
         session.user.login = token.login as string | undefined;
