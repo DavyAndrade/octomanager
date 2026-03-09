@@ -1,13 +1,13 @@
-import { type NextRequest, NextResponse } from "next/server";
-import { getToken } from "next-auth/jwt";
+import { NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
 import { listRepos } from "@/lib/octokit";
 import { repoListParamsSchema } from "@/schemas/repo";
 import type { ApiError } from "@/types/api";
 
-export async function GET(request: NextRequest): Promise<NextResponse> {
-  const token = await getToken({ req: request });
+export async function GET(request: Request): Promise<NextResponse> {
+  const session = await auth();
 
-  if (!token?.accessToken) {
+  if (!session?.accessToken) {
     return NextResponse.json<ApiError>(
       { error: "Unauthorized" },
       { status: 401 }
@@ -27,7 +27,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   }
 
   try {
-    const result = await listRepos(token.accessToken as string, parseResult.data);
+    const result = await listRepos(session.accessToken, parseResult.data);
     return NextResponse.json({ data: result });
   } catch (error) {
     const message =
