@@ -150,7 +150,9 @@ The repository list uses **TanStack Table v8** (`@tanstack/react-table`):
 > The GitHub OAuth access token **must never reach the client side.**
 
 - `src/lib/auth.ts` and `src/lib/octokit.ts` use `import "server-only"` to enforce this at build time.
-- The token lives in the JWT cookie, managed by Auth.js. It is accessed only via `auth()` in server contexts.
+- The token lives in the encrypted JWT cookie, managed by Auth.js. `session.accessToken` is **intentionally** forwarded in the `session` callback so that server-side route handlers can read it via `auth()`. This is safe — API routes run exclusively on the server.
+- Do **not** replace `auth()` + `session.accessToken` with `getToken()` from `next-auth/jwt`. Auth.js v5 changed the session cookie name from `next-auth.session-token` to `authjs.session-token`, which causes `getToken()` to return `null` and breaks every API route with a 401.
+- Do **not** remove `session.accessToken = token.accessToken` from the `session` callback in `auth.ts`.
 - **Never:**
   - Pass `accessToken` to a Client Component via props or context.
   - Include `accessToken` in any API response body.
@@ -218,6 +220,8 @@ bun add -d <package>     # dev dependency
 
 - Do not use Octokit in any file that doesn't have `import "server-only"`.
 - Do not remove the `auth()` guard from any API route handler.
+- Do not replace `auth()` + `session.accessToken` with `getToken()` from `next-auth/jwt` — Auth.js v5 changed the cookie name and this breaks all API routes.
+- Do not remove `session.accessToken = token.accessToken` from the `session` callback in `auth.ts`.
 - Do not replace Bun with npm, yarn, or pnpm in scripts or documentation.
 - Do not use non-Zinc Tailwind color classes (no `bg-blue-*`, `text-green-*`, etc.).
 - Do not modify files inside `src/components/ui/` directly.
@@ -229,3 +233,38 @@ bun add -d <package>     # dev dependency
 - Do not use `errorMap` in Zod schemas — this is Zod v3 API. Use `error` (Zod v4).
 - Do not add DataTable columns in `repo-table.tsx` — column definitions belong in `repo-table-columns.tsx`.
 - Do not sync TanStack Table row selection to Zustand by row index — always map to `repo.id` (number).
+- Do not generate a test and its implementation in the same step — follow Agentic TDD (see below).
+- Do not add packages or dependencies that were not explicitly requested.
+- Do not add comments that explain *what* the code does — only add comments for non-obvious *why* decisions.
+
+---
+
+## 🤖 AI Development Rules
+
+### Agentic TDD (mandatory)
+
+All code changes involving logic must follow the Red → Green → Refactor cycle:
+
+1. **RED** — Write a failing test that describes the expected behavior. Do not write implementation yet.
+2. **GREEN** — Write the minimal code required to make that test pass. Nothing more.
+3. **REFACTOR** — Improve readability and reduce complexity. All tests must remain green.
+
+> Never generate a test and its implementation in the same response or step.
+
+### Prompt discipline
+
+When working on a specific problem:
+
+- Send only the relevant file/function as context — avoid dumping entire files.
+- Request deterministic, minimal changes — prefer **SEARCH / REPLACE** patch format over full rewrites.
+- Explicit constraints must be stated: if a function must not change its signature, say so.
+
+### Anti-patterns to avoid
+
+| Anti-pattern | Correct approach |
+|---|---|
+| Duplicated logic copy-pasted across files | Extract to a shared utility or hook |
+| Over-engineered abstractions for a single use case | YAGNI — build only what is explicitly needed |
+| Excessive comments explaining trivial code | Write self-explanatory code; comment only non-obvious decisions |
+| Domain logic inside route handlers or components | Keep GitHub API logic in `src/lib/octokit.ts` |
+| Inventing new packages or dependencies | Only use packages already in `package.json` unless explicitly authorized |
