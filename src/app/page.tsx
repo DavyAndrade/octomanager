@@ -61,13 +61,13 @@ export default async function HomePage() {
         </h1>
 
         <p className="mb-10 max-w-lg text-base text-muted-foreground sm:text-lg">
-          Toggle visibility, update metadata, and delete repositories — all
-          from a single, fast interface. No manual navigation through GitHub
+          Toggle visibility, update metadata, and delete repositories — all from
+          a single, fast interface. No manual navigation through GitHub
           settings.
         </p>
 
         <div className="flex flex-col items-center gap-4 sm:flex-row">
-          <SignInButton />
+          <SignInButton className="cursor-pointer" />
           <Link
             href="https://github.com/DavyAndrade/octomanager"
             target="_blank"

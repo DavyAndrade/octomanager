@@ -50,6 +50,10 @@ const LANGUAGE_COLORS: Record<string, string> = {
   HTML: "#e34c26",
   Shell: "#89e051",
   Vue: "#41b883",
+  Dart: "#00b4ab",
+  Portugol: "#f8bd00",
+  "Jupyter Notebook": "#DA5B0B",
+  CMake: "#DA3434",
 };
 
 export function RepoCard({ repo }: RepoCardProps) {

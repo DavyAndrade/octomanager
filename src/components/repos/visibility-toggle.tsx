@@ -42,7 +42,7 @@ export function VisibilityToggle({
             onCheckedChange={handleToggle}
             disabled={isPending}
             aria-label={`Toggle repository visibility (currently ${isPrivate ? "private" : "public"})`}
-            className="data-[state=checked]:bg-zinc-700"
+            className="data-[state=checked]:bg-switch-active cursor-pointer"
           />
         </div>
       </TooltipTrigger>

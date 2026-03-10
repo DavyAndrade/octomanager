@@ -2,7 +2,6 @@
 
 import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
-import Image from "next/image";
 import { LogOut, Github, Settings } from "lucide-react";
 import {
   DropdownMenu,
@@ -19,7 +18,7 @@ export function AppHeader() {
   const { data: session } = useSession();
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
       <div className="container mx-auto flex h-14 items-center px-4">
         {/* Logo */}
         <Link
@@ -36,7 +35,7 @@ export function AppHeader() {
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="relative h-8 w-8 rounded-full"
+                  className="relative h-8 w-8 rounded-full cursor-pointer"
                 >
                   <Avatar className="h-8 w-8">
                     <AvatarImage
@@ -66,20 +65,22 @@ export function AppHeader() {
                     href={`https://github.com/${session.user.login}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2"
+                    className="flex items-center gap-2 cursor-pointer"
                   >
                     <Github className="h-4 w-4" />
                     GitHub Profile
                   </a>
                 </DropdownMenuItem>
-                <DropdownMenuItem disabled className="flex items-center gap-2">
-                  <Settings className="h-4 w-4" />
-                  Settings
-                </DropdownMenuItem>
+                <div className="cursor-not-allowed">
+                  <DropdownMenuItem disabled className="flex items-center gap-2 pointer-events-none">
+                    <Settings className="h-4 w-4" />
+                    Settings
+                  </DropdownMenuItem>
+                </div>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={() => void signOut({ callbackUrl: "/" })}
-                  className="flex items-center gap-2 text-destructive focus:text-destructive"
+                  className="flex items-center gap-2 cursor-pointer text-destructive focus:text-destructive"
                 >
                   <LogOut className="h-4 w-4" />
                   Sign out
