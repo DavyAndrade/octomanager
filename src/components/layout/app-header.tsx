@@ -36,7 +36,7 @@ export function AppHeader() {
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="relative h-8 w-8 rounded-full"
+                  className="relative h-8 w-8 rounded-full cursor-pointer"
                 >
                   <Avatar className="h-8 w-8">
                     <AvatarImage
@@ -66,20 +66,20 @@ export function AppHeader() {
                     href={`https://github.com/${session.user.login}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2"
+                    className="flex items-center gap-2 cursor-pointer"
                   >
                     <Github className="h-4 w-4" />
                     GitHub Profile
                   </a>
                 </DropdownMenuItem>
-                <DropdownMenuItem disabled className="flex items-center gap-2">
+                <DropdownMenuItem disabled className="flex items-center gap-2 cursor-not-allowed">
                   <Settings className="h-4 w-4" />
                   Settings
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={() => void signOut({ callbackUrl: "/" })}
-                  className="flex items-center gap-2 text-destructive focus:text-destructive"
+                  className="flex items-center gap-2 cursor-pointer text-destructive focus:text-destructive"
                 >
                   <LogOut className="h-4 w-4" />
                   Sign out
