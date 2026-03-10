@@ -253,7 +253,7 @@ export function buildRepoColumns(
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-7 w-7"
+                  className="h-7 w-7 cursor-pointer"
                   onClick={() => handlers.onEdit(repo)}
                   disabled={repo.archived}
                 >
@@ -269,7 +269,7 @@ export function buildRepoColumns(
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-7 w-7 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                  className="h-7 w-7 text-destructive hover:bg-destructive/10 hover:text-destructive cursor-pointer"
                   onClick={() => handlers.onDelete(repo)}
                 >
                   <Trash2 className="h-3.5 w-3.5" />

@@ -2,7 +2,6 @@
 
 import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
-import Image from "next/image";
 import { LogOut, Github, Settings } from "lucide-react";
 import {
   DropdownMenu,
@@ -19,7 +18,7 @@ export function AppHeader() {
   const { data: session } = useSession();
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
       <div className="container mx-auto flex h-14 items-center px-4">
         {/* Logo */}
         <Link
@@ -72,10 +71,12 @@ export function AppHeader() {
                     GitHub Profile
                   </a>
                 </DropdownMenuItem>
-                <DropdownMenuItem disabled className="flex items-center gap-2 cursor-not-allowed">
-                  <Settings className="h-4 w-4" />
-                  Settings
-                </DropdownMenuItem>
+                <div className="cursor-not-allowed">
+                  <DropdownMenuItem disabled className="flex items-center gap-2 pointer-events-none">
+                    <Settings className="h-4 w-4" />
+                    Settings
+                  </DropdownMenuItem>
+                </div>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={() => void signOut({ callbackUrl: "/" })}
