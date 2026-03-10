@@ -49,7 +49,7 @@ export function FilterBar() {
         value={visibilityFilter}
         onValueChange={(v) => setVisibilityFilter(v as RepoTypeFilter)}
       >
-        <SelectTrigger className="h-9 w-[140px]">
+        <SelectTrigger className="h-9 w-[140px] cursor-pointer">
           <SelectValue placeholder="Visibility" />
         </SelectTrigger>
         <SelectContent>
@@ -65,7 +65,7 @@ export function FilterBar() {
         value={sortBy}
         onValueChange={(v) => setSortBy(v as RepoSortField)}
       >
-        <SelectTrigger className="h-9 w-[180px]">
+        <SelectTrigger className="h-9 w-[180px] cursor-pointer">
           <SelectValue placeholder="Sort by" />
         </SelectTrigger>
         <SelectContent>
