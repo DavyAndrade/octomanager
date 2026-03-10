@@ -188,7 +188,7 @@ export function RepoTable({ repos }: RepoTableProps) {
           <Button
             variant="outline"
             size="icon"
-            className="h-8 w-8 transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40"
+            className="h-8 w-8 cursor-pointer transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
             aria-label="Previous page"
@@ -199,7 +199,7 @@ export function RepoTable({ repos }: RepoTableProps) {
           <Button
             variant="outline"
             size="icon"
-            className="h-8 w-8 transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40"
+            className="h-8 w-8 cursor-pointer transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
             aria-label="Next page"
