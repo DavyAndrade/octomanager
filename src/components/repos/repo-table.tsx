@@ -55,7 +55,7 @@ export function RepoTable({ repos }: RepoTableProps) {
         onEdit: (repo) => openEditModal(repo.id),
         onDelete: (repo) => openDeleteModal(repo.id),
       }),
-    [openEditModal, openDeleteModal]
+    [openEditModal, openDeleteModal],
   );
 
   const table = useReactTable({
@@ -95,18 +95,16 @@ export function RepoTable({ repos }: RepoTableProps) {
     initialState: { pagination: { pageSize: PAGE_SIZE } },
   });
 
-  const selectedRows = table
-    .getSelectedRowModel()
-    .rows.map((r) => r.original);
+  const selectedRows = table.getSelectedRowModel().rows.map((r) => r.original);
 
   const deleteTarget =
     deleteTargetId !== null
-      ? repos.find((r) => r.id === deleteTargetId) ?? null
+      ? (repos.find((r) => r.id === deleteTargetId) ?? null)
       : null;
 
   const editTarget =
     editTargetId !== null
-      ? repos.find((r) => r.id === editTargetId) ?? null
+      ? (repos.find((r) => r.id === editTargetId) ?? null)
       : null;
 
   const { pageIndex, pageSize } = table.getState().pagination;
@@ -128,15 +126,12 @@ export function RepoTable({ repos }: RepoTableProps) {
                     | { className?: string }
                     | undefined;
                   return (
-                    <TableHead
-                      key={header.id}
-                      className={meta?.className}
-                    >
+                    <TableHead key={header.id} className={meta?.className}>
                       {header.isPlaceholder
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                     </TableHead>
                   );
@@ -161,7 +156,7 @@ export function RepoTable({ repos }: RepoTableProps) {
                       <TableCell key={cell.id} className={meta?.className}>
                         {flexRender(
                           cell.column.columnDef.cell,
-                          cell.getContext()
+                          cell.getContext(),
                         )}
                       </TableCell>
                     );
@@ -193,9 +188,10 @@ export function RepoTable({ repos }: RepoTableProps) {
           <Button
             variant="outline"
             size="icon"
-            className="h-8 w-8"
+            className="h-8 w-8 transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
+            aria-label="Previous page"
           >
             <ChevronLeft className="h-4 w-4" />
             <span className="sr-only">Previous page</span>
@@ -203,9 +199,10 @@ export function RepoTable({ repos }: RepoTableProps) {
           <Button
             variant="outline"
             size="icon"
-            className="h-8 w-8"
+            className="h-8 w-8 transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
+            aria-label="Next page"
           >
             <ChevronRight className="h-4 w-4" />
             <span className="sr-only">Next page</span>
