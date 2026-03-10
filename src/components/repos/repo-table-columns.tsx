@@ -32,6 +32,9 @@ const LANGUAGE_COLORS: Record<string, string> = {
   HTML: "#e34c26",
   Shell: "#89e051",
   Vue: "#41b883",
+  Dart: "#00b4ab",
+  Portugol: "#f8bd00",
+  "Jupyter Notebook": "#DA5B0B",
 };
 
 interface ActionHandlers {
@@ -40,7 +43,7 @@ interface ActionHandlers {
 }
 
 export function buildRepoColumns(
-  handlers: ActionHandlers
+  handlers: ActionHandlers,
 ): ColumnDef<Repository>[] {
   return [
     // ── Select ────────────────────────────────────────────────────────────────
@@ -54,7 +57,7 @@ export function buildRepoColumns(
           }
           onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
           aria-label="Select all"
-          className="translate-y-0.5"
+          className="translate-y-0.5 cursor-pointer"
         />
       ),
       cell: ({ row }) => (
@@ -62,7 +65,7 @@ export function buildRepoColumns(
           checked={row.getIsSelected()}
           onCheckedChange={(value) => row.toggleSelected(!!value)}
           aria-label={`Select ${row.original.name}`}
-          className="translate-y-0.5"
+          className="translate-y-0.5 cursor-pointer"
         />
       ),
       enableSorting: false,
@@ -100,12 +103,18 @@ export function buildRepoColumns(
               </Link>
               <ExternalLink className="h-3 w-3 shrink-0 text-muted-foreground opacity-60" />
               {repo.fork && (
-                <Badge variant="outline" className="h-4 shrink-0 px-1 text-[10px] text-muted-foreground">
+                <Badge
+                  variant="outline"
+                  className="h-4 shrink-0 px-1 text-[10px] text-muted-foreground"
+                >
                   Fork
                 </Badge>
               )}
               {repo.archived && (
-                <Badge variant="secondary" className="h-4 shrink-0 px-1 text-[10px]">
+                <Badge
+                  variant="secondary"
+                  className="h-4 shrink-0 px-1 text-[10px]"
+                >
                   Archived
                 </Badge>
               )}
@@ -163,7 +172,8 @@ export function buildRepoColumns(
       header: "Language",
       cell: ({ row }) => {
         const lang = row.original.language;
-        if (!lang) return <span className="text-xs text-muted-foreground">—</span>;
+        if (!lang)
+          return <span className="text-xs text-muted-foreground">—</span>;
         const color = LANGUAGE_COLORS[lang] ?? "#71717a";
         return (
           <span className="flex items-center gap-1.5 text-xs">
