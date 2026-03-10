@@ -35,6 +35,7 @@ const LANGUAGE_COLORS: Record<string, string> = {
   Dart: "#00b4ab",
   Portugol: "#f8bd00",
   "Jupyter Notebook": "#DA5B0B",
+  CMake: "#DA3434",
 };
 
 interface ActionHandlers {

@@ -283,9 +283,44 @@ Never skip `onSettled` — it is the safety net that keeps the cache synchronize
 - **Do not** edit `repo-table.tsx` to add columns.
 - Add column definitions to `repo-table-columns.tsx` inside the `buildRepoColumns(handlers)` factory.
 
+> ⚠️ **Pitfall:** `LANGUAGE_COLORS` is intentionally duplicated in both `repo-card.tsx` (card view) and `repo-table-columns.tsx` (table view). **Always update both files** when adding or changing a language color — updating only one causes the other view to fall back to the default grey (`#71717a`).
+
+### Styling shadcn/ui primitives
+
+- shadcn/ui components like `Checkbox` do **not** include `cursor-pointer` by default. Pass it via `className` at the call site:
+
+  ```tsx
+  <Checkbox className="cursor-pointer" />
+  ```
+
+- The same applies to any other interactive primitive that ships without an explicit cursor style.
+
 ### Modifying existing mutations
 
 Always implement all four callbacks: `onMutate`, `onError`, `onSuccess`, `onSettled`. Never skip any of them.
+
+### Adding a new UI color or accent
+
+Never hardcode color values directly in component `className` props. Instead:
+
+1. Add a CSS custom property to `globals.css` under `:root` **and** `@media (prefers-color-scheme: dark)`, calibrated for readability in both themes.
+2. Expose it in the `@theme inline` block as `--color-<token-name>`.
+3. Reference it in components via the Tailwind utility class `bg-<token-name>`, `text-<token-name>`, etc.
+
+Example — the public/private Switch uses:
+```css
+/* globals.css */
+:root            { --switch-active: #3b82f6; }  /* blue-500 */
+@media (dark)    { --switch-active: #60a5fa; }  /* blue-400 */
+@theme inline    { --color-switch-active: var(--switch-active); }
+```
+
+```tsx
+/* visibility-toggle.tsx */
+<Switch className="data-[state=checked]:bg-switch-active" />
+```
+
+> This keeps all color decisions in `globals.css`, respects the Zinc-only Tailwind rule, and automatically adapts to light/dark themes.
 
 ---
 
@@ -376,6 +411,10 @@ bun add -d <package>     # dev dependency
 | Add comments that explain *what* the code does | Only comment non-obvious *why* decisions |
 | Skip `onSettled` in a mutation | Cache stays stale — always invalidate |
 | Call Octokit from a Client Component or browser-side hook | Server-only client |
+| Update `LANGUAGE_COLORS` in only one of the two files | It is duplicated in `repo-card.tsx` (card view) and `repo-table-columns.tsx` (table view) — always update both |
+| Rely on shadcn/ui to provide `cursor-pointer` on interactive primitives | It does not — pass `className="cursor-pointer"` explicitly at the call site |
+| Use raw Tailwind color classes (`bg-blue-500`, `text-red-600`) in components for semantic meaning | Define a CSS token in `globals.css` and consume it via `bg-<token>` — keeps theming centralized |
+| Leave `--destructive` in dark mode as `#7f1d1d` | That near-black red is unreadable; the correct dark-mode value is `#ef4444` |
 
 ---
 
