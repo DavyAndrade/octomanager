@@ -6,10 +6,17 @@ import { ErrorState } from "@/components/repos/error-state";
 import { RepoListSkeleton } from "@/components/repos/repo-list-skeleton";
 import { useRepos } from "@/hooks/use-repos";
 import { useUIStore } from "@/store/ui-store";
+import { useShallow } from "zustand/react/shallow";
 
 export function RepoList() {
   const { data, isLoading, isError, error, refetch } = useRepos();
-  const { searchQuery, visibilityFilter, resetFilters } = useUIStore();
+  const { searchQuery, visibilityFilter, resetFilters } = useUIStore(
+    useShallow((state) => ({
+      searchQuery: state.searchQuery,
+      visibilityFilter: state.visibilityFilter,
+      resetFilters: state.resetFilters,
+    }))
+  );
 
   if (isLoading) return <RepoListSkeleton />;
 

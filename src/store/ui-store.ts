@@ -27,6 +27,7 @@ interface UIState {
   // Actions — selection
   toggleSelected: (repoId: number) => void;
   selectAll: (repoIds: number[]) => void;
+  setSelectedRepoIds: (repoIds: Set<number>) => void;
   clearSelection: () => void;
 
   // Actions — modals
@@ -75,10 +76,9 @@ export const useUIStore = create<UIState>()(
           else next.add(repoId);
           return { selectedRepoIds: next };
         }),
-      selectAll: (repoIds) =>
-        set({ selectedRepoIds: new Set(repoIds) }),
-      clearSelection: () =>
-        set({ selectedRepoIds: new Set<number>() }),
+      selectAll: (repoIds) => set({ selectedRepoIds: new Set(repoIds) }),
+      setSelectedRepoIds: (repoIds) => set({ selectedRepoIds: repoIds }),
+      clearSelection: () => set({ selectedRepoIds: new Set<number>() }),
 
       // Modals
       openDeleteModal: (repoId) => set({ deleteTargetId: repoId }),

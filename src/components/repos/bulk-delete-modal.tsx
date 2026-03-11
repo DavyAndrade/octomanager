@@ -2,6 +2,7 @@
 
 import { useBulkDeleteRepos } from "@/hooks/use-repo-mutations";
 import { useUIStore } from "@/store/ui-store";
+import { useShallow } from "zustand/react/shallow";
 import {
   Dialog,
   DialogContent,
@@ -20,7 +21,14 @@ interface BulkDeleteModalProps {
 
 export function BulkDeleteModal({ repos }: BulkDeleteModalProps) {
   const { bulkDeleteOpen, closeBulkDelete, selectedRepoIds, clearSelection } =
-    useUIStore();
+    useUIStore(
+      useShallow((state) => ({
+        bulkDeleteOpen: state.bulkDeleteOpen,
+        closeBulkDelete: state.closeBulkDelete,
+        selectedRepoIds: state.selectedRepoIds,
+        clearSelection: state.clearSelection,
+      }))
+    );
   const { mutate: bulkDelete, isPending } = useBulkDeleteRepos();
 
   const targets = repos.filter((r) => selectedRepoIds.has(r.id));

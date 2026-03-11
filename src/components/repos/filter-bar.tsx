@@ -1,6 +1,7 @@
 "use client";
 
 import { useUIStore } from "@/store/ui-store";
+import { useShallow } from "zustand/react/shallow";
 import {
   Select,
   SelectContent,
@@ -36,7 +37,16 @@ export function FilterBar() {
     setSortBy,
     resetFilters,
     searchQuery,
-  } = useUIStore();
+  } = useUIStore(
+    useShallow((state) => ({
+      visibilityFilter: state.visibilityFilter,
+      setVisibilityFilter: state.setVisibilityFilter,
+      sortBy: state.sortBy,
+      setSortBy: state.setSortBy,
+      resetFilters: state.resetFilters,
+      searchQuery: state.searchQuery,
+    }))
+  );
 
   const isFiltered =
     visibilityFilter !== "owner" || sortBy !== "updated" || searchQuery !== "";

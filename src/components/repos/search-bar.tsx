@@ -7,7 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 export function SearchBar() {
-  const { searchQuery, setSearchQuery } = useUIStore();
+  const searchQuery = useUIStore((state) => state.searchQuery);
+  const setSearchQuery = useUIStore((state) => state.setSearchQuery);
   const [localValue, setLocalValue] = useState(searchQuery);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -24,6 +25,7 @@ export function SearchBar() {
   // Sync external changes (e.g. reset filters)
   useEffect(() => {
     if (searchQuery === "" && localValue !== "") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLocalValue("");
     }
   }, [searchQuery]); // eslint-disable-line react-hooks/exhaustive-deps
