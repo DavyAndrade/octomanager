@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useShallow } from "zustand/react/shallow";
 import {
   flexRender,
   getCoreRowModel,
@@ -43,11 +44,16 @@ export function RepoTable({ repos }: RepoTableProps) {
     openEditModal,
     deleteTargetId,
     editTargetId,
-    selectedRepoIds,
-    toggleSelected,
-    selectAll,
-    clearSelection,
-  } = useUIStore();
+    setSelectedRepoIds,
+  } = useUIStore(
+    useShallow((state) => ({
+      openDeleteModal: state.openDeleteModal,
+      openEditModal: state.openEditModal,
+      deleteTargetId: state.deleteTargetId,
+      editTargetId: state.editTargetId,
+      setSelectedRepoIds: state.setSelectedRepoIds,
+    }))
+  );
 
   const columns = useMemo(
     () =>
@@ -63,31 +69,20 @@ export function RepoTable({ repos }: RepoTableProps) {
     columns,
     state: { sorting, rowSelection },
     enableRowSelection: true,
+    getRowId: (row) => row.id.toString(),
     onSortingChange: setSorting,
     onRowSelectionChange: (updater) => {
       const next =
         typeof updater === "function" ? updater(rowSelection) : updater;
       setRowSelection(next);
 
-      // Sync TanStack selection into Zustand
-      const selectedIds = Object.keys(next)
-        .filter((k) => next[k])
-        .map((k) => repos[parseInt(k, 10)]?.id)
-        .filter((id): id is number => id !== undefined);
-
-      if (Object.keys(next).every((k) => next[k])) {
-        selectAll(repos.map((r) => r.id));
-      } else if (Object.keys(next).length === 0) {
-        clearSelection();
-      } else {
-        // Rebuild from the row indices
-        selectedIds.forEach((id) => {
-          if (!selectedRepoIds.has(id)) toggleSelected(id);
-        });
-        selectedRepoIds.forEach((id) => {
-          if (!selectedIds.includes(id)) toggleSelected(id);
-        });
-      }
+      // Sync TanStack selection into Zustand in O(n) where n is number of selected items
+      const selectedIds = new Set(
+        Object.keys(next)
+          .filter((k) => next[k])
+          .map((id) => parseInt(id, 10))
+      );
+      setSelectedRepoIds(selectedIds);
     },
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -107,7 +102,7 @@ export function RepoTable({ repos }: RepoTableProps) {
       ? (repos.find((r) => r.id === editTargetId) ?? null)
       : null;
 
-  const { pageIndex, pageSize } = table.getState().pagination;
+  const { pageIndex } = table.getState().pagination;
   const totalPages = table.getPageCount();
 
   return (

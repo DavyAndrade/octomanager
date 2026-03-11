@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useUIStore } from "@/store/ui-store";
+import { useShallow } from "zustand/react/shallow";
 import type { PaginatedResponse } from "@/types/api";
 import type { Repository } from "@/types/github";
 
@@ -39,7 +40,14 @@ async function fetchRepos(
 }
 
 export function useRepos(page = 1) {
-  const { searchQuery, visibilityFilter, sortBy, sortDirection } = useUIStore();
+  const { searchQuery, visibilityFilter, sortBy, sortDirection } = useUIStore(
+    useShallow((state) => ({
+      searchQuery: state.searchQuery,
+      visibilityFilter: state.visibilityFilter,
+      sortBy: state.sortBy,
+      sortDirection: state.sortDirection,
+    }))
+  );
 
   const params = {
     type: visibilityFilter,

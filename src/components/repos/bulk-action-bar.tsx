@@ -14,6 +14,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { useBulkToggleVisibility } from "@/hooks/use-repo-mutations";
 import { useUIStore } from "@/store/ui-store";
+import { useShallow } from "zustand/react/shallow";
 import type { Repository } from "@/types/github";
 
 interface BulkActionBarProps {
@@ -21,7 +22,12 @@ interface BulkActionBarProps {
 }
 
 export function BulkActionBar({ selectedRepos }: BulkActionBarProps) {
-  const { clearSelection, openBulkDelete } = useUIStore();
+  const { clearSelection, openBulkDelete } = useUIStore(
+    useShallow((state) => ({
+      clearSelection: state.clearSelection,
+      openBulkDelete: state.openBulkDelete,
+    }))
+  );
   const { mutate: bulkToggle, isPending } = useBulkToggleVisibility();
   const count = selectedRepos.length;
 
