@@ -195,80 +195,152 @@ Development is broken into 7 phases. Each phase maps directly to one or more git
 
 ## Backlog — Planned Features
 
-Ideas and improvements to be implemented in future branches. Listed in order of priority.
+Items below follow the same conventions as Phases 1–7 and the rules in `docs/CLAUDE.md`:
+- Each item has an explicit **Branch**, **Commit prefix**, and **Acceptance Criteria**.
+- Tasks are ordered by **Agentic TDD**: RED (failing test) → GREEN (minimal implementation) → REFACTOR.
+- State rules apply: UI state → Zustand; server/cache state → TanStack Query.
+- Zinc-only Tailwind palette. No edits to `src/components/ui/`.
+- Listed in order of priority.
 
 ---
 
 ### 🔴 P1 — Mobile Responsiveness
 
-**Goal:** The application currently breaks on small screens. Make the full UI responsive across mobile, tablet, and desktop viewports.
+**Branch:** `feat/mobile-responsive`
+**Commit prefix:** `feat:`
+**Goal:** The application currently breaks on small screens. Make the full UI responsive across mobile, tablet, and desktop viewports without altering any existing logic.
 
-**Scope:**
-- [ ] Responsive layout for the dashboard (repo table or card-based fallback on mobile)
-- [ ] `AppHeader` adapts to small screens (collapsed nav, avatar dropdown)
-- [ ] `BulkActionBar` repositioned for mobile
-- [ ] `FilterBar` wraps or collapses properly on small viewports
-- [ ] Modals (delete, edit) are usable on mobile
-- [ ] `SearchBar` full-width on mobile
+### Tasks
 
-**Acceptance Criteria:**
-- No horizontal overflow at 375px (iPhone SE) or 390px (iPhone 14)
-- All interactive elements are reachable and tappable (min 44×44px touch targets)
-- `bun run test` still passes after changes
+#### RED — Playwright e2e tests (write first, before any implementation)
+- [ ] `tests/e2e/responsive.spec.ts` — viewport 375px: assert no horizontal overflow (`document.documentElement.scrollWidth <= 375`)
+- [ ] assert `AppHeader` renders without overflow at 375px
+- [ ] assert all modal triggers (edit, delete) are reachable and have `min-height: 44px`
+
+#### GREEN — Implementation (only after tests are written and failing)
+- [ ] `src/components/repos/repo-table.tsx` — hide less-critical columns on small screens (use `hidden sm:table-cell` pattern); consider card-based fallback below `sm` breakpoint
+- [ ] `src/components/layout/app-header.tsx` — collapse nav to hamburger/avatar-only below `sm`; no new state needed beyond existing Zustand store
+- [ ] `src/components/repos/bulk-action-bar.tsx` — ensure the floating bar does not overflow at narrow widths
+- [ ] `src/components/repos/filter-bar.tsx` — wrap selects on small viewports (`flex-wrap` already present; verify it is sufficient)
+- [ ] `src/components/repos/search-bar.tsx` — full-width on mobile (`w-full sm:w-auto`)
+- [ ] `src/components/repos/delete-repo-modal.tsx`, `edit-repo-modal.tsx` — ensure dialogs are scrollable and inputs are tappable on mobile
+
+#### REFACTOR
+- [ ] Extract any repeated breakpoint class groups into a shared constant or Tailwind `@apply` block in `globals.css` if it reduces duplication meaningfully
+
+### Architectural Notes
+- Use only Tailwind responsive prefixes (`sm:`, `md:`, `lg:`). No inline styles.
+- Zinc palette only — no new color utilities.
+- Do not add new packages.
+
+### Acceptance Criteria
+- No horizontal overflow (`scrollWidth > clientWidth`) at 375px (iPhone SE) or 390px (iPhone 14)
+- All interactive elements meet 44×44px minimum touch target
+- `bun run test` (Vitest) and `bun run test:e2e` (Playwright) pass
+- `bun run build` exits 0 with no TypeScript errors
 
 ---
 
 ### 🟡 P2 — Pagination Numbers
 
-**Goal:** Improve navigation UX by showing page number buttons alongside the existing previous/next controls, similar to GitHub's pagination bar.
+**Branch:** `feat/pagination-numbers`
+**Commit prefix:** `feat:`
+**Goal:** Improve navigation UX by showing numbered page buttons alongside the existing prev/next controls, matching GitHub's pagination style.
 
-**Scope:**
-- [ ] Render numbered page buttons between prev/next arrows
-- [ ] Highlight the active page
-- [ ] Ellipsis (`…`) for large page ranges (e.g. 1 2 … 7 8 9 … 24 25)
-- [ ] Keyboard-accessible
+### Tasks
 
-**Acceptance Criteria:**
-- Clicking a page number navigates directly to that page
-- Active page is visually distinct
-- Works correctly with the existing `useRepos` pagination state
+#### RED — Unit tests (write first)
+- [ ] `tests/unit/pagination.test.tsx` — test a `buildPageRange(current, total)` utility:
+  - returns `[1, 2, 3, '…', 9, 10]` for current=1, total=10
+  - returns `[1, '…', 4, 5, 6, '…', 10]` for current=5, total=10
+  - returns `[1, 2, 3, 4, 5]` for total≤5 (no ellipsis)
+- [ ] test that clicking a page number calls `setPage(n)` (mock Zustand action)
+
+#### GREEN — Implementation
+- [ ] `src/lib/utils.ts` — add `buildPageRange(current: number, total: number): (number | '…')[]`
+- [ ] `src/components/repos/repo-table.tsx` — replace or extend the existing prev/next footer with numbered buttons using `buildPageRange`; active page uses `variant="default"`, others use `variant="outline"`; ellipsis rendered as a non-interactive `<span>`
+
+#### REFACTOR
+- [ ] Extract the pagination row into `src/components/repos/pagination-bar.tsx` if it grows beyond ~30 lines
+
+### Architectural Notes
+- Page state lives in `repo-table.tsx` (TanStack Table's `pagination` state) — do **not** move it to Zustand.
+- `buildPageRange` is a pure utility: add it to `src/lib/utils.ts` alongside existing formatters.
+- Use only existing shadcn/ui `Button` — do not install a pagination package.
+
+### Acceptance Criteria
+- Numbered buttons appear between prev/next arrows
+- Active page is visually distinct (`variant="default"`)
+- Ellipsis shown for ranges with > 5 pages
+- Clicking any number navigates directly to that page
+- `bun run test` passes including the new `pagination.test.tsx`
 
 ---
 
 ### 🟢 P3 — "Buy Me a Coffee" on Landing Page
 
-**Goal:** Replace the current "Open Source" highlight element on the landing page (`src/app/page.tsx`) with a "Buy Me a Coffee" link/button, so visitors can contribute financially.
+**Branch:** `feat/buy-me-a-coffee`
+**Commit prefix:** `feat:`
+**Goal:** Replace the "Open Source" highlight on the landing page with a "Buy Me a Coffee" link so visitors can contribute financially.
 
-**Scope:**
-- [ ] Add Buy Me a Coffee button/badge to the landing page hero or footer area
-- [ ] Apply the same badge to the GitHub repository `README.md`
-- [ ] Style consistent with the existing Zinc design (or use the official BMAC badge)
+### Tasks
 
-**Acceptance Criteria:**
-- Link opens the correct Buy Me a Coffee profile in a new tab
+#### RED — Unit/component test (write first)
+- [ ] `tests/unit/components.test.tsx` — add: renders a link with `href` containing `buymeacoffee.com` and `target="_blank"` on the landing page
+
+#### GREEN — Implementation
+- [ ] `src/app/page.tsx` — replace the "Open Source" feature highlight with a BMAC button/badge; use an `<a>` with `target="_blank" rel="noopener noreferrer"`
+- [ ] `README.md` — add BMAC badge below the project title
+
+#### REFACTOR
+- [ ] If the badge is reused elsewhere, extract to `src/components/ui/buy-me-a-coffee.tsx`
+
+### Architectural Notes
+- `src/app/page.tsx` is a Server Component — keep it as RSC (no `"use client"`).
+- Style using Zinc tokens or the official BMAC badge image. No new color utilities.
+- No new packages.
+
+### Acceptance Criteria
+- Link opens the correct Buy Me a Coffee profile URL in a new tab
+- `rel="noopener noreferrer"` present on the anchor
 - Renders correctly in both light and dark mode
-- Does not break existing landing page layout
+- `bun run test` passes including the new test
 
 ---
 
 ### 🟢 P4 — GitHub-style Filter Revamp
 
-**Goal:** Align the repository filters with GitHub's own filter bar: three distinct dropdowns for **Type**, **Language**, and **Sort**, replacing the current two-dropdown layout.
+**Branch:** `feat/github-style-filters`
+**Commit prefix:** `feat:`
+**Goal:** Replace the current two-dropdown filter bar (Visibility + Sort) with three dropdowns matching GitHub's layout: **Type**, **Language**, and **Sort**.
 
-**Scope:**
-- [ ] **Type** dropdown — `All`, `Public`, `Private`, `Sources`, `Forks` (rename/consolidate from current visibility filter; remove "My repos" / "All (+ collabs)" options)
-- [ ] **Language** dropdown — detect languages present in the current repo list and render them as filter options (client-side, derived from `repository.language`); include an "All" default
-- [ ] **Sort** dropdown — `Recently pushed` (default), `Recently updated`, `Name`, `Stars` (new — map to `stargazers_count` for client-side sort or use GitHub API `sort=stars` if supported)
-- [ ] Update `ui-store.ts` — add `languageFilter` state + `setLanguageFilter` + reset
-- [ ] Update `use-repos.ts` — apply language filter (client-side post-filter)
-- [ ] Update `filter-bar.tsx` — three selects matching GitHub layout
-- [ ] Update `repoListParamsSchema` if new API params are introduced
-- [ ] Update all affected unit tests
+### Tasks
 
-**Acceptance Criteria:**
-- Language dropdown only shows languages actually present in the fetched repo list
-- Selecting a language hides repos that don't match
-- Sort by Stars orders repos by `stargazers_count` (descending)
-- Reset button appears only when any filter differs from its default
-- All existing unit tests pass; new tests cover language filter state and derived language list
+#### RED — Unit tests (write first)
+- [ ] `tests/unit/store.test.ts` — add: `languageFilter` defaults to `""` (all); `setLanguageFilter` updates it; `resetFilters` resets it to `""`
+- [ ] `tests/unit/search-filter.test.tsx` — add: `FilterBar` renders three selects (Type, Language, Sort); Language dropdown shows only languages derived from the repo list; Reset appears only when any filter differs from default
+
+#### GREEN — Implementation (only after above tests are red)
+- [ ] `src/types/github.ts` — add `RepoTypeFilter` values if changed; add `RepoLanguageFilter = string`
+- [ ] `src/store/ui-store.ts` — add `languageFilter: string`, `setLanguageFilter(l: string): void`; update `resetFilters` to reset it; update `defaultState`
+- [ ] `src/hooks/use-repos.ts` — derive available languages from the paginated result (`useMemo` over `data.items`); apply `languageFilter` as a client-side post-filter (do **not** add a new API param — `repository.language` is already in the response)
+- [ ] `src/components/repos/filter-bar.tsx` — replace two selects with three: Type (consolidates current visibility options into `all | public | private | sources | forks`), Language (dynamic, from hook), Sort (`pushed` | `updated` | `full_name` | `stars`); update `isFiltered` logic
+- [ ] `src/lib/octokit.ts` — no change needed for language (client-side filter); if Sort by Stars is desired server-side, GitHub API does not support `sort=stars` for `listForAuthenticatedUser` — keep stars sort as client-side only
+- [ ] Update all references to old `visibilityFilter` values (`"owner"`, `"all"`) if renamed
+
+#### REFACTOR
+- [ ] If `filter-bar.tsx` exceeds ~120 lines, extract each select into its own sub-component under `src/components/repos/`
+
+### Architectural Notes
+- **Language filter is client-side only** — derived from `repository.language` in the already-fetched page. Do not add a `language` param to the API route or Zod schema.
+- **Stars sort is client-side only** — GitHub API `listForAuthenticatedUser` does not accept `sort=stars`. Sort by `stargazers_count` after fetching.
+- UI state (`languageFilter`) → Zustand only. Never cache filter state in TanStack Query.
+- Do not store `Repository` objects in Zustand — derive language list from TanStack Query cache in the hook.
+
+### Acceptance Criteria
+- Language dropdown shows only languages present in the current fetched page
+- Selecting a language hides non-matching repos without a new network request
+- Sort by Stars orders by `stargazers_count` descending
+- Reset button appears only when Type ≠ `all`, Language ≠ `""`, Sort ≠ `pushed`, or search ≠ `""`
+- `bun run test` passes including all new and updated tests
 
