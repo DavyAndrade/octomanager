@@ -4,7 +4,7 @@ import { useUIStore } from "@/store/ui-store";
 const initialState = {
   searchQuery: "",
   visibilityFilter: "owner",
-  sortBy: "updated",
+  sortBy: "pushed",
   sortDirection: "desc",
   selectedRepoIds: new Set<number>(),
   deleteTargetId: null,
@@ -80,7 +80,7 @@ describe("resetFilters", () => {
       useUIStore.getState();
     expect(searchQuery).toBe("");
     expect(visibilityFilter).toBe("owner");
-    expect(sortBy).toBe("updated");
+    expect(sortBy).toBe("pushed");
     expect(sortDirection).toBe("desc");
   });
 });
@@ -181,7 +181,7 @@ describe("initial state", () => {
     const state = useUIStore.getState();
     expect(state.searchQuery).toBe("");
     expect(state.visibilityFilter).toBe("owner");
-    expect(state.sortBy).toBe("updated");
+    expect(state.sortBy).toBe("pushed");
     expect(state.sortDirection).toBe("desc");
     expect(state.selectedRepoIds.size).toBe(0);
     expect(state.deleteTargetId).toBeNull();

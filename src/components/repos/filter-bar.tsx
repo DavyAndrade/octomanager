@@ -23,9 +23,9 @@ const VISIBILITY_OPTIONS: { value: RepoTypeFilter; label: string }[] = [
 ];
 
 const SORT_OPTIONS: { value: RepoSortField; label: string }[] = [
+  { value: "pushed", label: "Recently pushed" },
   { value: "updated", label: "Recently updated" },
   { value: "created", label: "Newest" },
-  { value: "pushed", label: "Recently pushed" },
   { value: "full_name", label: "Name" },
 ];
 
@@ -49,7 +49,7 @@ export function FilterBar() {
   );
 
   const isFiltered =
-    visibilityFilter !== "owner" || sortBy !== "updated" || searchQuery !== "";
+    visibilityFilter !== "owner" || sortBy !== "pushed" || searchQuery !== "";
 
   return (
     <div className="flex flex-wrap items-center gap-2">
