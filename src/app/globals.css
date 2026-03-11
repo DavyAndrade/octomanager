@@ -97,6 +97,24 @@
   border-color: var(--border);
 }
 
+/* ─── Sonner: close button top-right, high contrast ─────────────────── */
+[data-sonner-toast] {
+  --toast-close-button-start: unset;
+  --toast-close-button-end: 0;
+  --toast-close-button-transform: translate(35%, -35%);
+}
+
+[data-sonner-toast] [data-close-button] {
+  background: var(--foreground) !important;
+  color: var(--background) !important;
+  border-color: var(--foreground) !important;
+}
+
+[data-sonner-toast] [data-close-button]:hover {
+  background: var(--muted-foreground) !important;
+  border-color: var(--muted-foreground) !important;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
