@@ -41,7 +41,7 @@ export async function listRepos(
   const octokit = getOctokit(token);
   const {
     type = "owner",
-    sort = "updated",
+    sort = "pushed",
     direction = "desc",
     per_page = 30,
     page = 1,
