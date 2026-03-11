@@ -249,3 +249,26 @@ Ideas and improvements to be implemented in future branches. Listed in order of 
 - Renders correctly in both light and dark mode
 - Does not break existing landing page layout
 
+---
+
+### 🟢 P4 — GitHub-style Filter Revamp
+
+**Goal:** Align the repository filters with GitHub's own filter bar: three distinct dropdowns for **Type**, **Language**, and **Sort**, replacing the current two-dropdown layout.
+
+**Scope:**
+- [ ] **Type** dropdown — `All`, `Public`, `Private`, `Sources`, `Forks` (rename/consolidate from current visibility filter; remove "My repos" / "All (+ collabs)" options)
+- [ ] **Language** dropdown — detect languages present in the current repo list and render them as filter options (client-side, derived from `repository.language`); include an "All" default
+- [ ] **Sort** dropdown — `Recently pushed` (default), `Recently updated`, `Name`, `Stars` (new — map to `stargazers_count` for client-side sort or use GitHub API `sort=stars` if supported)
+- [ ] Update `ui-store.ts` — add `languageFilter` state + `setLanguageFilter` + reset
+- [ ] Update `use-repos.ts` — apply language filter (client-side post-filter)
+- [ ] Update `filter-bar.tsx` — three selects matching GitHub layout
+- [ ] Update `repoListParamsSchema` if new API params are introduced
+- [ ] Update all affected unit tests
+
+**Acceptance Criteria:**
+- Language dropdown only shows languages actually present in the fetched repo list
+- Selecting a language hides repos that don't match
+- Sort by Stars orders repos by `stargazers_count` (descending)
+- Reset button appears only when any filter differs from its default
+- All existing unit tests pass; new tests cover language filter state and derived language list
+
