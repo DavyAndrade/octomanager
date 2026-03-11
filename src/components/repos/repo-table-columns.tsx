@@ -82,7 +82,7 @@ export function buildRepoColumns(
         <Button
           variant="ghost"
           size="sm"
-          className="-ml-3 h-8 gap-1"
+          className="-ml-3 h-8 gap-1 cursor-pointer"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Repository
@@ -197,7 +197,7 @@ export function buildRepoColumns(
         <Button
           variant="ghost"
           size="sm"
-          className="-ml-3 h-8 gap-1"
+          className="-ml-3 h-8 gap-1 cursor-pointer"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Stars
@@ -220,7 +220,7 @@ export function buildRepoColumns(
         <Button
           variant="ghost"
           size="sm"
-          className="-ml-3 h-8 gap-1"
+          className="-ml-3 h-8 gap-1 cursor-pointer"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Updated
