@@ -191,3 +191,61 @@ Development is broken into 7 phases. Each phase maps directly to one or more git
 
 **Commit:** `chore: add setup scripts, test infrastructure, and finalize open source prep`
 
+---
+
+## Backlog — Planned Features
+
+Ideas and improvements to be implemented in future branches. Listed in order of priority.
+
+---
+
+### 🔴 P1 — Mobile Responsiveness
+
+**Goal:** The application currently breaks on small screens. Make the full UI responsive across mobile, tablet, and desktop viewports.
+
+**Scope:**
+- [ ] Responsive layout for the dashboard (repo table or card-based fallback on mobile)
+- [ ] `AppHeader` adapts to small screens (collapsed nav, avatar dropdown)
+- [ ] `BulkActionBar` repositioned for mobile
+- [ ] `FilterBar` wraps or collapses properly on small viewports
+- [ ] Modals (delete, edit) are usable on mobile
+- [ ] `SearchBar` full-width on mobile
+
+**Acceptance Criteria:**
+- No horizontal overflow at 375px (iPhone SE) or 390px (iPhone 14)
+- All interactive elements are reachable and tappable (min 44×44px touch targets)
+- `bun run test` still passes after changes
+
+---
+
+### 🟡 P2 — Pagination Numbers
+
+**Goal:** Improve navigation UX by showing page number buttons alongside the existing previous/next controls, similar to GitHub's pagination bar.
+
+**Scope:**
+- [ ] Render numbered page buttons between prev/next arrows
+- [ ] Highlight the active page
+- [ ] Ellipsis (`…`) for large page ranges (e.g. 1 2 … 7 8 9 … 24 25)
+- [ ] Keyboard-accessible
+
+**Acceptance Criteria:**
+- Clicking a page number navigates directly to that page
+- Active page is visually distinct
+- Works correctly with the existing `useRepos` pagination state
+
+---
+
+### 🟢 P3 — "Buy Me a Coffee" on Landing Page
+
+**Goal:** Replace the current "Open Source" highlight element on the landing page (`src/app/page.tsx`) with a "Buy Me a Coffee" link/button, so visitors can contribute financially.
+
+**Scope:**
+- [ ] Add Buy Me a Coffee button/badge to the landing page hero or footer area
+- [ ] Apply the same badge to the GitHub repository `README.md`
+- [ ] Style consistent with the existing Zinc design (or use the official BMAC badge)
+
+**Acceptance Criteria:**
+- Link opens the correct Buy Me a Coffee profile in a new tab
+- Renders correctly in both light and dark mode
+- Does not break existing landing page layout
+
