@@ -9,7 +9,7 @@ beforeEach(() => {
   useUIStore.setState({
     searchQuery: "",
     visibilityFilter: "owner",
-    sortBy: "updated",
+  sortBy: "pushed",
     sortDirection: "desc",
     selectedRepoIds: new Set(),
     deleteTargetId: null,
@@ -101,7 +101,7 @@ describe("FilterBar", () => {
     render(<FilterBar />);
     // My repos option is the default trigger text
     expect(screen.getByText("My repos")).toBeInTheDocument();
-    expect(screen.getByText("Recently updated")).toBeInTheDocument();
+    expect(screen.getByText("Recently pushed")).toBeInTheDocument();
   });
 
   it("does not show Reset button when using defaults", () => {
