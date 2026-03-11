@@ -64,7 +64,7 @@ export function FilterBar() {
         </SelectTrigger>
         <SelectContent>
           {VISIBILITY_OPTIONS.map((opt) => (
-            <SelectItem key={opt.value} value={opt.value}>
+            <SelectItem key={opt.value} value={opt.value} className="cursor-pointer">
               {opt.label}
             </SelectItem>
           ))}
@@ -80,7 +80,7 @@ export function FilterBar() {
         </SelectTrigger>
         <SelectContent>
           {SORT_OPTIONS.map((opt) => (
-            <SelectItem key={opt.value} value={opt.value}>
+            <SelectItem key={opt.value} value={opt.value} className="cursor-pointer">
               {opt.label}
             </SelectItem>
           ))}
