@@ -28,8 +28,8 @@ function handleGitHubError(error: unknown): never {
       throw new Error("Forbidden: insufficient GitHub permissions");
     }
     if (status === 404) throw new Error("Repository not found");
-    if (status === 422) throw new Error(`Validation failed: ${message}`);
-    throw new Error(`GitHub API error (${status}): ${message}`);
+    if (status === 422) throw new Error("Validation failed: Please check your input");
+    throw new Error(`GitHub API error (${status})`);
   }
   throw new Error("An unexpected error occurred");
 }

@@ -1,0 +1,4 @@
+## 2025-05-15 - [Authentication] Restricted use of `getToken` with Auth.js v5
+**Vulnerability:** Attempted to remove `accessToken` from the client-side session to mitigate XSS impact.
+**Learning:** In Auth.js v5 (NextAuth v5), the default session cookie names changed (e.g., to `authjs.session-token`). Standard `getToken` utilities may fail to retrieve the token server-side without manual configuration of salts/secret/cookie names. The existing architecture intentionally forwards the token through the encrypted, HttpOnly session to ensure server-side API routes can access it via `auth()`.
+**Prevention:** Do not replace `auth()` with `getToken()` in this codebase without addressing the cookie name compatibility. Prioritize server-side only access to tokens even if they exist in the session object.
