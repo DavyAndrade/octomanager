@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useDeleteRepo } from "@/hooks/use-repo-mutations";
 import { useUIStore } from "@/store/ui-store";
 import {
@@ -18,24 +18,31 @@ import { AlertTriangle } from "lucide-react";
 import type { Repository } from "@/types/github";
 
 interface DeleteRepoModalProps {
-  repo: Repository;
+  repos: Repository[];
 }
 
-export function DeleteRepoModal({ repo }: DeleteRepoModalProps) {
+export function DeleteRepoModal({ repos }: DeleteRepoModalProps) {
   const { deleteTargetId, closeDeleteModal } = useUIStore();
   const { mutate: deleteRepo, isPending } = useDeleteRepo();
   const [confirmName, setConfirmName] = useState("");
 
-  const isOpen = deleteTargetId === repo.id;
-  const isConfirmed = confirmName === repo.name;
+  const repo = useMemo(
+    () => (deleteTargetId ? repos.find((r) => r.id === deleteTargetId) : null),
+    [deleteTargetId, repos],
+  );
+
+  const isOpen = !!repo;
+  const isConfirmed = confirmName === repo?.name;
 
   const handleDelete = () => {
-    if (!isConfirmed) return;
+    if (!isConfirmed || !repo) return;
     deleteRepo(
       { owner: repo.owner.login, repo: repo.name, repoId: repo.id },
-      { onSuccess: closeDeleteModal }
+      { onSuccess: closeDeleteModal },
     );
   };
+
+  if (!repo) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && closeDeleteModal()}>

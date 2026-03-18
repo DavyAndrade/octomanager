@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { Switch } from "@/components/ui/switch";
 import { useToggleVisibility } from "@/hooks/use-repo-mutations";
 import { Lock, Globe } from "lucide-react";
@@ -16,7 +17,7 @@ interface VisibilityToggleProps {
   isPrivate: boolean;
 }
 
-export function VisibilityToggle({
+export const VisibilityToggle = memo(function VisibilityToggle({
   repoId,
   owner,
   repo,
@@ -53,4 +54,4 @@ export function VisibilityToggle({
       </TooltipContent>
     </Tooltip>
   );
-}
+});

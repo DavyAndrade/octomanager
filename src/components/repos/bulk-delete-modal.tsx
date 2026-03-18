@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { useBulkDeleteRepos } from "@/hooks/use-repo-mutations";
 import { useUIStore } from "@/store/ui-store";
 import { useShallow } from "zustand/react/shallow";
@@ -31,7 +32,10 @@ export function BulkDeleteModal({ repos }: BulkDeleteModalProps) {
     );
   const { mutate: bulkDelete, isPending } = useBulkDeleteRepos();
 
-  const targets = repos.filter((r) => selectedRepoIds.has(r.id));
+  const targets = useMemo(
+    () => (bulkDeleteOpen ? repos.filter((r) => selectedRepoIds.has(r.id)) : []),
+    [bulkDeleteOpen, repos, selectedRepoIds],
+  );
 
   const handleConfirm = () => {
     bulkDelete(
