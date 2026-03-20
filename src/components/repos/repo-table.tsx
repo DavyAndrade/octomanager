@@ -37,23 +37,26 @@ interface RepoTableProps {
 
 export function RepoTable({ repos }: RepoTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
-  const {
-    openDeleteModal,
-    openEditModal,
-    deleteTargetId,
-    editTargetId,
-    setSelectedRepoIds,
-  } = useUIStore(
-    useShallow((state) => ({
-      openDeleteModal: state.openDeleteModal,
-      openEditModal: state.openEditModal,
-      deleteTargetId: state.deleteTargetId,
-      editTargetId: state.editTargetId,
-      setSelectedRepoIds: state.setSelectedRepoIds,
-    }))
-  );
+  const { openDeleteModal, openEditModal, selectedRepoIds, setSelectedRepoIds } =
+    useUIStore(
+      useShallow((state) => ({
+        openDeleteModal: state.openDeleteModal,
+        openEditModal: state.openEditModal,
+        selectedRepoIds: state.selectedRepoIds,
+        setSelectedRepoIds: state.setSelectedRepoIds,
+      })),
+    );
+
+  // Optimization: Derive TanStack selection state from Zustand O(N) where N is number of selected items.
+  // This avoids maintaining duplicate state and keeps the Zustand store as the single source of truth.
+  const rowSelection = useMemo(() => {
+    const selection: RowSelectionState = {};
+    selectedRepoIds.forEach((id) => {
+      selection[id.toString()] = true;
+    });
+    return selection;
+  }, [selectedRepoIds]);
 
   const columns = useMemo(
     () =>
@@ -74,14 +77,15 @@ export function RepoTable({ repos }: RepoTableProps) {
     onRowSelectionChange: (updater) => {
       const next =
         typeof updater === "function" ? updater(rowSelection) : updater;
-      setRowSelection(next);
 
-      // Sync TanStack selection into Zustand in O(n) where n is number of selected items
-      const selectedIds = new Set(
-        Object.keys(next)
-          .filter((k) => next[k])
-          .map((id) => parseInt(id, 10))
-      );
+      // Optimization: Sync TanStack selection into Zustand in O(N) where N is number of selected items.
+      // This batch update prevents O(N^2) update loops and excessive re-renders.
+      const selectedIds = new Set<number>();
+      for (const id in next) {
+        if (next[id]) {
+          selectedIds.add(parseInt(id, 10));
+        }
+      }
       setSelectedRepoIds(selectedIds);
     },
     getCoreRowModel: getCoreRowModel(),
@@ -91,16 +95,6 @@ export function RepoTable({ repos }: RepoTableProps) {
   });
 
   const selectedRows = table.getSelectedRowModel().rows.map((r) => r.original);
-
-  const deleteTarget =
-    deleteTargetId !== null
-      ? (repos.find((r) => r.id === deleteTargetId) ?? null)
-      : null;
-
-  const editTarget =
-    editTargetId !== null
-      ? (repos.find((r) => r.id === editTargetId) ?? null)
-      : null;
 
   const { pageIndex } = table.getState().pagination;
   const totalPages = table.getPageCount();
@@ -206,8 +200,8 @@ export function RepoTable({ repos }: RepoTableProps) {
       </div>
 
       {/* Modals */}
-      {deleteTarget && <DeleteRepoModal repo={deleteTarget} />}
-      {editTarget && <EditRepoModal repo={editTarget} />}
+      <DeleteRepoModal repos={repos} />
+      <EditRepoModal repos={repos} />
       <BulkDeleteModal repos={repos} />
     </div>
   );

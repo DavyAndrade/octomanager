@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useUpdateRepo } from "@/hooks/use-repo-mutations";
@@ -29,28 +29,33 @@ import { Textarea } from "@/components/ui/textarea";
 import type { Repository } from "@/types/github";
 
 interface EditRepoModalProps {
-  repo: Repository;
+  repos: Repository[];
 }
 
-export function EditRepoModal({ repo }: EditRepoModalProps) {
+export function EditRepoModal({ repos }: EditRepoModalProps) {
   const { editTargetId, closeEditModal } = useUIStore();
   const { mutate: updateRepo, isPending } = useUpdateRepo();
 
-  const isOpen = editTargetId === repo.id;
+  const repo = useMemo(
+    () => (editTargetId ? repos.find((r) => r.id === editTargetId) : null),
+    [editTargetId, repos],
+  );
+
+  const isOpen = !!repo;
 
   const form = useForm<UpdateRepoInput>({
     resolver: zodResolver(updateRepoSchema),
     defaultValues: {
-      name: repo.name,
-      description: repo.description ?? "",
-      homepage: repo.homepage ?? "",
-      topics: repo.topics ?? [],
+      name: repo?.name ?? "",
+      description: repo?.description ?? "",
+      homepage: repo?.homepage ?? "",
+      topics: repo?.topics ?? [],
     },
   });
 
   // Reset form when modal opens with fresh data
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && repo) {
       form.reset({
         name: repo.name,
         description: repo.description ?? "",
@@ -61,6 +66,7 @@ export function EditRepoModal({ repo }: EditRepoModalProps) {
   }, [isOpen, repo, form]);
 
   const onSubmit = (data: UpdateRepoInput) => {
+    if (!repo) return;
     // Only send changed fields
     const payload: UpdateRepoInput = {};
     if (data.name !== repo.name) payload.name = data.name;
@@ -72,7 +78,10 @@ export function EditRepoModal({ repo }: EditRepoModalProps) {
     // Topics: compare as sorted arrays
     const newTopics = data.topics ?? [];
     const oldTopics = repo.topics ?? [];
-    if (JSON.stringify([...newTopics].sort()) !== JSON.stringify([...oldTopics].sort())) {
+    if (
+      JSON.stringify([...newTopics].sort()) !==
+      JSON.stringify([...oldTopics].sort())
+    ) {
       payload.topics = newTopics;
     }
 
@@ -83,9 +92,11 @@ export function EditRepoModal({ repo }: EditRepoModalProps) {
 
     updateRepo(
       { owner: repo.owner.login, repo: repo.name, repoId: repo.id, payload },
-      { onSuccess: closeEditModal }
+      { onSuccess: closeEditModal },
     );
   };
+
+  if (!repo) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && closeEditModal()}>
