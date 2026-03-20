@@ -6,16 +6,23 @@ export const repoTopicSchema = z
   .max(50)
   .regex(/^[a-z0-9-]+$/, "Topics must be lowercase alphanumeric or hyphens");
 
+export const ownerParamSchema = z
+  .string()
+  .min(1)
+  .max(100)
+  .regex(/^[a-zA-Z0-9-]+$/, "Invalid owner name");
+
+export const repoParamSchema = z
+  .string()
+  .min(1)
+  .max(100)
+  .regex(
+    /^[a-zA-Z0-9._-]+$/,
+    "Name can only contain letters, numbers, hyphens, underscores, and dots"
+  );
+
 export const updateRepoSchema = z.object({
-  name: z
-    .string()
-    .min(1, "Repository name is required")
-    .max(100, "Repository name must be 100 characters or less")
-    .regex(
-      /^[a-zA-Z0-9._-]+$/,
-      "Name can only contain letters, numbers, hyphens, underscores, and dots"
-    )
-    .optional(),
+  name: repoParamSchema.optional(),
   description: z
     .string()
     .max(350, "Description must be 350 characters or less")
@@ -32,6 +39,7 @@ export const updateRepoSchema = z.object({
 });
 
 export const deleteRepoSchema = z.object({
+  name: repoParamSchema,
   confirm: z.literal(true, {
     error: "You must confirm deletion",
   }),

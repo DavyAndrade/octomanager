@@ -1,7 +1,12 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { updateRepo, deleteRepo } from "@/lib/octokit";
-import { updateRepoSchema } from "@/schemas/repo";
+import {
+  updateRepoSchema,
+  deleteRepoSchema,
+  ownerParamSchema,
+  repoParamSchema,
+} from "@/schemas/repo";
 import type { ApiError } from "@/types/api";
 
 interface RouteContext {
@@ -22,6 +27,18 @@ export async function PATCH(
   }
 
   const { owner, repo } = await params;
+
+  // Validate URL parameters
+  const ownerParse = ownerParamSchema.safeParse(owner);
+  const repoParse = repoParamSchema.safeParse(repo);
+
+  if (!ownerParse.success || !repoParse.success) {
+    return NextResponse.json<ApiError>(
+      { error: "Invalid repository path" },
+      { status: 400 }
+    );
+  }
+
   const body: unknown = await request.json().catch(() => null);
 
   if (!body || typeof body !== "object") {
@@ -68,7 +85,7 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  _request: Request,
+  request: Request,
   { params }: RouteContext
 ): Promise<NextResponse> {
   const session = await auth();
@@ -81,6 +98,35 @@ export async function DELETE(
   }
 
   const { owner, repo } = await params;
+
+  // Validate URL parameters
+  const ownerParse = ownerParamSchema.safeParse(owner);
+  const repoParse = repoParamSchema.safeParse(repo);
+
+  if (!ownerParse.success || !repoParse.success) {
+    return NextResponse.json<ApiError>(
+      { error: "Invalid repository path" },
+      { status: 400 }
+    );
+  }
+
+  const body: unknown = await request.json().catch(() => null);
+  const parseResult = deleteRepoSchema.safeParse(body);
+
+  if (!parseResult.success) {
+    return NextResponse.json<ApiError>(
+      { error: "Delete confirmation required", code: parseResult.error.message },
+      { status: 422 }
+    );
+  }
+
+  // Double-verify that the provided name matches the URL parameter
+  if (parseResult.data.name !== repo) {
+    return NextResponse.json<ApiError>(
+      { error: "Repository name mismatch" },
+      { status: 400 }
+    );
+  }
 
   try {
     await deleteRepo(session.accessToken, owner, repo);

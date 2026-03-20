@@ -52,16 +52,32 @@ describe("updateRepoSchema", () => {
 });
 
 describe("deleteRepoSchema", () => {
-  it("accepts confirm: true", () => {
-    expect(deleteRepoSchema.safeParse({ confirm: true }).success).toBe(true);
+  it("accepts valid confirmation", () => {
+    const result = deleteRepoSchema.safeParse({
+      name: "my-repo",
+      confirm: true,
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects missing name", () => {
+    expect(deleteRepoSchema.safeParse({ confirm: true }).success).toBe(false);
+  });
+
+  it("rejects invalid name", () => {
+    expect(
+      deleteRepoSchema.safeParse({ name: "invalid name!", confirm: true }).success
+    ).toBe(false);
   });
 
   it("rejects confirm: false", () => {
-    expect(deleteRepoSchema.safeParse({ confirm: false }).success).toBe(false);
+    expect(
+      deleteRepoSchema.safeParse({ name: "my-repo", confirm: false }).success
+    ).toBe(false);
   });
 
   it("rejects missing confirm", () => {
-    expect(deleteRepoSchema.safeParse({}).success).toBe(false);
+    expect(deleteRepoSchema.safeParse({ name: "my-repo" }).success).toBe(false);
   });
 });
 
