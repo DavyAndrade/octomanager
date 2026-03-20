@@ -51,6 +51,8 @@ async function patchRepo(
 async function destroyRepo(owner: string, repo: string): Promise<void> {
   const res = await fetch(`/api/repos/${owner}/${repo}`, {
     method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name: repo, confirm: true }),
   });
 
   if (!res.ok && res.status !== 204) {
