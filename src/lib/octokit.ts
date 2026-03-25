@@ -57,10 +57,45 @@ export async function listRepos(
   try {
     // Paginate through ALL GitHub pages so total_count reflects the real count,
     // not just the first 100 results. The table paginates locally.
-    const allRepos = (await octokit.paginate(
+    // Optimization: Map results to include only necessary fields, reducing payload size.
+    const allRepos = await octokit.paginate(
       octokit.rest.repos.listForAuthenticatedUser,
-      { type: apiType, sort, direction, per_page: 100 }
-    )) as unknown as Repository[];
+      { type: apiType, sort, direction, per_page: 100 },
+      (response) =>
+        response.data.map(
+          (repo): Repository => ({
+            id: repo.id,
+            name: repo.name,
+            full_name: repo.full_name,
+            description: repo.description,
+            private: repo.private,
+            visibility: (repo.visibility as "public" | "private") ?? (repo.private ? "private" : "public"),
+            html_url: repo.html_url,
+            clone_url: repo.clone_url,
+            ssh_url: repo.ssh_url,
+            fork: repo.fork,
+            archived: repo.archived ?? false,
+            disabled: repo.disabled ?? false,
+            stargazers_count: repo.stargazers_count ?? 0,
+            watchers_count: repo.watchers_count ?? 0,
+            forks_count: repo.forks_count ?? 0,
+            open_issues_count: repo.open_issues_count ?? 0,
+            language: repo.language ?? null,
+            topics: repo.topics ?? [],
+            owner: {
+              login: repo.owner.login,
+              avatar_url: repo.owner.avatar_url,
+              html_url: repo.owner.html_url,
+            },
+            created_at: repo.created_at ?? "",
+            updated_at: repo.updated_at ?? "",
+            pushed_at: repo.pushed_at ?? null,
+            default_branch: repo.default_branch,
+            size: repo.size,
+            homepage: repo.homepage ?? null,
+          })
+        )
+    );
 
     let repos = allRepos;
 
