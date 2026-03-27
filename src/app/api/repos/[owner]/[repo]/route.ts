@@ -74,13 +74,18 @@ export async function PATCH(
     return NextResponse.json({ data: updated });
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : "Failed to update repository";
+      error instanceof Error ? error.message : "An unexpected error occurred";
     const status = message.includes("not found")
       ? 404
-      : message.includes("Forbidden")
+      : message.includes("Forbidden") || message.includes("GitHub")
         ? 403
         : 500;
-    return NextResponse.json<ApiError>({ error: message }, { status });
+
+    const safeMessage =
+      status === 500 ? "An unexpected error occurred while updating the repository" : message;
+
+    console.error("[API_REPO_PATCH]", error);
+    return NextResponse.json<ApiError>({ error: safeMessage }, { status });
   }
 }
 
@@ -133,12 +138,17 @@ export async function DELETE(
     return new NextResponse(null, { status: 204 });
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : "Failed to delete repository";
+      error instanceof Error ? error.message : "An unexpected error occurred";
     const status = message.includes("not found")
       ? 404
-      : message.includes("Forbidden")
+      : message.includes("Forbidden") || message.includes("GitHub")
         ? 403
         : 500;
-    return NextResponse.json<ApiError>({ error: message }, { status });
+
+    const safeMessage =
+      status === 500 ? "An unexpected error occurred while deleting the repository" : message;
+
+    console.error("[API_REPO_DELETE]", error);
+    return NextResponse.json<ApiError>({ error: safeMessage }, { status });
   }
 }

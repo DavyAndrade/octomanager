@@ -30,10 +30,15 @@ export const updateRepoSchema = z.object({
     .optional(),
   homepage: z
     .string()
+    .max(255, "URL must be 255 characters or less")
     .url("Must be a valid URL")
+    .refine(
+      (url) => url.startsWith("http://") || url.startsWith("https://"),
+      "URL must use http or https"
+    )
+    .or(z.literal(""))
     .nullable()
-    .optional()
-    .or(z.literal("")),
+    .optional(),
   private: z.boolean().optional(),
   topics: z.array(repoTopicSchema).max(20, "Maximum 20 topics").optional(),
 });
