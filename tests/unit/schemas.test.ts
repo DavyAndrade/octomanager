@@ -45,6 +45,21 @@ describe("updateRepoSchema", () => {
     expect(result.success).toBe(false);
   });
 
+  it("rejects non-http/https homepage URL", () => {
+    const result = updateRepoSchema.safeParse({ homepage: "ftp://example.com" });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0].message).toBe("URL must use http or https");
+    }
+  });
+
+  it("rejects homepage URL longer than 255 chars", () => {
+    const result = updateRepoSchema.safeParse({
+      homepage: `https://example.com/${"a".repeat(250)}`,
+    });
+    expect(result.success).toBe(false);
+  });
+
   it("accepts empty string for homepage", () => {
     const result = updateRepoSchema.safeParse({ homepage: "" });
     expect(result.success).toBe(true);
