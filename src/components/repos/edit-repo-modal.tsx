@@ -118,9 +118,14 @@ export function EditRepoModal({ repos }: EditRepoModalProps) {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Repository name</FormLabel>
+                  <div className="flex items-center justify-between">
+                    <FormLabel>Repository name</FormLabel>
+                    <span className="text-[10px] text-muted-foreground tabular-nums">
+                      {field.value?.length ?? 0}/100
+                    </span>
+                  </div>
                   <FormControl>
-                    <Input {...field} />
+                    <Input {...field} maxLength={100} autoFocus />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -132,13 +137,19 @@ export function EditRepoModal({ repos }: EditRepoModalProps) {
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description</FormLabel>
+                  <div className="flex items-center justify-between">
+                    <FormLabel>Description</FormLabel>
+                    <span className="text-[10px] text-muted-foreground tabular-nums">
+                      {(field.value ?? "").length}/350
+                    </span>
+                  </div>
                   <FormControl>
                     <Textarea
                       {...field}
                       value={field.value ?? ""}
                       placeholder="A short description of this repository"
                       rows={3}
+                      maxLength={350}
                     />
                   </FormControl>
                   <FormMessage />
