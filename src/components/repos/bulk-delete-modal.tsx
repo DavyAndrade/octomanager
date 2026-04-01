@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { memo, useMemo } from "react";
 import { useBulkDeleteRepos } from "@/hooks/use-repo-mutations";
 import { useUIStore } from "@/store/ui-store";
 import { useShallow } from "zustand/react/shallow";
@@ -20,7 +20,9 @@ interface BulkDeleteModalProps {
   repos: Repository[];
 }
 
-export function BulkDeleteModal({ repos }: BulkDeleteModalProps) {
+export const BulkDeleteModal = memo(function BulkDeleteModal({
+  repos,
+}: BulkDeleteModalProps) {
   const { bulkDeleteOpen, closeBulkDelete, selectedRepoIds, clearSelection } =
     useUIStore(
       useShallow((state) => ({
@@ -95,4 +97,4 @@ export function BulkDeleteModal({ repos }: BulkDeleteModalProps) {
       </DialogContent>
     </Dialog>
   );
-}
+});

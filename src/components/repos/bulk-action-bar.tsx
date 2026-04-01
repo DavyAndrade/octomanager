@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Trash2, Lock, Globe, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -21,7 +22,9 @@ interface BulkActionBarProps {
   selectedRepos: Repository[];
 }
 
-export function BulkActionBar({ selectedRepos }: BulkActionBarProps) {
+export const BulkActionBar = memo(function BulkActionBar({
+  selectedRepos,
+}: BulkActionBarProps) {
   const { clearSelection, openBulkDelete } = useUIStore(
     useShallow((state) => ({
       clearSelection: state.clearSelection,
@@ -111,4 +114,4 @@ export function BulkActionBar({ selectedRepos }: BulkActionBarProps) {
       )}
     </AnimatePresence>
   );
-}
+});

@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { memo, useMemo, useState } from "react";
 import { useDeleteRepo } from "@/hooks/use-repo-mutations";
 import { useUIStore } from "@/store/ui-store";
+import { useShallow } from "zustand/react/shallow";
 import {
   Dialog,
   DialogContent,
@@ -21,8 +22,15 @@ interface DeleteRepoModalProps {
   repos: Repository[];
 }
 
-export function DeleteRepoModal({ repos }: DeleteRepoModalProps) {
-  const { deleteTargetId, closeDeleteModal } = useUIStore();
+export const DeleteRepoModal = memo(function DeleteRepoModal({
+  repos,
+}: DeleteRepoModalProps) {
+  const { deleteTargetId, closeDeleteModal } = useUIStore(
+    useShallow((state) => ({
+      deleteTargetId: state.deleteTargetId,
+      closeDeleteModal: state.closeDeleteModal,
+    })),
+  );
   const { mutate: deleteRepo, isPending } = useDeleteRepo();
   const [confirmName, setConfirmName] = useState("");
 
@@ -96,4 +104,4 @@ export function DeleteRepoModal({ repos }: DeleteRepoModalProps) {
       </DialogContent>
     </Dialog>
   );
-}
+});
