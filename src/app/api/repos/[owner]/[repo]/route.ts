@@ -71,21 +71,33 @@ export async function PATCH(
       repo,
       parseResult.data
     );
+
+    // AUDIT LOG: Successful repository update
+    console.info(
+      `[AUDIT] Repository updated by ${session.user?.login ?? "unknown"}: ${owner}/${repo}. Fields: ${Object.keys(parseResult.data).join(", ")}`
+    );
+
     return NextResponse.json({ data: updated });
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "An unexpected error occurred";
-    const status = message.includes("not found")
-      ? 404
-      : message.includes("Forbidden") || message.includes("GitHub")
-        ? 403
-        : 500;
+    // Determine status and mask internal details for 500 errors
+    const status =
+      error instanceof Error && "status" in (error as { status: unknown })
+        ? (error as { status: number }).status
+        : error instanceof Error && error.message.includes("not found")
+          ? 404
+          : error instanceof Error && error.message.includes("Forbidden")
+            ? 403
+            : 500;
 
-    const safeMessage =
-      status === 500 ? "An unexpected error occurred while updating the repository" : message;
+    const message =
+      status === 500
+        ? "An unexpected error occurred while updating the repository"
+        : error instanceof Error
+          ? error.message
+          : "An unexpected error occurred";
 
     console.error("[API_REPO_PATCH]", error);
-    return NextResponse.json<ApiError>({ error: safeMessage }, { status });
+    return NextResponse.json<ApiError>({ error: message }, { status });
   }
 }
 
@@ -135,20 +147,32 @@ export async function DELETE(
 
   try {
     await deleteRepo(session.accessToken, owner, repo);
+
+    // AUDIT LOG: Successful repository deletion
+    console.info(
+      `[AUDIT] Repository deleted by ${session.user?.login ?? "unknown"}: ${owner}/${repo}`
+    );
+
     return new NextResponse(null, { status: 204 });
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "An unexpected error occurred";
-    const status = message.includes("not found")
-      ? 404
-      : message.includes("Forbidden") || message.includes("GitHub")
-        ? 403
-        : 500;
+    // Determine status and mask internal details for 500 errors
+    const status =
+      error instanceof Error && "status" in (error as { status: unknown })
+        ? (error as { status: number }).status
+        : error instanceof Error && error.message.includes("not found")
+          ? 404
+          : error instanceof Error && error.message.includes("Forbidden")
+            ? 403
+            : 500;
 
-    const safeMessage =
-      status === 500 ? "An unexpected error occurred while deleting the repository" : message;
+    const message =
+      status === 500
+        ? "An unexpected error occurred while deleting the repository"
+        : error instanceof Error
+          ? error.message
+          : "An unexpected error occurred";
 
     console.error("[API_REPO_DELETE]", error);
-    return NextResponse.json<ApiError>({ error: safeMessage }, { status });
+    return NextResponse.json<ApiError>({ error: message }, { status });
   }
 }
