@@ -27,6 +27,7 @@ import {
 import { VisibilityToggle } from "@/components/repos/visibility-toggle";
 import { formatRepoCount, formatRelativeTime } from "@/lib/utils";
 import { useUIStore } from "@/store/ui-store";
+import { useShallow } from "zustand/react/shallow";
 import type { Repository } from "@/types/github";
 
 interface RepoCardProps {
@@ -57,7 +58,12 @@ const LANGUAGE_COLORS: Record<string, string> = {
 };
 
 export function RepoCard({ repo }: RepoCardProps) {
-  const { openEditModal, openDeleteModal } = useUIStore();
+  const { openEditModal, openDeleteModal } = useUIStore(
+    useShallow((state) => ({
+      openEditModal: state.openEditModal,
+      openDeleteModal: state.openDeleteModal,
+    })),
+  );
 
   const langColor = repo.language
     ? (LANGUAGE_COLORS[repo.language] ?? "#71717a")

@@ -94,7 +94,11 @@ export function RepoTable({ repos }: RepoTableProps) {
     initialState: { pagination: { pageSize: PAGE_SIZE } },
   });
 
-  const selectedRows = table.getSelectedRowModel().rows.map((r) => r.original);
+  // Optimization: Memoize selected rows to ensure stable reference for BulkActionBar
+  const selectedRows = useMemo(
+    () => table.getSelectedRowModel().rows.map((r) => r.original),
+    [table],
+  );
 
   const { pageIndex } = table.getState().pagination;
   const totalPages = table.getPageCount();

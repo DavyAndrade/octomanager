@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { memo, useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useUpdateRepo } from "@/hooks/use-repo-mutations";
 import { useUIStore } from "@/store/ui-store";
+import { useShallow } from "zustand/react/shallow";
 import { updateRepoSchema, type UpdateRepoInput } from "@/schemas/repo";
 import {
   Dialog,
@@ -32,8 +33,15 @@ interface EditRepoModalProps {
   repos: Repository[];
 }
 
-export function EditRepoModal({ repos }: EditRepoModalProps) {
-  const { editTargetId, closeEditModal } = useUIStore();
+export const EditRepoModal = memo(function EditRepoModal({
+  repos,
+}: EditRepoModalProps) {
+  const { editTargetId, closeEditModal } = useUIStore(
+    useShallow((state) => ({
+      editTargetId: state.editTargetId,
+      closeEditModal: state.closeEditModal,
+    })),
+  );
   const { mutate: updateRepo, isPending } = useUpdateRepo();
 
   const repo = useMemo(
@@ -222,4 +230,4 @@ export function EditRepoModal({ repos }: EditRepoModalProps) {
       </DialogContent>
     </Dialog>
   );
-}
+});
