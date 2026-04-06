@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useMemo, useState } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import { useDeleteRepo } from "@/hooks/use-repo-mutations";
 import { useUIStore } from "@/store/ui-store";
 import { useShallow } from "zustand/react/shallow";
@@ -40,9 +40,18 @@ export const DeleteRepoModal = memo(function DeleteRepoModal({
   );
 
   const isOpen = !!repo;
+
+  // Reset confirmation name when modal opens or target changes
+  useEffect(() => {
+    if (isOpen) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setConfirmName("");
+    }
+  }, [isOpen, repo?.id]);
   const isConfirmed = confirmName === repo?.name;
 
-  const handleDelete = () => {
+  const handleDelete = (e?: React.FormEvent) => {
+    e?.preventDefault();
     if (!isConfirmed || !repo) return;
     deleteRepo(
       { owner: repo.owner.login, repo: repo.name, repoId: repo.id },
@@ -68,39 +77,43 @@ export const DeleteRepoModal = memo(function DeleteRepoModal({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-3 py-2">
-          <Label htmlFor="confirm-name" className="text-sm">
-            Type{" "}
-            <code className="rounded bg-muted px-1 py-0.5 font-mono text-xs">
-              {repo.name}
-            </code>{" "}
-            to confirm:
-          </Label>
-          <Input
-            id="confirm-name"
-            value={confirmName}
-            onChange={(e) => setConfirmName(e.target.value)}
-            placeholder={repo.name}
-            autoComplete="off"
-          />
-        </div>
+        <form onSubmit={handleDelete}>
+          <div className="space-y-3 py-2">
+            <Label htmlFor="confirm-name" className="text-sm">
+              Type{" "}
+              <code className="rounded bg-muted px-1 py-0.5 font-mono text-xs">
+                {repo.name}
+              </code>{" "}
+              to confirm:
+            </Label>
+            <Input
+              id="confirm-name"
+              value={confirmName}
+              onChange={(e) => setConfirmName(e.target.value)}
+              placeholder={repo.name}
+              autoComplete="off"
+              autoFocus
+            />
+          </div>
 
-        <DialogFooter className="gap-2 sm:gap-0">
-          <Button
-            variant="outline"
-            onClick={closeDeleteModal}
-            disabled={isPending}
-          >
-            Cancel
-          </Button>
-          <Button
-            variant="destructive"
-            onClick={handleDelete}
-            disabled={!isConfirmed || isPending}
-          >
-            {isPending ? "Deleting…" : "Delete repository"}
-          </Button>
-        </DialogFooter>
+          <DialogFooter className="mt-4 gap-2 sm:gap-0">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={closeDeleteModal}
+              disabled={isPending}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              variant="destructive"
+              disabled={!isConfirmed || isPending}
+            >
+              {isPending ? "Deleting…" : "Delete repository"}
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );
