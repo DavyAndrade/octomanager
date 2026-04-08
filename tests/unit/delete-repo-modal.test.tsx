@@ -4,6 +4,7 @@ import { DeleteRepoModal } from "@/components/repos/delete-repo-modal";
 import { useUIStore } from "@/store/ui-store";
 import { useDeleteRepo } from "@/hooks/use-repo-mutations";
 import type { Repository } from "@/types/github";
+import type { Mock } from "vitest";
 
 // Mock the hooks
 vi.mock("@/hooks/use-repo-mutations", () => ({
@@ -34,7 +35,7 @@ describe("DeleteRepoModal", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    (useDeleteRepo as any).mockReturnValue({
+    (useDeleteRepo as Mock).mockReturnValue({
       mutate: mockDeleteRepo,
       isPending: false,
     });
