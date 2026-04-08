@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
 import {
   flexRender,
@@ -10,6 +10,7 @@ import {
   useReactTable,
   type SortingState,
   type RowSelectionState,
+  type OnChangeFn,
 } from "@tanstack/react-table";
 import {
   Table,
@@ -37,6 +38,12 @@ interface RepoTableProps {
 
 export function RepoTable({ repos }: RepoTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
+
+  // Optimization: Memoize repo map (O(N)) to allow O(1) repo lookups.
+  const repoMap = useMemo(
+    () => new Map(repos.map((r) => [r.id, r])),
+    [repos],
+  );
 
   const { openDeleteModal, openEditModal, selectedRepoIds, setSelectedRepoIds } =
     useUIStore(
@@ -67,14 +74,10 @@ export function RepoTable({ repos }: RepoTableProps) {
     [openEditModal, openDeleteModal],
   );
 
-  const table = useReactTable({
-    data: repos,
-    columns,
-    state: { sorting, rowSelection },
-    enableRowSelection: true,
-    getRowId: (row) => row.id.toString(),
-    onSortingChange: setSorting,
-    onRowSelectionChange: (updater) => {
+  const getRowId = useCallback((row: Repository) => row.id.toString(), []);
+
+  const onRowSelectionChange = useCallback<OnChangeFn<RowSelectionState>>(
+    (updater) => {
       const next =
         typeof updater === "function" ? updater(rowSelection) : updater;
 
@@ -88,16 +91,32 @@ export function RepoTable({ repos }: RepoTableProps) {
       }
       setSelectedRepoIds(selectedIds);
     },
+    [rowSelection, setSelectedRepoIds],
+  );
+
+  const table = useReactTable({
+    data: repos,
+    columns,
+    state: { sorting, rowSelection },
+    enableRowSelection: true,
+    getRowId,
+    onSortingChange: setSorting,
+    onRowSelectionChange,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     initialState: { pagination: { pageSize: PAGE_SIZE } },
   });
 
-  // Optimization: Memoize selected rows to ensure stable reference for BulkActionBar
+  // Optimization: Derive selected rows directly from the repoMap and selection IDs (O(M)).
+  // This avoids iterating over the entire repository list (O(N)) and prevents re-mapping
+  // when table state (like sorting) changes, providing a stable reference for BulkActionBar.
   const selectedRows = useMemo(
-    () => table.getSelectedRowModel().rows.map((r) => r.original),
-    [table],
+    () =>
+      Array.from(selectedRepoIds)
+        .map((id) => repoMap.get(id))
+        .filter((r): r is Repository => !!r),
+    [repoMap, selectedRepoIds],
   );
 
   const { pageIndex } = table.getState().pagination;
