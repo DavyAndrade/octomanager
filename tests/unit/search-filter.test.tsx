@@ -76,6 +76,22 @@ describe("SearchBar", () => {
     expect(useUIStore.getState().searchQuery).toBe("");
   });
 
+  it("clears input and blurs on Escape key", async () => {
+    render(<SearchBar />);
+    const input = screen.getByPlaceholderText("Search repositories...") as HTMLInputElement;
+    input.focus();
+    fireEvent.change(input, { target: { value: "octo" } });
+
+    await act(async () => {
+      vi.advanceTimersByTime(300);
+    });
+
+    fireEvent.keyDown(window, { key: "Escape" });
+    expect(input.value).toBe("");
+    expect(useUIStore.getState().searchQuery).toBe("");
+    expect(document.activeElement).not.toBe(input);
+  });
+
   it("syncs when store searchQuery is reset to empty externally", async () => {
     render(<SearchBar />);
     const input = screen.getByPlaceholderText("Search repositories...");

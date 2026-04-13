@@ -19,12 +19,19 @@ export function SearchBar() {
       if ((e.metaKey || e.ctrlKey) && e.key === "k") {
         e.preventDefault();
         inputRef.current?.focus();
+      } else if (
+        e.key === "Escape" &&
+        document.activeElement === inputRef.current
+      ) {
+        setLocalValue("");
+        setSearchQuery("");
+        inputRef.current?.blur();
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
+  }, [setSearchQuery]);
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
