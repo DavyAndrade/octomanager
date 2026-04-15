@@ -85,20 +85,34 @@ export function buildRepoColumns(
               </Link>
               <ExternalLink className="h-3 w-3 shrink-0 text-muted-foreground opacity-60" />
               {repo.fork && (
-                <Badge
-                  variant="outline"
-                  className="h-4 shrink-0 px-1 text-[10px] text-muted-foreground"
-                >
-                  Fork
-                </Badge>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Badge
+                      variant="outline"
+                      className="h-4 shrink-0 px-1 text-[10px] text-muted-foreground"
+                    >
+                      Fork
+                    </Badge>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    This repository is a fork of another project
+                  </TooltipContent>
+                </Tooltip>
               )}
               {repo.archived && (
-                <Badge
-                  variant="secondary"
-                  className="h-4 shrink-0 px-1 text-[10px]"
-                >
-                  Archived
-                </Badge>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Badge
+                      variant="secondary"
+                      className="h-4 shrink-0 px-1 text-[10px]"
+                    >
+                      Archived
+                    </Badge>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    This repository is archived and read-only
+                  </TooltipContent>
+                </Tooltip>
               )}
             </div>
             {repo.description && (
@@ -209,12 +223,16 @@ export function buildRepoColumns(
         </Button>
       ),
       cell: ({ row }) => (
-        <span
-          className="text-xs text-muted-foreground"
-          title={new Date(row.original.updated_at).toLocaleString()}
-        >
-          {formatRelativeTime(row.original.updated_at)}
-        </span>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span className="text-xs text-muted-foreground cursor-default">
+              {formatRelativeTime(row.original.updated_at)}
+            </span>
+          </TooltipTrigger>
+          <TooltipContent>
+            Updated on {new Date(row.original.updated_at).toLocaleString()}
+          </TooltipContent>
+        </Tooltip>
       ),
       size: 110,
       meta: { className: "w-[110px] whitespace-nowrap" },
@@ -231,18 +249,22 @@ export function buildRepoColumns(
           <div className="flex items-center justify-end gap-1">
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-7 w-7 cursor-pointer"
-                  onClick={() => handlers.onEdit(repo)}
-                  disabled={repo.archived}
-                >
-                  <Pencil className="h-3.5 w-3.5" />
-                  <span className="sr-only">Edit {repo.name}</span>
-                </Button>
+                <div className={repo.archived ? "cursor-not-allowed" : ""}>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 cursor-pointer"
+                    onClick={() => handlers.onEdit(repo)}
+                    disabled={repo.archived}
+                  >
+                    <Pencil className="h-3.5 w-3.5" />
+                    <span className="sr-only">Edit {repo.name}</span>
+                  </Button>
+                </div>
               </TooltipTrigger>
-              <TooltipContent>Edit</TooltipContent>
+              <TooltipContent>
+                {repo.archived ? "Cannot edit archived repository" : "Edit"}
+              </TooltipContent>
             </Tooltip>
 
             <Tooltip>

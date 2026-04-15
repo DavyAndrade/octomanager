@@ -81,21 +81,35 @@ export function RepoCard({ repo }: RepoCardProps) {
               </Badge>
 
               {repo.fork && (
-                <Badge
-                  variant="outline"
-                  className="h-5 px-1.5 text-[10px] font-medium text-muted-foreground"
-                >
-                  Fork
-                </Badge>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Badge
+                      variant="outline"
+                      className="h-5 px-1.5 text-[10px] font-medium text-muted-foreground"
+                    >
+                      Fork
+                    </Badge>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    This repository is a fork of another project
+                  </TooltipContent>
+                </Tooltip>
               )}
 
               {repo.archived && (
-                <Badge
-                  variant="secondary"
-                  className="h-5 px-1.5 text-[10px] font-medium"
-                >
-                  Archived
-                </Badge>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Badge
+                      variant="secondary"
+                      className="h-5 px-1.5 text-[10px] font-medium"
+                    >
+                      Archived
+                    </Badge>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    This repository is archived and read-only
+                  </TooltipContent>
+                </Tooltip>
               )}
             </div>
           </div>
@@ -182,26 +196,37 @@ export function RepoCard({ repo }: RepoCardProps) {
             </Tooltip>
           )}
 
-          <span title={new Date(repo.updated_at).toLocaleString()}>
-            Updated {formatRelativeTime(repo.updated_at)}
-          </span>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="cursor-default">
+                Updated {formatRelativeTime(repo.updated_at)}
+              </span>
+            </TooltipTrigger>
+            <TooltipContent>
+              Updated on {new Date(repo.updated_at).toLocaleString()}
+            </TooltipContent>
+          </Tooltip>
         </div>
 
         <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-7 w-7"
-                onClick={() => openEditModal(repo.id)}
-                disabled={repo.archived}
-              >
-                <Pencil className="h-3.5 w-3.5" />
-                <span className="sr-only">Edit {repo.name}</span>
-              </Button>
+              <div className={repo.archived ? "cursor-not-allowed" : ""}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7"
+                  onClick={() => openEditModal(repo.id)}
+                  disabled={repo.archived}
+                >
+                  <Pencil className="h-3.5 w-3.5" />
+                  <span className="sr-only">Edit {repo.name}</span>
+                </Button>
+              </div>
             </TooltipTrigger>
-            <TooltipContent>Edit repository</TooltipContent>
+            <TooltipContent>
+              {repo.archived ? "Cannot edit archived repository" : "Edit repository"}
+            </TooltipContent>
           </Tooltip>
 
           <Tooltip>
