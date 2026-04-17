@@ -134,6 +134,9 @@ export async function DELETE(
 
   // Double-verify that the provided name matches the URL parameter
   if (parseResult.data.name !== repo) {
+    console.warn(
+      `[SECURITY] Repository deletion name mismatch by ${session.user?.login || "unknown"}. Expected: "${repo}", Provided: "${parseResult.data.name}"`
+    );
     return NextResponse.json<ApiError>(
       { error: "Repository name mismatch" },
       { status: 400 }
