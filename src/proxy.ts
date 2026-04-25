@@ -12,6 +12,7 @@ export default auth((req) => {
 
   // Protect API routes (except auth)
   if (pathname.startsWith("/api/repos") && !isAuthenticated) {
+    console.warn(`[SECURITY] Unauthorized API access attempt: ${pathname}`);
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

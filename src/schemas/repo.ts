@@ -56,7 +56,7 @@ export const repoListParamsSchema = z.object({
   direction: z.enum(["asc", "desc"]).optional(),
   per_page: z.coerce.number().min(1).max(100).optional(),
   page: z.coerce.number().min(1).optional(),
-  search: z.string().optional(),
+  search: z.string().trim().max(100).optional(),
 });
 
 export type UpdateRepoInput = z.infer<typeof updateRepoSchema>;

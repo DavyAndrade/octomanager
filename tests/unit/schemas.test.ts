@@ -154,4 +154,17 @@ describe("repoListParamsSchema", () => {
   it("accepts empty object", () => {
     expect(repoListParamsSchema.safeParse({}).success).toBe(true);
   });
+
+  it("trims and limits search parameter", () => {
+    const result = repoListParamsSchema.safeParse({
+      search: "  nextjs  ",
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.search).toBe("nextjs");
+    }
+
+    const longSearch = "a".repeat(101);
+    expect(repoListParamsSchema.safeParse({ search: longSearch }).success).toBe(false);
+  });
 });
