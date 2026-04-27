@@ -59,4 +59,5 @@ export const LANGUAGE_COLORS: Record<string, string> = {
   Portugol: "#f8bd00",
   "Jupyter Notebook": "#DA5B0B",
   CMake: "#DA3434",
+  Astro: "#ff5a03",
 };
