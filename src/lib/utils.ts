@@ -60,4 +60,5 @@ export const LANGUAGE_COLORS: Record<string, string> = {
   "Jupyter Notebook": "#DA5B0B",
   CMake: "#DA3434",
   Astro: "#ff5a03",
+  Svelte: "#ff3e00",
 };
