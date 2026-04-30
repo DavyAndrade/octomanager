@@ -12,3 +12,8 @@
 **Vulnerability:** Lack of server-side audit trails for repository modifications and inconsistent error masking that could either leak internal 500 details or block legitimate client-side validation feedback.
 **Learning:** Security monitoring requires explicit audit logs for state-changing operations. Furthermore, error masking must be granular: generic messages for internal 500 errors to prevent information leakage, while allowing specific status codes (401, 403, 404, 422) for actionable client feedback.
 **Prevention:** Implement `console.info` logging for all successful `PATCH`, `POST`, and `DELETE` operations. Use a robust error-to-status mapping that prioritizes safe messages for unexpected errors while preserving context for known client-side errors.
+
+## 2025-06-25 - [Authentication & Hardening] Authentication Audit Logging and Security Header Enhancements
+**Vulnerability:** Lack of explicit audit logging for successful sign-ins, sign-outs, and authentication errors, making it difficult to monitor for suspicious login activity or troubleshoot authentication failures. Additionally, missing modern security headers increased the risk of cross-domain and window-opener attacks.
+**Learning:** Security monitoring should extend beyond repository modifications to include the authentication lifecycle. Implementing `events` and `logger` in Auth.js provides a clean way to capture these events server-side.
+**Prevention:** Always implement `events.signIn`, `events.signOut`, and a custom `logger` in Auth.js configurations to maintain an audit trail of identity events. Furthermore, ensure `Cross-Origin-Opener-Policy` and `X-Permitted-Cross-Domain-Policies` are set to restrictive values in the global headers configuration.

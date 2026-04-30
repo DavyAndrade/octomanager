@@ -58,6 +58,22 @@ const githubProvider = [
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [...githubProvider, ...devProvider],
+  events: {
+    async signIn({ user }) {
+      console.info(`[AUDIT] Successful sign-in: ${user.name || user.email || user.id}`);
+    },
+    async signOut({ session }) {
+      console.info(`[AUDIT] User signed out: ${session?.user?.login || "unknown"}`);
+    },
+  },
+  logger: {
+    error(code, ...message) {
+      console.error(`[AUTH_ERROR] ${code}`, ...message);
+    },
+    warn(code) {
+      console.warn(`[AUTH_WARN] ${code}`);
+    },
+  },
   callbacks: {
     async jwt({ token, account, profile, user }) {
       // GitHub OAuth provider — token comes from account
