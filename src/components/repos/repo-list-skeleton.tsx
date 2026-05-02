@@ -1,46 +1,89 @@
 "use client";
 
 import { Skeleton } from "@/components/ui/skeleton";
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
-function RepoCardSkeleton() {
+const PAGE_SIZE = 10;
+
+function TableRowSkeleton() {
   return (
-    <Card className="flex flex-col">
-      <CardHeader className="pb-2">
-        <div className="flex items-start justify-between gap-2">
-          <div className="flex-1 space-y-2">
-            <Skeleton className="h-4 w-2/5" />
-            <Skeleton className="h-4 w-16" />
+    <TableRow>
+      <TableCell className="w-10 pr-0">
+        <Skeleton className="h-4 w-4" />
+      </TableCell>
+      <TableCell className="min-w-0">
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-2">
+            <Skeleton className="h-4 w-32" />
+            <Skeleton className="h-3 w-3 rounded-full" />
           </div>
-          <Skeleton className="h-6 w-12 rounded-full" />
+          <Skeleton className="h-3 w-48" />
         </div>
-      </CardHeader>
-      <CardContent className="flex-1 space-y-2 pb-3">
-        <Skeleton className="h-3 w-full" />
-        <Skeleton className="h-3 w-4/5" />
-        <div className="flex gap-1 pt-1">
-          <Skeleton className="h-4 w-12 rounded-full" />
-          <Skeleton className="h-4 w-16 rounded-full" />
-          <Skeleton className="h-4 w-10 rounded-full" />
+      </TableCell>
+      <TableCell className="w-[150px] whitespace-nowrap">
+        <Skeleton className="h-5 w-16 rounded-md" />
+      </TableCell>
+      <TableCell className="w-[110px]">
+        <Skeleton className="h-4 w-20" />
+      </TableCell>
+      <TableCell className="w-20 whitespace-nowrap">
+        <Skeleton className="h-4 w-8" />
+      </TableCell>
+      <TableCell className="w-[110px] whitespace-nowrap">
+        <Skeleton className="h-3 w-16" />
+      </TableCell>
+      <TableCell className="w-20 whitespace-nowrap">
+        <div className="flex justify-end gap-1">
+          <Skeleton className="h-7 w-7 rounded-md" />
+          <Skeleton className="h-7 w-7 rounded-md" />
         </div>
-      </CardContent>
-      <CardFooter className="border-t pt-3">
-        <div className="flex w-full items-center gap-3">
-          <Skeleton className="h-3 w-12" />
-          <Skeleton className="h-3 w-8" />
-          <Skeleton className="h-3 w-20" />
-        </div>
-      </CardFooter>
-    </Card>
+      </TableCell>
+    </TableRow>
   );
 }
 
-export function RepoListSkeleton({ count = 6 }: { count?: number }) {
+export function RepoListSkeleton({ count = PAGE_SIZE }: { count?: number }) {
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {Array.from({ length: count }).map((_, i) => (
-        <RepoCardSkeleton key={i} />
-      ))}
+    <div className="space-y-3">
+      <div className="rounded-md border border-border">
+        <Table className="table-fixed">
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-10 pr-0" />
+              <TableHead className="min-w-0">Repository</TableHead>
+              <TableHead className="w-[150px] whitespace-nowrap">
+                Visibility
+              </TableHead>
+              <TableHead className="w-[110px]">Language</TableHead>
+              <TableHead className="w-20 whitespace-nowrap">Stars</TableHead>
+              <TableHead className="w-[110px] whitespace-nowrap">Updated</TableHead>
+              <TableHead className="w-20 whitespace-nowrap" />
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {Array.from({ length: count }).map((_, i) => (
+              <TableRowSkeleton key={i} />
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+      <div className="flex items-center justify-between text-sm text-muted-foreground">
+        <Skeleton className="h-4 w-32" />
+        <div className="flex items-center gap-1">
+          <Skeleton className="h-8 w-8 rounded-md" />
+          <Skeleton className="h-8 w-8 rounded-md" />
+          <Skeleton className="h-8 w-8 rounded-md" />
+          <Skeleton className="h-8 w-8 rounded-md" />
+          <Skeleton className="h-8 w-8 rounded-md" />
+        </div>
+      </div>
     </div>
   );
 }

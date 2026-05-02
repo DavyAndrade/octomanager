@@ -69,18 +69,15 @@ describe("ErrorState", () => {
 // ─── RepoListSkeleton ──────────────────────────────────────────────────────────
 
 describe("RepoListSkeleton", () => {
-  it("renders default 6 skeleton cards", () => {
+  it("renders default 10 skeleton table rows", () => {
     const { container } = render(<RepoListSkeleton />);
-    // Each card renders a header, look for grid container
-    const grid = container.firstChild as HTMLElement;
-    expect(grid).toBeInTheDocument();
-    // 6 cards inside the grid
-    expect(grid.children).toHaveLength(6);
+    const tableRows = container.querySelectorAll("tbody tr");
+    expect(tableRows).toHaveLength(10);
   });
 
-  it("renders custom count of skeleton cards", () => {
+  it("renders custom count of skeleton table rows", () => {
     const { container } = render(<RepoListSkeleton count={3} />);
-    const grid = container.firstChild as HTMLElement;
-    expect(grid.children).toHaveLength(3);
+    const tableRows = container.querySelectorAll("tbody tr");
+    expect(tableRows).toHaveLength(3);
   });
 });
