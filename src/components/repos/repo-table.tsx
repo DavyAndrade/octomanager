@@ -197,27 +197,60 @@ export function RepoTable({ repos }: RepoTableProps) {
           page {pageIndex + 1} of {totalPages || 1}
         </span>
         <div className="flex items-center gap-1">
+          {/* Seta esquerda */}
           <Button
-            variant="outline"
+            variant="ghost"
             size="icon"
-            className="h-8 w-8 cursor-pointer transition-colors enabled:hover:bg-accent disabled:opacity-40"
+            className="h-8 w-8 cursor-pointer transition-colors hover:bg-accent disabled:opacity-40"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
             aria-label="Previous page"
           >
             <ChevronLeft className="h-4 w-4" />
-            <span className="sr-only">Previous page</span>
           </Button>
+
+          {/* Números das páginas dinâmicos */}
+          {(() => {
+            const maxPages = 5;
+            let startPage = 0;
+            
+            if (totalPages <= maxPages) {
+              startPage = 0;
+            } else if (pageIndex < 2) {
+              startPage = 0;
+            } else if (pageIndex >= totalPages - 2) {
+              startPage = totalPages - maxPages;
+            } else {
+              startPage = pageIndex - 2;
+            }
+
+            return Array.from({ length: Math.min(maxPages, totalPages) }, (_, i) => {
+              const page = startPage + i;
+              const isActive = page === pageIndex;
+              return (
+                <Button
+                  key={page}
+                  variant={isActive ? "default" : "ghost"}
+                  size="icon"
+                  className="h-8 w-8 cursor-pointer"
+                  onClick={() => table.setPageIndex(page)}
+                >
+                  {page + 1}
+                </Button>
+              );
+            });
+          })()}
+
+          {/* Seta direita */}
           <Button
-            variant="outline"
+            variant="ghost"
             size="icon"
-            className="h-8 w-8 cursor-pointer transition-colors enabled:hover:bg-accent disabled:opacity-40"
+            className="h-8 w-8 cursor-pointer transition-colors hover:bg-accent disabled:opacity-40"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
             aria-label="Next page"
           >
             <ChevronRight className="h-4 w-4" />
-            <span className="sr-only">Next page</span>
           </Button>
         </div>
       </div>
