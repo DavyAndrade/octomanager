@@ -1,4 +1,4 @@
-import { Github, GitFork, Eye, Trash2, ArrowRight } from "lucide-react";
+import { Github, GitFork, Eye, Trash2, ArrowRight, Coffee } from "lucide-react";
 import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
@@ -39,9 +39,15 @@ export default async function HomePage() {
             <Github className="h-5 w-5" />
             OctoManager
           </div>
-          <Badge variant="outline" className="text-xs text-muted-foreground">
-            Open Source
-          </Badge>
+          <Link
+            href="https://buymeacoffee.com/davyandrade.dev"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 text-xs font-medium text-amber-600 transition-colors hover:text-amber-700 dark:text-amber-500 dark:hover:text-amber-400"
+          >
+            <Coffee className="h-3.5 w-3.5" />
+            Buy me a coffee
+          </Link>
         </div>
       </header>
 
