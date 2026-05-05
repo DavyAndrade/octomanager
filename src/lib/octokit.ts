@@ -197,9 +197,15 @@ export async function createRepo(
   try {
     const { auto_init: autoInit, topics: repoTopics, ...repoData } = payload;
 
+    const sanitizedRepoData = {
+      ...repoData,
+      description: repoData.description ?? undefined,
+      homepage: repoData.homepage ?? undefined,
+    };
+
     // Create the repository
     const { data: createdRepo } = await octokit.rest.repos.createForAuthenticatedUser({
-      ...repoData,
+      ...sanitizedRepoData,
       auto_init: autoInit ?? false,
     });
 
