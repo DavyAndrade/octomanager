@@ -65,3 +65,12 @@ export interface RepoListParams {
   page?: number;
   search?: string;
 }
+
+export interface CreateRepoPayload {
+  name: string;
+  description?: string | null;
+  homepage?: string | null;
+  private?: boolean;
+  topics?: string[];
+  auto_init?: boolean;
+}

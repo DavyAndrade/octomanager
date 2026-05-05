@@ -4,6 +4,7 @@ import type {
   Repository,
   RepoUpdatePayload,
   RepoListParams,
+  CreateRepoPayload,
 } from "@/types/github";
 import type { PaginatedResponse } from "@/types/api";
 
@@ -182,6 +183,42 @@ export async function deleteRepo(
 
   try {
     await octokit.rest.repos.delete({ owner, repo });
+  } catch (error) {
+    handleGitHubError(error);
+  }
+}
+
+export async function createRepo(
+  token: string,
+  payload: CreateRepoPayload
+): Promise<Repository> {
+  const octokit = getOctokit(token);
+
+  try {
+    const { auto_init: autoInit, topics: repoTopics, ...repoData } = payload;
+
+    // Create the repository
+    const { data: createdRepo } = await octokit.rest.repos.createForAuthenticatedUser({
+      ...repoData,
+      auto_init: autoInit ?? false,
+    });
+
+    // Update topics if provided (different API endpoint)
+    if (repoTopics !== undefined) {
+      await octokit.rest.repos.replaceAllTopics({
+        owner: createdRepo.owner.login,
+        repo: createdRepo.name,
+        names: repoTopics,
+      });
+    }
+
+    // Fetch the updated repository to ensure we have the latest data
+    const { data: finalRepo } = await octokit.rest.repos.get({
+      owner: createdRepo.owner.login,
+      repo: createdRepo.name,
+    });
+
+    return finalRepo as unknown as Repository;
   } catch (error) {
     handleGitHubError(error);
   }

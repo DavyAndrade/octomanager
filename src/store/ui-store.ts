@@ -15,6 +15,7 @@ interface UIState {
   // Modal state
   deleteTargetId: number | null;
   editTargetId: number | null;
+  createTargetId: number | null;
   bulkDeleteOpen: boolean;
 
   // Actions — filters
@@ -35,6 +36,8 @@ interface UIState {
   closeDeleteModal: () => void;
   openEditModal: (repoId: number) => void;
   closeEditModal: () => void;
+  openCreateModal: () => void;
+  closeCreateModal: () => void;
   openBulkDelete: () => void;
   closeBulkDelete: () => void;
 }
@@ -47,6 +50,7 @@ const defaultState = {
   selectedRepoIds: new Set<number>(),
   deleteTargetId: null,
   editTargetId: null,
+  createTargetId: null,
   bulkDeleteOpen: false,
 };
 
@@ -85,6 +89,8 @@ export const useUIStore = create<UIState>()(
       closeDeleteModal: () => set({ deleteTargetId: null }),
       openEditModal: (repoId) => set({ editTargetId: repoId }),
       closeEditModal: () => set({ editTargetId: null }),
+      openCreateModal: () => set({ createTargetId: Date.now() }),
+      closeCreateModal: () => set({ createTargetId: null }),
       openBulkDelete: () => set({ bulkDeleteOpen: true }),
       closeBulkDelete: () => set({ bulkDeleteOpen: false }),
     }),

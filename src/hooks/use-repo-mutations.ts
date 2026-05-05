@@ -1,10 +1,11 @@
+
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { repoKeys } from "@/hooks/use-repos";
 import type { Repository } from "@/types/github";
-import type { UpdateRepoInput } from "@/schemas/repo";
+import type { UpdateRepoInput, CreateRepoInput } from "@/schemas/repo";
 import type { PaginatedResponse } from "@/types/api";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -339,6 +340,59 @@ export function useBulkToggleVisibility() {
       toast.success(
         `${repos.length} ${repos.length === 1 ? "repository" : "repositories"} made ${makePrivate ? "private" : "public"}`
       );
+    },
+
+    onSettled: () => {
+      void queryClient.invalidateQueries({ queryKey: repoKeys.all });
+    },
+  });
+}
+
+// ─── Create Repo ─────────────────────────────────────────────────────────────
+
+export function useCreateRepo() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (payload: CreateRepoInput) => {
+      const res = await fetch(`/api/repos`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const errorData = (await res.json().catch(() => ({}))) as {
+          error?: string;
+        };
+        throw new Error(errorData.error ?? "Failed to create repository");
+      }
+
+      const json = (await res.json()) as { data: Repository };
+      return json.data;
+    },
+
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey: repoKeys.all });
+
+      const previousData = queryClient.getQueriesData<
+        PaginatedResponse<Repository>
+      >({ queryKey: repoKeys.all });
+
+      return { previousData };
+    },
+
+    onError: (_err, _vars, context) => {
+      if (context?.previousData) {
+        for (const [queryKey, data] of context.previousData) {
+          queryClient.setQueryData(queryKey, data);
+        }
+      }
+      toast.error("Failed to create repository");
+    },
+
+    onSuccess: (_data, { name }) => {
+      toast.success(`Repository "${name}" created successfully`);
     },
 
     onSettled: () => {
