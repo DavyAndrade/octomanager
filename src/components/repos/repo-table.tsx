@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { memo, useCallback, useMemo, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
 import {
   flexRender,
@@ -11,6 +11,7 @@ import {
   type SortingState,
   type RowSelectionState,
   type OnChangeFn,
+  type Row,
 } from "@tanstack/react-table";
 import {
   Table,
@@ -33,6 +34,41 @@ import { useUIStore } from "@/store/ui-store";
 import type { Repository } from "@/types/github";
 
 const PAGE_SIZE = 10;
+
+interface RepoTableRowProps {
+  row: Row<Repository>;
+}
+
+/**
+ * Optimization: Memoized row component to prevent O(N) re-renders when a single row's
+ * selection state changes. The custom comparison function ensures we only re-render
+ * if the selection state OR the underlying repository data has changed.
+ */
+const RepoTableRow = memo(
+  ({ row }: RepoTableRowProps) => {
+    return (
+      <TableRow
+        data-state={row.getIsSelected() ? "selected" : undefined}
+        className="group"
+      >
+        {row.getVisibleCells().map((cell) => {
+          const meta = cell.column.columnDef.meta as
+            | { className?: string }
+            | undefined;
+          return (
+            <TableCell key={cell.id} className={meta?.className}>
+              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+            </TableCell>
+          );
+        })}
+      </TableRow>
+    );
+  },
+  (prev, next) =>
+    prev.row.getIsSelected() === next.row.getIsSelected() &&
+    prev.row.original === next.row.original,
+);
+RepoTableRow.displayName = "RepoTableRow";
 
 interface RepoTableProps {
   repos: Repository[];
@@ -156,27 +192,9 @@ export function RepoTable({ repos }: RepoTableProps) {
 
           <TableBody>
             {table.getRowModel().rows.length > 0 ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() ? "selected" : undefined}
-                  className="group"
-                >
-                  {row.getVisibleCells().map((cell) => {
-                    const meta = cell.column.columnDef.meta as
-                      | { className?: string }
-                      | undefined;
-                    return (
-                      <TableCell key={cell.id} className={meta?.className}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext(),
-                        )}
-                      </TableCell>
-                    );
-                  })}
-                </TableRow>
-              ))
+              table
+                .getRowModel()
+                .rows.map((row) => <RepoTableRow key={row.id} row={row} />)
             ) : (
               <TableRow>
                 <TableCell
