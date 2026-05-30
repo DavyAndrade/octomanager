@@ -7,6 +7,10 @@ declare module "next-auth" {
       login?: string;
     };
   }
+
+  interface User {
+    login?: string;
+  }
 }
 
 export interface AuthSession {
