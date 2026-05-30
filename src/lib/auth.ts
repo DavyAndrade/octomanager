@@ -93,6 +93,22 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return session;
     },
   },
+  events: {
+    async signIn({ user }) {
+      console.info(`[AUDIT] Successful sign-in for user: ${user.login || user.email || user.id}`);
+    },
+    async signOut({ session }) {
+      console.info(`[AUDIT] User signed out: ${session?.user?.login || "unknown user"}`);
+    },
+  },
+  logger: {
+    error(error) {
+      console.error("[AUTH_ERROR]", error);
+    },
+    warn(code) {
+      console.warn("[AUTH_WARN]", code);
+    },
+  },
   pages: {
     signIn: "/login",
     error: "/login",
