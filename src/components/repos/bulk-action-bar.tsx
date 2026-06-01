@@ -1,9 +1,15 @@
 "use client";
 
-import { memo } from "react";
+import { memo, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Trash2, Lock, Globe, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { KeyboardShortcutHint } from "@/components/ui/keyboard-shortcut-hint";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -33,6 +39,25 @@ export const BulkActionBar = memo(function BulkActionBar({
   );
   const { mutate: bulkToggle, isPending } = useBulkToggleVisibility();
   const count = selectedRepos.length;
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && count > 0) {
+        // Don't clear if focused on an input or textarea
+        const activeElement = document.activeElement;
+        const isInput =
+          activeElement instanceof HTMLInputElement ||
+          activeElement instanceof HTMLTextAreaElement;
+
+        if (!isInput) {
+          clearSelection();
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [count, clearSelection]);
 
   const handleToggleVisibility = (makePrivate: boolean) => {
     const targets = selectedRepos.map((r) => ({
@@ -101,15 +126,23 @@ export const BulkActionBar = memo(function BulkActionBar({
           </Button>
 
           {/* Clear selection */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="ml-auto h-7 w-7 text-muted-foreground"
-            onClick={clearSelection}
-          >
-            <X className="h-4 w-4" />
-            <span className="sr-only">Clear selection</span>
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="ml-auto h-7 w-7 text-muted-foreground cursor-pointer"
+                onClick={clearSelection}
+              >
+                <X className="h-4 w-4" />
+                <span className="sr-only">Clear selection</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent className="flex items-center gap-2">
+              Clear selection
+              <KeyboardShortcutHint shortcut="Esc" noModifier />
+            </TooltipContent>
+          </Tooltip>
         </motion.div>
       )}
     </AnimatePresence>

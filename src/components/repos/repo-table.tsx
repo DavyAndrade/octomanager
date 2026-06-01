@@ -22,6 +22,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { buildRepoColumns } from "@/components/repos/repo-table-columns";
 import { BulkActionBar } from "@/components/repos/bulk-action-bar";
@@ -218,16 +223,21 @@ export function RepoTable({ repos }: RepoTableProps) {
         </span>
         <div className="flex items-center gap-1">
           {/* Seta esquerda */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 cursor-pointer transition-colors hover:bg-accent disabled:opacity-40"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-            aria-label="Previous page"
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 cursor-pointer transition-colors hover:bg-accent disabled:opacity-40"
+                onClick={() => table.previousPage()}
+                disabled={!table.getCanPreviousPage()}
+                aria-label="Previous page"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Previous page</TooltipContent>
+          </Tooltip>
 
           {/* Números das páginas dinâmicos */}
           {(() => {
@@ -262,16 +272,21 @@ export function RepoTable({ repos }: RepoTableProps) {
           })()}
 
           {/* Seta direita */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 cursor-pointer transition-colors hover:bg-accent disabled:opacity-40"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-            aria-label="Next page"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 cursor-pointer transition-colors hover:bg-accent disabled:opacity-40"
+                onClick={() => table.nextPage()}
+                disabled={!table.getCanNextPage()}
+                aria-label="Next page"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Next page</TooltipContent>
+          </Tooltip>
         </div>
       </div>
 

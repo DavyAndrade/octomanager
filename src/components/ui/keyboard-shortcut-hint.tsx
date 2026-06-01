@@ -6,11 +6,13 @@ import { cn } from "@/lib/utils";
 interface KeyboardShortcutHintProps {
   shortcut: string;
   className?: string;
+  noModifier?: boolean;
 }
 
 export function KeyboardShortcutHint({
   shortcut,
   className,
+  noModifier = false,
 }: KeyboardShortcutHintProps) {
   const [isMac, setIsMac] = useState(false);
 
@@ -31,7 +33,7 @@ export function KeyboardShortcutHint({
         className
       )}
     >
-      <span className="text-xs">{isMac ? "⌘" : "Ctrl"}</span>
+      {!noModifier && <span className="text-xs">{isMac ? "⌘" : "Ctrl"}</span>}
       {shortcut}
     </kbd>
   );

@@ -11,3 +11,7 @@ This journal records critical UX and accessibility learnings discovered during t
 ## 2025-05-21 - Tooltips on Disabled Buttons
 **Learning:** Standard tooltips often fail on disabled buttons because `pointer-events: none` prevents hover events from reaching the trigger.
 **Action:** Wrap disabled buttons in a non-interactive `div` with `cursor-not-allowed` to ensure tooltips still display and provide feedback on why the action is unavailable.
+
+## 2025-06-05 - Escape Key to Clear Selection
+**Learning:** Users expect the 'Escape' key to be a universal "reset" or "dismiss" action. In addition to clearing search inputs, it should also clear bulk selections in data tables to provide a fast way to exit batch mode.
+**Action:** Implement a global keyboard listener that clears selection state when 'Escape' is pressed, ensuring it doesn't conflict with input focus or other modal interactions.
