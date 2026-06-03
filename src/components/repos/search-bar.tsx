@@ -6,6 +6,11 @@ import { Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { KeyboardShortcutHint } from "@/components/ui/keyboard-shortcut-hint";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export function SearchBar() {
   const searchQuery = useUIStore((state) => state.searchQuery);
@@ -67,18 +72,23 @@ export function SearchBar() {
         </div>
       )}
       {localValue && (
-        <Button
-          variant="ghost"
-          size="icon"
-          className="absolute right-1 top-1/2 h-7 w-7 -translate-y-1/2"
-          onClick={() => {
-            setLocalValue("");
-            setSearchQuery("");
-          }}
-        >
-          <X className="h-3.5 w-3.5" />
-          <span className="sr-only">Clear search</span>
-        </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute right-1 top-1/2 h-7 w-7 -translate-y-1/2 cursor-pointer"
+              onClick={() => {
+                setLocalValue("");
+                setSearchQuery("");
+              }}
+            >
+              <X className="h-3.5 w-3.5" />
+              <span className="sr-only">Clear search</span>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Clear search</TooltipContent>
+        </Tooltip>
       )}
     </div>
   );

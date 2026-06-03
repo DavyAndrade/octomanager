@@ -3,6 +3,7 @@ import { render, screen, fireEvent, act } from "@testing-library/react";
 import { SearchBar } from "@/components/repos/search-bar";
 import { FilterBar } from "@/components/repos/filter-bar";
 import { useUIStore } from "@/store/ui-store";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 beforeEach(() => {
   // Reset Zustand state before each test
@@ -27,21 +28,33 @@ afterEach(() => {
 
 describe("SearchBar", () => {
   it("renders input with placeholder", () => {
-    render(<SearchBar />);
+    render(
+      <TooltipProvider>
+        <SearchBar />
+      </TooltipProvider>
+    );
     expect(
       screen.getByPlaceholderText("Search repositories...")
     ).toBeInTheDocument();
   });
 
   it("updates local value on input", () => {
-    render(<SearchBar />);
+    render(
+      <TooltipProvider>
+        <SearchBar />
+      </TooltipProvider>
+    );
     const input = screen.getByPlaceholderText("Search repositories...") as HTMLInputElement;
     fireEvent.change(input, { target: { value: "octo" } });
     expect(input.value).toBe("octo");
   });
 
   it("debounces store update by 300ms", async () => {
-    render(<SearchBar />);
+    render(
+      <TooltipProvider>
+        <SearchBar />
+      </TooltipProvider>
+    );
     const input = screen.getByPlaceholderText("Search repositories...");
     fireEvent.change(input, { target: { value: "octo" } });
 
@@ -56,14 +69,22 @@ describe("SearchBar", () => {
   });
 
   it("shows clear button when input has value", async () => {
-    render(<SearchBar />);
+    render(
+      <TooltipProvider>
+        <SearchBar />
+      </TooltipProvider>
+    );
     const input = screen.getByPlaceholderText("Search repositories...");
     fireEvent.change(input, { target: { value: "octo" } });
     expect(screen.getByRole("button")).toBeInTheDocument();
   });
 
   it("clears input and store on clear button click", async () => {
-    render(<SearchBar />);
+    render(
+      <TooltipProvider>
+        <SearchBar />
+      </TooltipProvider>
+    );
     const input = screen.getByPlaceholderText("Search repositories...");
     fireEvent.change(input, { target: { value: "octo" } });
 
@@ -77,7 +98,11 @@ describe("SearchBar", () => {
   });
 
   it("clears input and blurs on Escape key", async () => {
-    render(<SearchBar />);
+    render(
+      <TooltipProvider>
+        <SearchBar />
+      </TooltipProvider>
+    );
     const input = screen.getByPlaceholderText("Search repositories...") as HTMLInputElement;
     input.focus();
     fireEvent.change(input, { target: { value: "octo" } });
@@ -93,7 +118,11 @@ describe("SearchBar", () => {
   });
 
   it("syncs when store searchQuery is reset to empty externally", async () => {
-    render(<SearchBar />);
+    render(
+      <TooltipProvider>
+        <SearchBar />
+      </TooltipProvider>
+    );
     const input = screen.getByPlaceholderText("Search repositories...");
     fireEvent.change(input, { target: { value: "octo" } });
 
