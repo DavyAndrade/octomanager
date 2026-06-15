@@ -199,10 +199,12 @@ export function useDeleteRepo() {
         { queryKey: repoKeys.all },
         (old) => {
           if (!old) return old;
+          const newItems = old.items.filter((r) => r.id !== repoId);
+          const removedCount = old.items.length - newItems.length;
           return {
             ...old,
-            items: old.items.filter((r) => r.id !== repoId),
-            total_count: old.total_count - 1,
+            items: newItems,
+            total_count: Math.max(0, old.total_count - removedCount),
           };
         }
       );
@@ -253,10 +255,12 @@ export function useBulkDeleteRepos() {
         { queryKey: repoKeys.all },
         (old) => {
           if (!old) return old;
+          const newItems = old.items.filter((r) => !ids.has(r.id));
+          const removedCount = old.items.length - newItems.length;
           return {
             ...old,
-            items: old.items.filter((r) => !ids.has(r.id)),
-            total_count: old.total_count - ids.size,
+            items: newItems,
+            total_count: Math.max(0, old.total_count - removedCount),
           };
         }
       );
