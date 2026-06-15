@@ -83,20 +83,44 @@ export function RepoTable({ repos }: RepoTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
 
   // Optimization: Memoize repo map (O(N)) to allow O(1) repo lookups.
-  const repoMap = useMemo(
-    () => new Map(repos.map((r) => [r.id, r])),
-    [repos],
+  // Using a for-loop avoids intermediate array allocations from .map().
+  const repoMap = useMemo(() => {
+    const map = new Map<number, Repository>();
+    for (const r of repos) {
+      map.set(r.id, r);
+    }
+    return map;
+  }, [repos]);
+
+  const {
+    openDeleteModal,
+    openEditModal,
+    selectedRepoIds,
+    setSelectedRepoIds,
+    deleteTargetId,
+    editTargetId,
+  } = useUIStore(
+    useShallow((state) => ({
+      openDeleteModal: state.openDeleteModal,
+      openEditModal: state.openEditModal,
+      selectedRepoIds: state.selectedRepoIds,
+      setSelectedRepoIds: state.setSelectedRepoIds,
+      deleteTargetId: state.deleteTargetId,
+      editTargetId: state.editTargetId,
+    })),
   );
 
-  const { openDeleteModal, openEditModal, selectedRepoIds, setSelectedRepoIds } =
-    useUIStore(
-      useShallow((state) => ({
-        openDeleteModal: state.openDeleteModal,
-        openEditModal: state.openEditModal,
-        selectedRepoIds: state.selectedRepoIds,
-        setSelectedRepoIds: state.setSelectedRepoIds,
-      })),
-    );
+  // Optimization: Derive target repos for modals from the repoMap.
+  // This isolates modals from the full repos collection, preventing unnecessary re-renders.
+  const targetDeleteRepo = useMemo(
+    () => (deleteTargetId ? repoMap.get(deleteTargetId) ?? null : null),
+    [deleteTargetId, repoMap],
+  );
+
+  const targetEditRepo = useMemo(
+    () => (editTargetId ? repoMap.get(editTargetId) ?? null : null),
+    [editTargetId, repoMap],
+  );
 
   // Optimization: Derive TanStack selection state from Zustand O(N) where N is number of selected items.
   // This avoids maintaining duplicate state and keeps the Zustand store as the single source of truth.
@@ -291,10 +315,10 @@ export function RepoTable({ repos }: RepoTableProps) {
       </div>
 
       {/* Modals */}
-      <DeleteRepoModal repos={repos} />
-      <EditRepoModal repos={repos} />
+      <DeleteRepoModal repo={targetDeleteRepo} />
+      <EditRepoModal repo={targetEditRepo} />
       <CreateRepoModal />
-      <BulkDeleteModal repos={repos} />
+      <BulkDeleteModal selectedRepos={selectedRows} />
 
       <FloatingCreateRepoButton />
     </div>

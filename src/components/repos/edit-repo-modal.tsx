@@ -1,11 +1,10 @@
 "use client";
 
-import { memo, useEffect, useMemo } from "react";
+import { memo, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useUpdateRepo } from "@/hooks/use-repo-mutations";
 import { useUIStore } from "@/store/ui-store";
-import { useShallow } from "zustand/react/shallow";
 import { updateRepoSchema, type UpdateRepoInput } from "@/schemas/repo";
 import {
   Dialog,
@@ -30,24 +29,14 @@ import { Textarea } from "@/components/ui/textarea";
 import type { Repository } from "@/types/github";
 
 interface EditRepoModalProps {
-  repos: Repository[];
+  repo: Repository | null;
 }
 
 export const EditRepoModal = memo(function EditRepoModal({
-  repos,
+  repo,
 }: EditRepoModalProps) {
-  const { editTargetId, closeEditModal } = useUIStore(
-    useShallow((state) => ({
-      editTargetId: state.editTargetId,
-      closeEditModal: state.closeEditModal,
-    })),
-  );
+  const closeEditModal = useUIStore((state) => state.closeEditModal);
   const { mutate: updateRepo, isPending } = useUpdateRepo();
-
-  const repo = useMemo(
-    () => (editTargetId ? repos.find((r) => r.id === editTargetId) : null),
-    [editTargetId, repos],
-  );
 
   const isOpen = !!repo;
 

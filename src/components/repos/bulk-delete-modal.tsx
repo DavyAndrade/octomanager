@@ -17,26 +17,24 @@ import { AlertTriangle } from "lucide-react";
 import type { Repository } from "@/types/github";
 
 interface BulkDeleteModalProps {
-  repos: Repository[];
+  selectedRepos: Repository[];
 }
 
 export const BulkDeleteModal = memo(function BulkDeleteModal({
-  repos,
+  selectedRepos,
 }: BulkDeleteModalProps) {
-  const { bulkDeleteOpen, closeBulkDelete, selectedRepoIds, clearSelection } =
-    useUIStore(
-      useShallow((state) => ({
-        bulkDeleteOpen: state.bulkDeleteOpen,
-        closeBulkDelete: state.closeBulkDelete,
-        selectedRepoIds: state.selectedRepoIds,
-        clearSelection: state.clearSelection,
-      }))
-    );
+  const { bulkDeleteOpen, closeBulkDelete, clearSelection } = useUIStore(
+    useShallow((state) => ({
+      bulkDeleteOpen: state.bulkDeleteOpen,
+      closeBulkDelete: state.closeBulkDelete,
+      clearSelection: state.clearSelection,
+    })),
+  );
   const { mutate: bulkDelete, isPending } = useBulkDeleteRepos();
 
   const targets = useMemo(
-    () => (bulkDeleteOpen ? repos.filter((r) => selectedRepoIds.has(r.id)) : []),
-    [bulkDeleteOpen, repos, selectedRepoIds],
+    () => (bulkDeleteOpen ? selectedRepos : []),
+    [bulkDeleteOpen, selectedRepos],
   );
 
   const handleConfirm = () => {
