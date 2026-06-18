@@ -45,21 +45,19 @@ describe("DeleteRepoModal", () => {
   });
 
   it("should not render when no repo is selected", () => {
-    const { container } = render(<DeleteRepoModal repos={[mockRepo]} />);
+    const { container } = render(<DeleteRepoModal repo={null} />);
     expect(container).toBeEmptyDOMElement();
   });
 
   it("should render when a repo is selected", async () => {
-    useUIStore.setState({ deleteTargetId: mockRepo.id });
-    render(<DeleteRepoModal repos={[mockRepo]} />);
+    render(<DeleteRepoModal repo={mockRepo} />);
 
     expect(screen.getAllByText("Delete repository").length).toBeGreaterThan(0);
     expect(screen.getAllByText(mockRepo.name).length).toBeGreaterThan(0);
   });
 
   it("should disable delete button until name matches", async () => {
-    useUIStore.setState({ deleteTargetId: mockRepo.id });
-    render(<DeleteRepoModal repos={[mockRepo]} />);
+    render(<DeleteRepoModal repo={mockRepo} />);
 
     const deleteBtn = screen.getByRole("button", { name: /Delete repository/i });
     const input = screen.getByPlaceholderText(mockRepo.name);
@@ -74,8 +72,7 @@ describe("DeleteRepoModal", () => {
   });
 
   it("should call deleteRepo on form submit when name matches", async () => {
-    useUIStore.setState({ deleteTargetId: mockRepo.id });
-    render(<DeleteRepoModal repos={[mockRepo]} />);
+    render(<DeleteRepoModal repo={mockRepo} />);
 
     const input = screen.getByPlaceholderText(mockRepo.name);
     fireEvent.change(input, { target: { value: mockRepo.name } });
@@ -96,16 +93,14 @@ describe("DeleteRepoModal", () => {
   it("should reset confirmName when target changes", async () => {
     const otherRepo = { ...mockRepo, id: 456, name: "other-repo" };
 
-    useUIStore.setState({ deleteTargetId: mockRepo.id });
-    const { rerender } = render(<DeleteRepoModal repos={[mockRepo, otherRepo]} />);
+    const { rerender } = render(<DeleteRepoModal repo={mockRepo} />);
 
     const input = screen.getByPlaceholderText(mockRepo.name) as HTMLInputElement;
     fireEvent.change(input, { target: { value: mockRepo.name } });
     expect(input.value).toBe(mockRepo.name);
 
     // Switch target
-    useUIStore.setState({ deleteTargetId: otherRepo.id });
-    rerender(<DeleteRepoModal repos={[mockRepo, otherRepo]} />);
+    rerender(<DeleteRepoModal repo={otherRepo} />);
 
     const otherInput = screen.getByPlaceholderText(otherRepo.name) as HTMLInputElement;
     expect(otherInput.value).toBe("");

@@ -1,9 +1,8 @@
 "use client";
 
-import { memo, useEffect, useMemo, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import { useDeleteRepo } from "@/hooks/use-repo-mutations";
 import { useUIStore } from "@/store/ui-store";
-import { useShallow } from "zustand/react/shallow";
 import {
   Dialog,
   DialogContent,
@@ -19,25 +18,15 @@ import { AlertTriangle } from "lucide-react";
 import type { Repository } from "@/types/github";
 
 interface DeleteRepoModalProps {
-  repos: Repository[];
+  repo: Repository | null;
 }
 
 export const DeleteRepoModal = memo(function DeleteRepoModal({
-  repos,
+  repo,
 }: DeleteRepoModalProps) {
-  const { deleteTargetId, closeDeleteModal } = useUIStore(
-    useShallow((state) => ({
-      deleteTargetId: state.deleteTargetId,
-      closeDeleteModal: state.closeDeleteModal,
-    })),
-  );
+  const closeDeleteModal = useUIStore((state) => state.closeDeleteModal);
   const { mutate: deleteRepo, isPending } = useDeleteRepo();
   const [confirmName, setConfirmName] = useState("");
-
-  const repo = useMemo(
-    () => (deleteTargetId ? repos.find((r) => r.id === deleteTargetId) : null),
-    [deleteTargetId, repos],
-  );
 
   const isOpen = !!repo;
 
