@@ -93,6 +93,26 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return session;
     },
   },
+  events: {
+    async signIn({ user, account }) {
+      console.info(
+        `[AUDIT] Successful sign-in for user: ${user.login || user.email || user.id} (Provider: ${account?.provider})`
+      );
+    },
+    async signOut({ token }) {
+      console.info(
+        `[AUDIT] Successful sign-out for user: ${token?.login || token?.email || "unknown"}`
+      );
+    },
+  },
+  logger: {
+    error(code, ...message) {
+      console.error(`[AUTH_ERROR] ${code}`, ...message);
+    },
+    warn(code) {
+      console.warn(`[AUTH_WARN] ${code}`);
+    },
+  },
   pages: {
     signIn: "/login",
     error: "/login",
