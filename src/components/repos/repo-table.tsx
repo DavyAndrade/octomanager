@@ -33,8 +33,6 @@ import { BulkActionBar } from "@/components/repos/bulk-action-bar";
 import { BulkDeleteModal } from "@/components/repos/bulk-delete-modal";
 import { DeleteRepoModal } from "@/components/repos/delete-repo-modal";
 import { EditRepoModal } from "@/components/repos/edit-repo-modal";
-import { CreateRepoModal } from "@/components/repos/create-repo-modal";
-import { FloatingCreateRepoButton } from "@/components/repos/floating-create-repo-button";
 import { useUIStore } from "@/store/ui-store";
 import type { Repository } from "@/types/github";
 
@@ -317,10 +315,7 @@ export function RepoTable({ repos }: RepoTableProps) {
       {/* Modals */}
       <DeleteRepoModal repo={targetDeleteRepo} />
       <EditRepoModal repo={targetEditRepo} />
-      <CreateRepoModal />
       <BulkDeleteModal selectedRepos={selectedRows} />
-
-      <FloatingCreateRepoButton />
     </div>
   );
 }
