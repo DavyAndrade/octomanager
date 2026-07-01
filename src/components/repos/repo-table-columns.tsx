@@ -83,7 +83,12 @@ export function buildRepoColumns(
               >
                 {repo.name}
               </Link>
-              <ExternalLink className="h-3 w-3 shrink-0 text-muted-foreground opacity-60" />
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <ExternalLink className="h-3 w-3 shrink-0 text-muted-foreground opacity-60 cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent>View on GitHub</TooltipContent>
+              </Tooltip>
               {repo.fork && (
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -172,13 +177,18 @@ export function buildRepoColumns(
           return <span className="text-xs text-muted-foreground">—</span>;
         const color = LANGUAGE_COLORS[lang] ?? "#71717a";
         return (
-          <span className="flex items-center gap-1.5 text-xs">
-            <span
-              className="h-2.5 w-2.5 shrink-0 rounded-full"
-              style={{ backgroundColor: color }}
-            />
-            <span className="truncate">{lang}</span>
-          </span>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="flex items-center gap-1.5 text-xs cursor-default">
+                <span
+                  className="h-2.5 w-2.5 shrink-0 rounded-full"
+                  style={{ backgroundColor: color }}
+                />
+                <span className="truncate">{lang}</span>
+              </span>
+            </TooltipTrigger>
+            <TooltipContent>{lang}</TooltipContent>
+          </Tooltip>
         );
       },
       size: 110,

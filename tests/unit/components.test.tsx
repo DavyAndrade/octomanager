@@ -33,6 +33,21 @@ describe("EmptyState", () => {
     render(<EmptyState isFiltered />);
     expect(screen.queryByRole("button", { name: /clear/i })).not.toBeInTheDocument();
   });
+
+  it("shows Create repository button when onCreate is provided and not filtered", () => {
+    const onCreate = vi.fn();
+    render(<EmptyState onCreate={onCreate} />);
+    const btn = screen.getByRole("button", { name: /create repository/i });
+    expect(btn).toBeInTheDocument();
+    fireEvent.click(btn);
+    expect(onCreate).toHaveBeenCalledOnce();
+  });
+
+  it("does not show Create repository button when filtered", () => {
+    const onCreate = vi.fn();
+    render(<EmptyState isFiltered onCreate={onCreate} />);
+    expect(screen.queryByRole("button", { name: /create repository/i })).not.toBeInTheDocument();
+  });
 });
 
 // ─── ErrorState ────────────────────────────────────────────────────────────────
