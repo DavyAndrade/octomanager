@@ -35,6 +35,48 @@ function handleGitHubError(error: unknown): never {
   throw new Error("An unexpected error occurred");
 }
 
+/**
+ * Optimization: Shared mapper to prune verbose GitHub repository objects down
+ * to the minimal fields required by our application. This reduces memory usage
+ * and payload size across all API operations.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function mapGitHubRepo(repo: any): Repository {
+  return {
+    id: repo.id,
+    name: repo.name,
+    full_name: repo.full_name,
+    description: repo.description,
+    private: repo.private,
+    visibility:
+      (repo.visibility as "public" | "private") ??
+      (repo.private ? "private" : "public"),
+    html_url: repo.html_url,
+    clone_url: repo.clone_url,
+    ssh_url: repo.ssh_url,
+    fork: repo.fork,
+    archived: repo.archived ?? false,
+    disabled: repo.disabled ?? false,
+    stargazers_count: repo.stargazers_count ?? 0,
+    watchers_count: repo.watchers_count ?? 0,
+    forks_count: repo.forks_count ?? 0,
+    open_issues_count: repo.open_issues_count ?? 0,
+    language: repo.language ?? null,
+    topics: repo.topics ?? [],
+    owner: {
+      login: repo.owner.login,
+      avatar_url: repo.owner.avatar_url,
+      html_url: repo.owner.html_url,
+    },
+    created_at: repo.created_at ?? "",
+    updated_at: repo.updated_at ?? "",
+    pushed_at: repo.pushed_at ?? null,
+    default_branch: repo.default_branch,
+    size: repo.size,
+    homepage: repo.homepage ?? null,
+  };
+}
+
 export async function listRepos(
   token: string,
   params: RepoListParams = {}
@@ -62,40 +104,7 @@ export async function listRepos(
     const allRepos = await octokit.paginate(
       octokit.rest.repos.listForAuthenticatedUser,
       { type: apiType, sort, direction, per_page: 100 },
-      (response) =>
-        response.data.map(
-          (repo): Repository => ({
-            id: repo.id,
-            name: repo.name,
-            full_name: repo.full_name,
-            description: repo.description,
-            private: repo.private,
-            visibility: (repo.visibility as "public" | "private") ?? (repo.private ? "private" : "public"),
-            html_url: repo.html_url,
-            clone_url: repo.clone_url,
-            ssh_url: repo.ssh_url,
-            fork: repo.fork,
-            archived: repo.archived ?? false,
-            disabled: repo.disabled ?? false,
-            stargazers_count: repo.stargazers_count ?? 0,
-            watchers_count: repo.watchers_count ?? 0,
-            forks_count: repo.forks_count ?? 0,
-            open_issues_count: repo.open_issues_count ?? 0,
-            language: repo.language ?? null,
-            topics: repo.topics ?? [],
-            owner: {
-              login: repo.owner.login,
-              avatar_url: repo.owner.avatar_url,
-              html_url: repo.owner.html_url,
-            },
-            created_at: repo.created_at ?? "",
-            updated_at: repo.updated_at ?? "",
-            pushed_at: repo.pushed_at ?? null,
-            default_branch: repo.default_branch,
-            size: repo.size,
-            homepage: repo.homepage ?? null,
-          })
-        )
+      (response) => response.data.map(mapGitHubRepo)
     );
 
     let repos = allRepos;
@@ -152,7 +161,7 @@ export async function updateRepo(
     if (Object.keys(repoPayload).length === 0 && payload.topics !== undefined) {
       // Only topics were updated; fetch updated repo
       const { data } = await octokit.rest.repos.get({ owner, repo });
-      return data as unknown as Repository;
+      return mapGitHubRepo(data);
     }
 
     // Octokit types don't accept null — convert to undefined to clear fields
@@ -168,7 +177,7 @@ export async function updateRepo(
       ...sanitizedPayload,
     });
 
-    return data as unknown as Repository;
+    return mapGitHubRepo(data);
   } catch (error) {
     handleGitHubError(error);
   }
@@ -224,7 +233,7 @@ export async function createRepo(
       repo: createdRepo.name,
     });
 
-    return finalRepo as unknown as Repository;
+    return mapGitHubRepo(finalRepo);
   } catch (error) {
     handleGitHubError(error);
   }

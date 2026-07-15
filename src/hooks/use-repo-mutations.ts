@@ -106,15 +106,16 @@ export function useToggleVisibility() {
       toast.error("Failed to toggle visibility");
     },
 
-    onSuccess: (_data, { currentPrivate }) => {
+    onSuccess: (data, { currentPrivate, repoId }) => {
+      // Optimization: Update the cache with actual server data to ensure consistency
+      // without needing a full re-fetch.
+      updateRepoInCache(queryClient, repoId, () => data);
+
       toast.success(
         `Repository is now ${currentPrivate ? "public" : "private"}`
       );
     },
 
-    onSettled: () => {
-      void queryClient.invalidateQueries({ queryKey: repoKeys.all });
-    },
   });
 }
 
@@ -163,13 +164,14 @@ export function useUpdateRepo() {
       toast.error("Failed to update repository");
     },
 
-    onSuccess: () => {
+    onSuccess: (data, { repoId }) => {
+      // Optimization: Update the cache with actual server data to ensure consistency
+      // without needing a full re-fetch.
+      updateRepoInCache(queryClient, repoId, () => data);
+
       toast.success("Repository updated successfully");
     },
 
-    onSettled: () => {
-      void queryClient.invalidateQueries({ queryKey: repoKeys.all });
-    },
   });
 }
 
@@ -225,9 +227,6 @@ export function useDeleteRepo() {
       toast.success(`Repository "${repo}" deleted`);
     },
 
-    onSettled: () => {
-      void queryClient.invalidateQueries({ queryKey: repoKeys.all });
-    },
   });
 }
 
@@ -280,9 +279,6 @@ export function useBulkDeleteRepos() {
       toast.success(`${repos.length} ${repos.length === 1 ? "repository" : "repositories"} deleted`);
     },
 
-    onSettled: () => {
-      void queryClient.invalidateQueries({ queryKey: repoKeys.all });
-    },
   });
 }
 
@@ -346,9 +342,6 @@ export function useBulkToggleVisibility() {
       );
     },
 
-    onSettled: () => {
-      void queryClient.invalidateQueries({ queryKey: repoKeys.all });
-    },
   });
 }
 
@@ -399,8 +392,5 @@ export function useCreateRepo() {
       toast.success(`Repository "${name}" created successfully`);
     },
 
-    onSettled: () => {
-      void queryClient.invalidateQueries({ queryKey: repoKeys.all });
-    },
   });
 }
