@@ -15,3 +15,7 @@ This journal records critical UX and accessibility learnings discovered during t
 ## 2025-06-05 - Escape Key to Clear Selection
 **Learning:** Users expect the 'Escape' key to be a universal "reset" or "dismiss" action. In addition to clearing search inputs, it should also clear bulk selections in data tables to provide a fast way to exit batch mode.
 **Action:** Implement a global keyboard listener that clears selection state when 'Escape' is pressed, ensuring it doesn't conflict with input focus or other modal interactions.
+
+## 2025-08-01 - Interactive Empty States require Client Boundaries
+**Learning:** When adding state-changing CTA buttons (such as "Create repository") to informational empty-state components in a Next.js App Router environment, the component must have a `"use client";` directive to prevent React serialization errors when used inside Server Components.
+**Action:** Always mark empty state components with `"use client";` if they accept event handlers or callbacks to ensure they can be rendered dynamically in both Server and Client contexts.

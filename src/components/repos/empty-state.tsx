@@ -1,12 +1,19 @@
+"use client";
+
 import { Inbox, SearchX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface EmptyStateProps {
   isFiltered?: boolean;
   onReset?: () => void;
+  onCreate?: () => void;
 }
 
-export function EmptyState({ isFiltered = false, onReset }: EmptyStateProps) {
+export function EmptyState({
+  isFiltered = false,
+  onReset,
+  onCreate,
+}: EmptyStateProps) {
   return (
     <div className="flex flex-col items-center justify-center py-20 text-center">
       {isFiltered ? (
@@ -25,6 +32,11 @@ export function EmptyState({ isFiltered = false, onReset }: EmptyStateProps) {
       {isFiltered && onReset && (
         <Button variant="outline" size="sm" onClick={onReset}>
           Clear filters
+        </Button>
+      )}
+      {!isFiltered && onCreate && (
+        <Button size="sm" onClick={onCreate}>
+          Create repository
         </Button>
       )}
     </div>
