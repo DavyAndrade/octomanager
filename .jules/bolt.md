@@ -9,3 +9,7 @@
 ## 2025-05-25 - [React] Redundant prop drilling and O(N) searches in modals
 **Learning:** Passing large collections to multiple modals that then perform their own O(N) searches creates redundant computations and triggers unnecessary re-renders across all modals whenever the collection changes. Lifting the lookup (O(1) via Map) to the parent component and passing specific targets as props isolates modals and improves UI responsiveness.
 **Action:** Perform lookups in the parent component using a memoized Map. Pass only the required entity or a subset to child modals. This ensures that modals only re-render when their specific target data changes, not on every list update.
+
+## 2025-06-01 - [TanStack Table / Zustand] Static column definitions and store action dispatches
+**Learning:** Passing action callback wrappers into table column builder functions inside `useMemo` in table components causes column definition objects to be re-created whenever callback references change. Accessing Zustand store actions directly in cell renderers via `useUIStore.getState().actionName` enables column definitions to be defined statically at module level.
+**Action:** Export table column definitions as a static constant whenever cell actions only invoke Zustand store methods. Use `useUIStore.getState()` inside cell click handlers to decouple columns from component lifecycle re-renders.

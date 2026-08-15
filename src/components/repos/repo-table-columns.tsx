@@ -17,16 +17,10 @@ import {
   formatRelativeTime,
   LANGUAGE_COLORS,
 } from "@/lib/utils";
+import { useUIStore } from "@/store/ui-store";
 import type { Repository } from "@/types/github";
 
-interface ActionHandlers {
-  onEdit: (repo: Repository) => void;
-  onDelete: (repo: Repository) => void;
-}
-
-export function buildRepoColumns(
-  handlers: ActionHandlers,
-): ColumnDef<Repository>[] {
+export function buildRepoColumns(): ColumnDef<Repository>[] {
   return [
     // ── Select ────────────────────────────────────────────────────────────────
     {
@@ -254,7 +248,7 @@ export function buildRepoColumns(
                     variant="ghost"
                     size="icon"
                     className="h-7 w-7 cursor-pointer"
-                    onClick={() => handlers.onEdit(repo)}
+                    onClick={() => useUIStore.getState().openEditModal(repo.id)}
                     disabled={repo.archived}
                   >
                     <Pencil className="h-3.5 w-3.5" />
@@ -273,7 +267,7 @@ export function buildRepoColumns(
                   variant="ghost"
                   size="icon"
                   className="h-7 w-7 text-destructive hover:bg-destructive/10 hover:text-destructive cursor-pointer"
-                  onClick={() => handlers.onDelete(repo)}
+                  onClick={() => useUIStore.getState().openDeleteModal(repo.id)}
                 >
                   <Trash2 className="h-3.5 w-3.5" />
                   <span className="sr-only">Delete {repo.name}</span>
@@ -289,3 +283,6 @@ export function buildRepoColumns(
     },
   ];
 }
+
+// Static columns definition to prevent re-initialization on component re-renders
+export const repoColumns = buildRepoColumns();

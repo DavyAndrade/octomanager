@@ -28,7 +28,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { buildRepoColumns } from "@/components/repos/repo-table-columns";
+import { repoColumns } from "@/components/repos/repo-table-columns";
 import { BulkActionBar } from "@/components/repos/bulk-action-bar";
 import { BulkDeleteModal } from "@/components/repos/bulk-delete-modal";
 import { DeleteRepoModal } from "@/components/repos/delete-repo-modal";
@@ -93,16 +93,12 @@ export function RepoTable({ repos }: RepoTableProps) {
   }, [repos]);
 
   const {
-    openDeleteModal,
-    openEditModal,
     selectedRepoIds,
     setSelectedRepoIds,
     deleteTargetId,
     editTargetId,
   } = useUIStore(
     useShallow((state) => ({
-      openDeleteModal: state.openDeleteModal,
-      openEditModal: state.openEditModal,
       selectedRepoIds: state.selectedRepoIds,
       setSelectedRepoIds: state.setSelectedRepoIds,
       deleteTargetId: state.deleteTargetId,
@@ -132,15 +128,6 @@ export function RepoTable({ repos }: RepoTableProps) {
     return selection;
   }, [selectedRepoIds]);
 
-  const columns = useMemo(
-    () =>
-      buildRepoColumns({
-        onEdit: (repo) => openEditModal(repo.id),
-        onDelete: (repo) => openDeleteModal(repo.id),
-      }),
-    [openEditModal, openDeleteModal],
-  );
-
   const getRowId = useCallback((row: Repository) => row.id.toString(), []);
 
   const onRowSelectionChange = useCallback<OnChangeFn<RowSelectionState>>(
@@ -163,7 +150,7 @@ export function RepoTable({ repos }: RepoTableProps) {
 
   const table = useReactTable({
     data: repos,
-    columns,
+    columns: repoColumns,
     state: { sorting, rowSelection },
     enableRowSelection: true,
     getRowId,
@@ -227,7 +214,7 @@ export function RepoTable({ repos }: RepoTableProps) {
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={columns.length}
+                  colSpan={repoColumns.length}
                   className="h-32 text-center text-sm text-muted-foreground"
                 >
                   No repositories found.
