@@ -3,13 +3,27 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { Github } from "lucide-react";
 import { SignInButton } from "@/components/auth/sign-in-button";
-import { DevSignInButton } from "@/components/auth/dev-sign-in-button";
 
 export const metadata: Metadata = {
   title: "Sign in",
 };
 
-export default async function LoginPage() {
+const errorMessages: Record<string, string> = {
+  Configuration: "There is a problem with the server configuration.",
+  AccessDenied: "Access denied.",
+  Verification: "The sign in link is no longer valid.",
+  OAuthAccountNotLinked:
+    "This GitHub account is already linked to another provider.",
+  OAuthCallbackError: "An error occurred during the GitHub sign-in flow.",
+  MissingCSRF: "The CSRF token is missing. Please try again.",
+  Default: "An error occurred during sign-in. Please try again.",
+};
+
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
   // Wrap in try/catch: if AUTH_SECRET is not set, auth() throws and we still
   // want the login page to render instead of a blank 500.
   try {
@@ -21,6 +35,9 @@ export default async function LoginPage() {
 
   const isDevMode =
     process.env.NODE_ENV === "development" && !!process.env.GITHUB_DEV_TOKEN;
+
+  const { error } = await searchParams;
+  const errorMessage = error ? errorMessages[error] ?? errorMessages.Default : null;
 
   return (
     <main className="flex min-h-screen items-center justify-center px-4">
@@ -39,9 +56,15 @@ export default async function LoginPage() {
           </div>
         </div>
 
+        {errorMessage && (
+          <div className="rounded-lg border border-red-500/20 bg-red-50/50 px-4 py-3 text-sm text-red-700 dark:border-red-500/30 dark:bg-red-950/20 dark:text-red-400">
+            {errorMessage}
+          </div>
+        )}
+
         {isDevMode ? (
           <div className="space-y-3">
-            <DevSignInButton className="w-full" />
+            <SignInButton className="w-full" dev />
             <p className="text-xs text-amber-600 dark:text-amber-400">
               ⚠ Dev mode — using local gh CLI token
             </p>

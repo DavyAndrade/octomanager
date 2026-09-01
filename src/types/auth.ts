@@ -8,14 +8,3 @@ declare module "next-auth" {
     };
   }
 }
-
-export interface AuthSession {
-  accessToken: string;
-  user: {
-    name: string | null;
-    email: string | null;
-    image: string | null;
-    login: string;
-  };
-  expires: string;
-}

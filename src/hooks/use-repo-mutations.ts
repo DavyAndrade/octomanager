@@ -27,6 +27,17 @@ function updateRepoInCache(
   );
 }
 
+function rollbackOnError(queryClient: ReturnType<typeof useQueryClient>, errorMessage: string) {
+  return (_err: unknown, _vars: unknown, context: { previousData?: [readonly unknown[], unknown][] } | void) => {
+    if (context?.previousData) {
+      for (const [queryKey, data] of context.previousData) {
+        queryClient.setQueryData(queryKey, data);
+      }
+    }
+    toast.error(errorMessage);
+  };
+}
+
 async function patchRepo(
   owner: string,
   repo: string,
@@ -97,14 +108,7 @@ export function useToggleVisibility() {
       return { previousData };
     },
 
-    onError: (_err, _vars, context) => {
-      if (context?.previousData) {
-        for (const [queryKey, data] of context.previousData) {
-          queryClient.setQueryData(queryKey, data);
-        }
-      }
-      toast.error("Failed to toggle visibility");
-    },
+    onError: rollbackOnError(queryClient, "Failed to toggle visibility"),
 
     onSuccess: (_data, { currentPrivate }) => {
       toast.success(
@@ -154,14 +158,7 @@ export function useUpdateRepo() {
       return { previousData };
     },
 
-    onError: (_err, _vars, context) => {
-      if (context?.previousData) {
-        for (const [queryKey, data] of context.previousData) {
-          queryClient.setQueryData(queryKey, data);
-        }
-      }
-      toast.error("Failed to update repository");
-    },
+    onError: rollbackOnError(queryClient, "Failed to update repository"),
 
     onSuccess: () => {
       toast.success("Repository updated successfully");
@@ -212,14 +209,7 @@ export function useDeleteRepo() {
       return { previousData };
     },
 
-    onError: (_err, _vars, context) => {
-      if (context?.previousData) {
-        for (const [queryKey, data] of context.previousData) {
-          queryClient.setQueryData(queryKey, data);
-        }
-      }
-      toast.error("Failed to delete repository");
-    },
+    onError: rollbackOnError(queryClient, "Failed to delete repository"),
 
     onSuccess: (_data, { repo }) => {
       toast.success(`Repository "${repo}" deleted`);
@@ -267,14 +257,7 @@ export function useBulkDeleteRepos() {
       return { previousData };
     },
 
-    onError: (_err, _vars, context) => {
-      if (context?.previousData) {
-        for (const [queryKey, data] of context.previousData) {
-          queryClient.setQueryData(queryKey, data);
-        }
-      }
-      toast.error("Bulk delete failed — changes rolled back");
-    },
+    onError: rollbackOnError(queryClient, "Bulk delete failed — changes rolled back"),
 
     onSuccess: (_data, repos) => {
       toast.success(`${repos.length} ${repos.length === 1 ? "repository" : "repositories"} deleted`);
@@ -331,14 +314,7 @@ export function useBulkToggleVisibility() {
       return { previousData };
     },
 
-    onError: (_err, _vars, context) => {
-      if (context?.previousData) {
-        for (const [queryKey, data] of context.previousData) {
-          queryClient.setQueryData(queryKey, data);
-        }
-      }
-      toast.error("Bulk visibility update failed — changes rolled back");
-    },
+    onError: rollbackOnError(queryClient, "Bulk visibility update failed — changes rolled back"),
 
     onSuccess: (_data, { repos, makePrivate }) => {
       toast.success(
@@ -386,14 +362,7 @@ export function useCreateRepo() {
       return { previousData };
     },
 
-    onError: (_err, _vars, context) => {
-      if (context?.previousData) {
-        for (const [queryKey, data] of context.previousData) {
-          queryClient.setQueryData(queryKey, data);
-        }
-      }
-      toast.error("Failed to create repository");
-    },
+    onError: rollbackOnError(queryClient, "Failed to create repository"),
 
     onSuccess: (_data, { name }) => {
       toast.success(`Repository "${name}" created successfully`);

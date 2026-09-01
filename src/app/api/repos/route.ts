@@ -4,6 +4,19 @@ import { listRepos, createRepo } from "@/lib/octokit";
 import { repoListParamsSchema, createRepoSchema } from "@/schemas/repo";
 import type { ApiError } from "@/types/api";
 
+function mapGitHubError(error: unknown, context: string) {
+  const message = error instanceof Error ? error.message : "An unexpected error occurred";
+  let status = 500;
+  if (message.includes("not found")) status = 404;
+  else if (message.includes("Forbidden")) status = 403;
+  else if (message.includes("Validation failed")) status = 422;
+  else if (message.includes("GitHub token")) status = 401;
+
+  const safeMessage = status === 500 ? `An unexpected error occurred while ${context}` : message;
+  console.error(`[API_${context.toUpperCase()}]`, error);
+  return NextResponse.json<ApiError>({ error: safeMessage }, { status });
+}
+
 export async function GET(request: Request): Promise<NextResponse> {
   const session = await auth();
 
@@ -30,23 +43,7 @@ export async function GET(request: Request): Promise<NextResponse> {
     const result = await listRepos(session.accessToken, parseResult.data);
     return NextResponse.json({ data: result });
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "An unexpected error occurred";
-
-    let status = 500;
-    if (message.includes("not found")) status = 404;
-    else if (message.includes("Forbidden")) status = 403;
-    else if (message.includes("Validation failed")) status = 422;
-    else if (message.includes("GitHub token")) status = 401;
-
-    const safeMessage =
-      status === 500
-        ? "An unexpected error occurred while fetching repositories"
-        : message;
-
-    console.error("[API_REPOS_GET]", error);
-
-    return NextResponse.json<ApiError>({ error: safeMessage }, { status });
+    return mapGitHubError(error, "fetching repositories");
   }
 }
 
@@ -87,22 +84,6 @@ export async function POST(request: Request): Promise<NextResponse> {
 
     return NextResponse.json({ data: createdRepo });
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "An unexpected error occurred";
-
-    let status = 500;
-    if (message.includes("not found")) status = 404;
-    else if (message.includes("Forbidden")) status = 403;
-    else if (message.includes("Validation failed")) status = 422;
-    else if (message.includes("GitHub token")) status = 401;
-
-    const safeMessage =
-      status === 500
-        ? "An unexpected error occurred while creating the repository"
-        : message;
-
-    console.error("[API_REPOS_POST]", error);
-
-    return NextResponse.json<ApiError>({ error: safeMessage }, { status });
+    return mapGitHubError(error, "creating the repository");
   }
 }
