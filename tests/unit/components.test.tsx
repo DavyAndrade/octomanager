@@ -1,45 +1,44 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
-import { EmptyState } from "@/components/repos/empty-state";
-import { ErrorState } from "@/components/repos/error-state";
+import { StatePlaceholder } from "@/components/repos/state-placeholder";
 import { RepoListSkeleton } from "@/components/repos/repo-list-skeleton";
 
-// ─── EmptyState ────────────────────────────────────────────────────────────────
+// ─── StatePlaceholder (empty) ──────────────────────────────────────────────
 
-describe("EmptyState", () => {
-  it("renders no-repo message when not filtered", () => {
-    render(<EmptyState />);
+describe("StatePlaceholder — empty", () => {
+  it("renders no-repo message", () => {
+    render(<StatePlaceholder type="empty" />);
     expect(screen.getByText("No repositories yet")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /clear/i })).not.toBeInTheDocument();
   });
 
-  it("renders filtered message when isFiltered=true", () => {
-    render(<EmptyState isFiltered />);
+  it("renders filtered message", () => {
+    render(<StatePlaceholder type="filtered" />);
     expect(
       screen.getByText("No repositories match your filters")
     ).toBeInTheDocument();
   });
 
-  it("shows Clear filters button when isFiltered and onReset provided", () => {
-    const onReset = vi.fn();
-    render(<EmptyState isFiltered onReset={onReset} />);
+  it("shows Clear filters button when onAction provided", () => {
+    const onAction = vi.fn();
+    render(<StatePlaceholder type="filtered" onAction={onAction} />);
     const btn = screen.getByRole("button", { name: /clear filters/i });
     expect(btn).toBeInTheDocument();
     fireEvent.click(btn);
-    expect(onReset).toHaveBeenCalledOnce();
+    expect(onAction).toHaveBeenCalledOnce();
   });
 
-  it("does not show Clear filters button without onReset", () => {
-    render(<EmptyState isFiltered />);
+  it("does not show button without onAction", () => {
+    render(<StatePlaceholder type="filtered" />);
     expect(screen.queryByRole("button", { name: /clear/i })).not.toBeInTheDocument();
   });
 });
 
-// ─── ErrorState ────────────────────────────────────────────────────────────────
+// ─── StatePlaceholder (error) ──────────────────────────────────────────────
 
-describe("ErrorState", () => {
+describe("StatePlaceholder — error", () => {
   it("renders default error message", () => {
-    render(<ErrorState />);
+    render(<StatePlaceholder type="error" />);
     expect(screen.getByText("Failed to load repositories")).toBeInTheDocument();
     expect(
       screen.getByText(/Something went wrong/i)
@@ -47,26 +46,26 @@ describe("ErrorState", () => {
   });
 
   it("renders custom message", () => {
-    render(<ErrorState message="Rate limit exceeded" />);
+    render(<StatePlaceholder type="error" message="Rate limit exceeded" />);
     expect(screen.getByText("Rate limit exceeded")).toBeInTheDocument();
   });
 
-  it("shows Try again button when onRetry provided", () => {
-    const onRetry = vi.fn();
-    render(<ErrorState onRetry={onRetry} />);
+  it("shows Try again button when onAction provided", () => {
+    const onAction = vi.fn();
+    render(<StatePlaceholder type="error" onAction={onAction} />);
     const btn = screen.getByRole("button", { name: /try again/i });
     expect(btn).toBeInTheDocument();
     fireEvent.click(btn);
-    expect(onRetry).toHaveBeenCalledOnce();
+    expect(onAction).toHaveBeenCalledOnce();
   });
 
-  it("does not show Try again button without onRetry", () => {
-    render(<ErrorState />);
+  it("does not show Try again button without onAction", () => {
+    render(<StatePlaceholder type="error" />);
     expect(screen.queryByRole("button", { name: /try again/i })).not.toBeInTheDocument();
   });
 });
 
-// ─── RepoListSkeleton ──────────────────────────────────────────────────────────
+// ─── RepoListSkeleton ──────────────────────────────────────────────────────
 
 describe("RepoListSkeleton", () => {
   it("renders default 10 skeleton table rows", () => {

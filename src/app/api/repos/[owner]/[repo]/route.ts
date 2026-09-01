@@ -13,6 +13,19 @@ interface RouteContext {
   params: Promise<{ owner: string; repo: string }>;
 }
 
+function mapGitHubError(error: unknown, context: string) {
+  const message = error instanceof Error ? error.message : "An unexpected error occurred";
+  let status = 500;
+  if (message.includes("not found")) status = 404;
+  else if (message.includes("Forbidden")) status = 403;
+  else if (message.includes("Validation failed")) status = 422;
+  else if (message.includes("GitHub token")) status = 401;
+
+  const safeMessage = status === 500 ? `An unexpected error occurred while ${context}` : message;
+  console.error(`[API_${context.toUpperCase().replace(/ /g, "_")}]`, error);
+  return NextResponse.json<ApiError>({ error: safeMessage }, { status });
+}
+
 export async function PATCH(
   request: Request,
   { params }: RouteContext
@@ -28,7 +41,6 @@ export async function PATCH(
 
   const { owner, repo } = await params;
 
-  // Validate URL parameters
   const ownerParse = ownerParamSchema.safeParse(owner);
   const repoParse = repoParamSchema.safeParse(repo);
 
@@ -79,20 +91,7 @@ export async function PATCH(
 
     return NextResponse.json({ data: updated });
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "An unexpected error occurred";
-
-    let status = 500;
-    if (message.includes("not found")) status = 404;
-    else if (message.includes("Forbidden")) status = 403;
-    else if (message.includes("Validation failed")) status = 422;
-    else if (message.includes("GitHub token")) status = 401;
-
-    const safeMessage =
-      status === 500 ? "An unexpected error occurred while updating the repository" : message;
-
-    console.error("[API_REPO_PATCH]", error);
-    return NextResponse.json<ApiError>({ error: safeMessage }, { status });
+    return mapGitHubError(error, "updating the repository");
   }
 }
 
@@ -111,7 +110,6 @@ export async function DELETE(
 
   const { owner, repo } = await params;
 
-  // Validate URL parameters
   const ownerParse = ownerParamSchema.safeParse(owner);
   const repoParse = repoParamSchema.safeParse(repo);
 
@@ -132,7 +130,6 @@ export async function DELETE(
     );
   }
 
-  // Double-verify that the provided name matches the URL parameter
   if (parseResult.data.name !== repo) {
     console.warn(
       `[SECURITY] Repository deletion name mismatch by ${session.user?.login || "unknown"}. Expected: "${repo}", Provided: "${parseResult.data.name}"`
@@ -152,19 +149,6 @@ export async function DELETE(
 
     return new NextResponse(null, { status: 204 });
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "An unexpected error occurred";
-
-    let status = 500;
-    if (message.includes("not found")) status = 404;
-    else if (message.includes("Forbidden")) status = 403;
-    else if (message.includes("Validation failed")) status = 422;
-    else if (message.includes("GitHub token")) status = 401;
-
-    const safeMessage =
-      status === 500 ? "An unexpected error occurred while deleting the repository" : message;
-
-    console.error("[API_REPO_DELETE]", error);
-    return NextResponse.json<ApiError>({ error: safeMessage }, { status });
+    return mapGitHubError(error, "deleting the repository");
   }
 }

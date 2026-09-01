@@ -1,8 +1,7 @@
 "use client";
 
 import { RepoTable } from "@/components/repos/repo-table";
-import { EmptyState } from "@/components/repos/empty-state";
-import { ErrorState } from "@/components/repos/error-state";
+import { StatePlaceholder } from "@/components/repos/state-placeholder";
 import { RepoListSkeleton } from "@/components/repos/repo-list-skeleton";
 import { useRepos } from "@/hooks/use-repos";
 import { useUIStore } from "@/store/ui-store";
@@ -22,9 +21,10 @@ export function RepoList() {
 
   if (isError) {
     return (
-      <ErrorState
+      <StatePlaceholder
+        type="error"
         message={error instanceof Error ? error.message : undefined}
-        onRetry={() => void refetch()}
+        onAction={() => void refetch()}
       />
     );
   }
@@ -34,9 +34,9 @@ export function RepoList() {
 
   if (repos.length === 0) {
     return (
-      <EmptyState
-        isFiltered={isFiltered}
-        onReset={isFiltered ? resetFilters : undefined}
+      <StatePlaceholder
+        type={isFiltered ? "filtered" : "empty"}
+        onAction={isFiltered ? resetFilters : undefined}
       />
     );
   }

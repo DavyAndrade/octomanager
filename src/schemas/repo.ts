@@ -6,6 +6,18 @@ export const repoTopicSchema = z
   .max(50)
   .regex(/^[a-z0-9-]+$/, "Topics must be lowercase alphanumeric or hyphens");
 
+export const homepageFieldSchema = z
+  .string()
+  .max(255, "URL must be 255 characters or less")
+  .url("Must be a valid URL")
+  .refine(
+    (url) => url.startsWith("http://") || url.startsWith("https://"),
+    "URL must use http or https"
+  )
+  .or(z.literal(""))
+  .nullable()
+  .optional();
+
 export const ownerParamSchema = z
   .string()
   .min(1)
@@ -28,17 +40,7 @@ export const updateRepoSchema = z.object({
     .max(350, "Description must be 350 characters or less")
     .nullable()
     .optional(),
-  homepage: z
-    .string()
-    .max(255, "URL must be 255 characters or less")
-    .url("Must be a valid URL")
-    .refine(
-      (url) => url.startsWith("http://") || url.startsWith("https://"),
-      "URL must use http or https"
-    )
-    .or(z.literal(""))
-    .nullable()
-    .optional(),
+  homepage: homepageFieldSchema,
   private: z.boolean().optional(),
   topics: z.array(repoTopicSchema).max(20, "Maximum 20 topics").optional(),
   archived: z.boolean().optional(),
@@ -58,17 +60,7 @@ export const createRepoSchema = z.object({
     .max(350, "Description must be 350 characters or less")
     .nullable()
     .optional(),
-  homepage: z
-    .string()
-    .max(255, "URL must be 255 characters or less")
-    .url("Must be a valid URL")
-    .refine(
-      (url) => url.startsWith("http://") || url.startsWith("https://"),
-      "URL must use http or https"
-    )
-    .or(z.literal(""))
-    .nullable()
-    .optional(),
+  homepage: homepageFieldSchema,
   private: z.boolean().optional(),
   topics: z.array(repoTopicSchema).max(20, "Maximum 20 topics").optional(),
   auto_init: z.boolean().optional(),

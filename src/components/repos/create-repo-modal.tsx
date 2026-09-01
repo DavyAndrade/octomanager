@@ -25,10 +25,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
+import { RepoFormFields } from "./repo-form-fields";
+
 export const CreateRepoModal = memo(function CreateRepoModal() {
   const { createTargetId, closeCreateModal } = useUIStore(
     useShallow((state) => ({
@@ -52,7 +52,6 @@ export const CreateRepoModal = memo(function CreateRepoModal() {
     },
   });
 
-  // Reset form when modal opens
   useEffect(() => {
     if (isOpen) {
       form.reset({
@@ -84,96 +83,7 @@ export const CreateRepoModal = memo(function CreateRepoModal() {
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <div className="flex items-center justify-between">
-                    <FormLabel>Repository name</FormLabel>
-                    <span className="text-[10px] text-muted-foreground tabular-nums">
-                      {field.value?.length ?? 0}/100
-                    </span>
-                  </div>
-                  <FormControl>
-                    <Input {...field} maxLength={100} autoFocus />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <div className="flex items-center justify-between">
-                    <FormLabel>Description</FormLabel>
-                    <span className="text-[10px] text-muted-foreground tabular-nums">
-                      {(field.value ?? "").length}/350
-                    </span>
-                  </div>
-                  <FormControl>
-                    <Textarea
-                      {...field}
-                      value={field.value ?? ""}
-                      placeholder="A short description of this repository"
-                      rows={3}
-                      maxLength={350}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="homepage"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Website</FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      value={field.value ?? ""}
-                      placeholder="https://example.com"
-                      type="url"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="topics"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Topics</FormLabel>
-                  <FormControl>
-                    <Input
-                      value={field.value?.join(", ") ?? ""}
-                      onChange={(e) => {
-                        const raw = e.target.value;
-                        const topics = raw
-                          .split(",")
-                          .map((t) => t.trim().toLowerCase())
-                          .filter(Boolean);
-                        field.onChange(topics);
-                      }}
-                      placeholder="react, typescript, nextjs"
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Comma-separated. Lowercase letters, numbers, and hyphens only.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <RepoFormFields control={form.control} />
 
             <FormField
               control={form.control}
