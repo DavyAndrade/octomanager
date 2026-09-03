@@ -45,6 +45,7 @@ export async function listRepos(
     sort = "pushed",
     direction = "desc",
     search,
+    viewerLogin,
   } = params;
 
   // GitHub API only accepts these values for listForAuthenticatedUser.
@@ -54,9 +55,6 @@ export async function listRepos(
     type === "forks" || type === "sources" ? "all" : (type as ApiType);
 
   try {
-    // Get viewer login to detect ownership
-    const { data: viewer } = await octokit.rest.users.getAuthenticated();
-
     // Paginate through ALL GitHub pages so total_count reflects the real count,
     // not just the first 100 results. The table paginates locally.
     // Optimization: Map results to include only necessary fields, reducing payload size.
@@ -103,11 +101,12 @@ export async function listRepos(
                   pull: repo.permissions.pull ?? false,
                 }
               : undefined,
-            // Owner detection: you own the repo if admin permission AND the owner login is yours
-            // (admin alone isn't enough — org members also have admin on their org repos)
+            // Owner detection: viewerLogin comes from the session (already on
+            // the JWT cookie). Falls back to a more permissive check if missing.
             isOwner:
-              repo.permissions?.admin === true &&
-              repo.owner.login === viewer.login,
+              viewerLogin !== undefined
+                ? repo.owner.login === viewerLogin
+                : repo.permissions?.admin === true,
           })
         )
     );

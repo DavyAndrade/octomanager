@@ -73,6 +73,7 @@ export interface RepoListParams {
   per_page?: number;
   page?: number;
   search?: string;
+  viewerLogin?: string;
 }
 
 export interface CreateRepoPayload {
