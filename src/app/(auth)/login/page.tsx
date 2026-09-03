@@ -9,14 +9,14 @@ export const metadata: Metadata = {
 };
 
 const errorMessages: Record<string, string> = {
-  Configuration: "There is a problem with the server configuration.",
-  AccessDenied: "Access denied.",
-  Verification: "The sign in link is no longer valid.",
+  Configuration: "Server configuration issue. Please try again later or contact support.",
+  AccessDenied: "You denied permission or the request was cancelled. Try signing in again and approve the access request.",
+  Verification: "The sign-in link has expired. Please request a new one by signing in again.",
   OAuthAccountNotLinked:
-    "This GitHub account is already linked to another provider.",
-  OAuthCallbackError: "An error occurred during the GitHub sign-in flow.",
-  MissingCSRF: "The CSRF token is missing. Please try again.",
-  Default: "An error occurred during sign-in. Please try again.",
+    "This GitHub account is already linked to a different sign-in method. Use the same method you originally used.",
+  OAuthCallbackError: "GitHub sign-in was interrupted. Please try again — if the problem persists, check that your GitHub account is accessible.",
+  MissingCSRF: "The security token expired. Please refresh the page and try again.",
+  Default: "Something went wrong during sign-in. Please try again.",
 };
 
 export default async function LoginPage({
@@ -65,7 +65,7 @@ export default async function LoginPage({
         {isDevMode ? (
           <div className="space-y-3">
             <SignInButton className="w-full" dev />
-            <p className="text-xs text-amber-600 dark:text-amber-400">
+            <p className="text-xs text-muted-foreground">
               ⚠ Dev mode — using local gh CLI token
             </p>
           </div>

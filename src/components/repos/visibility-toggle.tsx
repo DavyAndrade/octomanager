@@ -3,7 +3,7 @@
 import { memo } from "react";
 import { Switch } from "@/components/ui/switch";
 import { useToggleVisibility } from "@/hooks/use-repo-mutations";
-import { Lock, Globe } from "lucide-react";
+import { Lock, Globe, Loader2 } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -38,19 +38,23 @@ export const VisibilityToggle = memo(function VisibilityToggle({
           ) : (
             <Globe className="h-3.5 w-3.5 text-muted-foreground" />
           )}
-          <Switch
-            checked={!isPrivate}
-            onCheckedChange={handleToggle}
-            disabled={isPending}
-            aria-label={`Toggle repository visibility (currently ${isPrivate ? "private" : "public"})`}
-            className="data-[state=checked]:bg-switch-active cursor-pointer"
-          />
+          {isPending ? (
+            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+          ) : (
+            <Switch
+              checked={!isPrivate}
+              onCheckedChange={handleToggle}
+              disabled={isPending}
+              aria-label={`Toggle repository visibility (currently ${isPrivate ? "private" : "public"})`}
+              className="data-[state=checked]:bg-switch-active cursor-pointer"
+            />
+          )}
         </div>
       </TooltipTrigger>
       <TooltipContent>
-        <p>
-          Make {isPrivate ? "public" : "private"} — click to toggle visibility
-        </p>
+        {isPending
+          ? "Updating visibility…"
+          : `Make ${isPrivate ? "public" : "private"} — click to toggle visibility`}
       </TooltipContent>
     </Tooltip>
   );

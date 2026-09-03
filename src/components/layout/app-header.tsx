@@ -2,7 +2,7 @@
 
 import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
-import { LogOut, Github, Settings } from "lucide-react";
+import { LogOut, Github } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -70,12 +70,6 @@ export function AppHeader() {
                     GitHub Profile
                   </a>
                 </DropdownMenuItem>
-                <div className="cursor-not-allowed">
-                  <DropdownMenuItem disabled className="flex items-center gap-2 pointer-events-none">
-                    <Settings className="h-4 w-4" />
-                    Settings
-                  </DropdownMenuItem>
-                </div>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={() => void signOut({ callbackUrl: "/" })}
