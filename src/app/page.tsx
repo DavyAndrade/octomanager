@@ -1,4 +1,4 @@
-import { Github, GitFork, Eye, Trash2, ArrowRight, Coffee, Star, Lock, Globe, Terminal, Command } from "lucide-react";
+import { GitFork, Eye, Trash2, ArrowRight, Coffee, Star, Lock, Globe, Terminal, Command } from "lucide-react";
 import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
@@ -42,10 +42,10 @@ export default async function HomePage() {
     <main className="flex min-h-screen flex-col bg-background">
       {/* Nav */}
       <header className="border-b border-border">
-        <div className="container mx-auto flex h-14 items-center justify-between px-4">
-          <div className="flex items-center gap-2 font-semibold tracking-tight">
-            <Terminal className="h-4 w-4" />
-            <span>OctoManager</span>
+        <div className="container mx-auto flex h-14 items-center justify-between gap-2 px-4">
+          <div className="flex min-w-0 items-center gap-2 font-semibold tracking-tight">
+            <Terminal className="h-4 w-4 shrink-0" />
+            <span className="truncate">OctoManager</span>
             <span className="hidden font-mono text-[10px] font-normal text-muted-foreground sm:inline-block">
               ~/landing
             </span>
@@ -55,6 +55,7 @@ export default async function HomePage() {
               href="https://github.com/DavyAndrade/octomanager"
               target="_blank"
               rel="noopener noreferrer"
+              aria-label="View source on GitHub"
               className="hidden items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground sm:flex"
             >
               source
@@ -63,46 +64,56 @@ export default async function HomePage() {
               href="https://buymeacoffee.com/davyandrade.dev"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
+              aria-label="Buy me a coffee"
+              className="flex items-center gap-1.5 rounded-md p-2 text-muted-foreground transition-colors hover:text-foreground sm:px-2.5 sm:py-1.5"
             >
-              <Coffee className="h-3.5 w-3.5" />
+              <Coffee className="h-4 w-4" />
               <span className="hidden sm:inline">Buy me a coffee</span>
             </Link>
           </div>
         </div>
       </header>
 
-      {/* Hero — split: copy left, chrome-window mock right */}
-      <section className="flex-1 px-4 py-12 sm:py-16 lg:py-20">
-        <div className="container mx-auto grid items-center gap-10 lg:grid-cols-[1.05fr_1fr] lg:gap-12">
-          {/* Left: headline + CTA */}
-          <div className="flex flex-col">
-            <p className="mb-5 font-mono text-xs text-muted-foreground">
+      {/* Hero — mobile-first: mock first (proof), then copy (why) */}
+      <section className="flex-1 px-4 py-6 sm:py-12 lg:py-20">
+        <div className="container mx-auto flex flex-col gap-8 lg:grid lg:grid-cols-[1.05fr_1fr] lg:items-center lg:gap-12 lg:gap-x-12">
+          {/* Mock first on mobile (proof), then the copy on lg+ */}
+          <div className="order-1 lg:order-2">
+            <div className="lg:hidden">
+              <DashboardMock density="compact" />
+            </div>
+            <div className="hidden lg:block">
+              <DashboardMock density="full" />
+            </div>
+          </div>
+
+          <div className="order-2 flex flex-col lg:order-1">
+            <p className="mb-3 hidden font-mono text-xs text-muted-foreground sm:mb-5 sm:block">
               <span className="text-foreground">$</span> octo --what
             </p>
-            <h1 className="text-balance text-4xl font-bold leading-[1.05] tracking-tight text-foreground sm:text-5xl lg:text-[3.75rem]">
+            <h1 className="text-balance text-[2rem] font-bold leading-[1.05] tracking-tight text-foreground sm:text-5xl lg:text-[3.75rem]">
               Your GitHub repos,
               <br />
               <span className="text-muted-foreground">without the friction.</span>
             </h1>
-            <p className="mt-5 max-w-md text-base text-muted-foreground sm:text-lg">
+            <p className="mt-4 max-w-md text-sm text-muted-foreground sm:mt-5 sm:text-base lg:text-lg">
               Bulk toggle visibility, edit metadata, and delete repos from one keyboard-first surface. No settings-page maze.
             </p>
 
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-              <SignInButton className="cursor-pointer" />
+            <div className="mt-6 flex flex-col gap-3 sm:mt-8 sm:flex-row sm:items-center">
+              <SignInButton className="w-full cursor-pointer sm:w-auto" />
               <Link
                 href="https://github.com/DavyAndrade/octomanager"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-2.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+                className="hidden items-center justify-center gap-1.5 px-2.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground sm:inline-flex"
               >
                 View source
                 <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </div>
 
-            <ul className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-2 font-mono text-xs text-muted-foreground">
+            <ul className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 font-mono text-xs text-muted-foreground sm:mt-8">
               <li className="flex items-center gap-1.5">
                 <span className="h-1.5 w-1.5 rounded-full bg-foreground" />
                 OAuth · no data stored
@@ -117,9 +128,6 @@ export default async function HomePage() {
               </li>
             </ul>
           </div>
-
-          {/* Right: chrome-window mock dashboard */}
-          <DashboardMock />
         </div>
       </section>
 
@@ -213,7 +221,13 @@ export default async function HomePage() {
   );
 }
 
-function DashboardMock() {
+function DashboardMock({ density = "full" }: { density?: "compact" | "full" }) {
+  const isCompact = density === "compact";
+  const visibleRepos = isCompact ? MOCK_REPOS.slice(0, 3) : MOCK_REPOS;
+  const totalRepos = MOCK_REPOS.length;
+  const visibleCount = visibleRepos.length;
+  const trailingCount = totalRepos - visibleCount;
+
   return (
     <div className="overflow-hidden rounded-lg border border-border bg-card shadow-[0_1px_3px_0_rgb(0_0_0/0.08),0_1px_2px_-1px_rgb(0_0_0/0.08)]">
       {/* Chrome bar */}
@@ -223,35 +237,35 @@ function DashboardMock() {
           <span className="h-2.5 w-2.5 rounded-full bg-muted-foreground/30" />
           <span className="h-2.5 w-2.5 rounded-full bg-muted-foreground/30" />
         </div>
-        <div className="flex-1 text-center font-mono text-[10px] text-muted-foreground">
+        <div className="flex-1 truncate text-center font-mono text-[10px] text-muted-foreground">
           octomanager · ~/repos
         </div>
-        <span className="font-mono text-[10px] text-muted-foreground">5</span>
+        <span className="font-mono text-[10px] text-muted-foreground">{totalRepos}</span>
       </div>
 
       {/* Command bar */}
       <div className="flex items-center gap-2 border-b border-border px-3 py-2">
         <span className="font-mono text-xs text-muted-foreground">$</span>
-        <span className="font-mono text-xs text-foreground">repos --filter=&quot;&quot;</span>
-        <span className="ml-0.5 inline-block h-3.5 w-1.5 animate-pulse bg-foreground" aria-hidden />
+        <span className="truncate font-mono text-xs text-foreground">repos --filter=&quot;&quot;</span>
+        <span className="ml-0.5 inline-block h-3.5 w-1.5 shrink-0 animate-pulse bg-foreground" aria-hidden />
       </div>
 
       {/* Section nav */}
-      <div className="flex items-center gap-3 border-b border-border bg-muted/30 px-3 py-1.5 font-mono text-[10px]">
-        <span className="text-foreground">all</span>
-        <span className="text-muted-foreground">your</span>
-        <span className="text-muted-foreground">public</span>
-        <span className="text-muted-foreground">private</span>
-        <span className="text-muted-foreground">collab</span>
-        <span className="ml-auto text-muted-foreground">5 / 5</span>
+      <div className="flex items-center gap-3 overflow-x-auto border-b border-border bg-muted/30 px-3 py-1.5 font-mono text-[10px]">
+        <span className="shrink-0 text-foreground">all</span>
+        <span className="shrink-0 text-muted-foreground">your</span>
+        <span className="shrink-0 text-muted-foreground">public</span>
+        <span className="shrink-0 text-muted-foreground">private</span>
+        <span className="shrink-0 text-muted-foreground">collab</span>
+        <span className="ml-auto shrink-0 text-muted-foreground">{visibleCount} / {totalRepos}</span>
       </div>
 
       {/* Repo list */}
       <ul className="divide-y divide-border font-mono text-xs">
-        {MOCK_REPOS.map((repo) => (
+        {visibleRepos.map((repo) => (
           <li
             key={repo.name}
-            className="grid grid-cols-[1fr_auto_auto_auto] items-center gap-3 px-3 py-2"
+            className="grid grid-cols-[1fr_auto_auto] items-center gap-3 px-3 py-2 sm:grid-cols-[1fr_auto_auto_auto]"
           >
             <div className="flex min-w-0 items-center gap-2">
               {repo.visibility === "private" ? (
@@ -261,20 +275,25 @@ function DashboardMock() {
               )}
               <span className="truncate text-foreground">{repo.name}</span>
             </div>
-            <span className="hidden text-muted-foreground sm:inline">{repo.language}</span>
+            <span className="hidden truncate text-muted-foreground sm:inline">{repo.language}</span>
             <span className="flex items-center gap-0.5 text-muted-foreground">
               <Star className="h-3 w-3" />
               {repo.stars.toLocaleString()}
             </span>
-            <span className="text-muted-foreground">{repo.updated}</span>
+            <span className="hidden text-muted-foreground sm:inline">{repo.updated}</span>
           </li>
         ))}
+        {isCompact && trailingCount > 0 && (
+          <li className="px-3 py-2 text-center font-mono text-[10px] text-muted-foreground">
+            + {trailingCount} more · sign in to see all
+          </li>
+        )}
       </ul>
 
       {/* Status bar */}
       <div className="flex items-center justify-between border-t border-border bg-muted/30 px-3 py-1.5 font-mono text-[10px] text-muted-foreground">
-        <span>0 selected · bulk action ready</span>
-        <span>ready</span>
+        <span className="truncate">0 selected · bulk action ready</span>
+        <span className="ml-2 shrink-0">ready</span>
       </div>
     </div>
   );
