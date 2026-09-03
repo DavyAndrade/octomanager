@@ -1,4 +1,4 @@
-import { GitFork, Eye, Trash2, ArrowRight, Coffee, Star, Lock, Globe, Terminal, Command } from "lucide-react";
+import { GitFork, Eye, Trash2, ArrowRight, Star, Lock, Globe, Terminal, Command, Github } from "lucide-react";
 import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
@@ -25,7 +25,6 @@ const KEYBOARD_HINTS = [
   { keys: "⌘K", label: "search" },
   { keys: "Esc", label: "clear" },
   { keys: "Space", label: "select" },
-  { keys: "?", label: "help" },
 ];
 
 const ACTIONS = [
@@ -50,27 +49,16 @@ export default async function HomePage() {
               ~/landing
             </span>
           </div>
-          <div className="flex items-center gap-1">
-            <Link
-              href="https://github.com/DavyAndrade/octomanager"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="View source on GitHub"
-              className="hidden items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground sm:flex"
-            >
-              source
-            </Link>
-            <Link
-              href="https://buymeacoffee.com/davyandrade.dev"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Buy me a coffee"
-              className="flex items-center gap-1.5 rounded-md p-2 text-muted-foreground transition-colors hover:text-foreground sm:px-2.5 sm:py-1.5"
-            >
-              <Coffee className="h-4 w-4" />
-              <span className="hidden sm:inline">Buy me a coffee</span>
-            </Link>
-          </div>
+          <Link
+            href="https://github.com/DavyAndrade/octomanager"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="View source on GitHub"
+            className="flex items-center gap-1.5 rounded-md p-2 text-muted-foreground transition-colors hover:text-foreground sm:px-2.5 sm:py-1.5"
+          >
+            <Github className="h-4 w-4" aria-hidden />
+            <span className="hidden sm:inline">source</span>
+          </Link>
         </div>
       </header>
 
@@ -131,9 +119,15 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Keyboard hint bar */}
-      <section className="border-y border-border bg-muted/40">
+      {/* Keyboard hint bar — in-app shortcuts shown as ambient flavor */}
+      <section
+        aria-label="Keyboard shortcuts available inside the dashboard"
+        className="border-y border-border bg-muted/40"
+      >
         <div className="container mx-auto flex flex-wrap items-center justify-center gap-x-6 gap-y-2 px-4 py-2.5 font-mono text-[11px] text-muted-foreground">
+          <span className="font-normal text-muted-foreground/80">
+            inside the dashboard:
+          </span>
           {KEYBOARD_HINTS.map(({ keys, label }) => (
             <span key={keys} className="inline-flex items-center gap-1.5">
               <kbd className="inline-flex h-5 min-w-[20px] items-center justify-center rounded border border-border bg-background px-1.5 text-[10px] font-medium text-foreground">
