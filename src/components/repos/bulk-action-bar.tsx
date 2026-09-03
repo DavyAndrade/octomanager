@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useEffect } from "react";
+import { memo, useEffect, useState } from "react";
 import { Trash2, Lock, Globe, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,6 +9,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { KeyboardShortcutHint } from "@/components/ui/keyboard-shortcut-hint";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useBulkToggleVisibility } from "@/hooks/use-repo-mutations";
 import { useUIStore } from "@/store/ui-store";
 import { useShallow } from "zustand/react/shallow";
@@ -17,6 +18,12 @@ import type { Repository } from "@/types/github";
 interface BulkActionBarProps {
   selectedRepos: Repository[];
 }
+
+type PendingBulk = {
+  makePrivate: boolean;
+  starred: Repository[];
+  totalStars: number;
+} | null;
 
 export const BulkActionBar = memo(function BulkActionBar({
   selectedRepos,
@@ -29,6 +36,7 @@ export const BulkActionBar = memo(function BulkActionBar({
   );
   const { mutate: bulkToggle, isPending } = useBulkToggleVisibility();
   const count = selectedRepos.length;
+  const [pending, setPending] = useState<PendingBulk>(null);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -49,6 +57,16 @@ export const BulkActionBar = memo(function BulkActionBar({
   }, [count, clearSelection]);
 
   const handleToggleVisibility = (makePrivate: boolean) => {
+    const starred = selectedRepos.filter((r) => r.stargazers_count > 0);
+    if (starred.length > 0) {
+      const totalStars = starred.reduce((s, r) => s + r.stargazers_count, 0);
+      setPending({ makePrivate, starred, totalStars });
+      return;
+    }
+    runBulkToggle(makePrivate);
+  };
+
+  const runBulkToggle = (makePrivate: boolean) => {
     const targets = selectedRepos.map((r) => ({
       owner: r.owner.login,
       repo: r.name,
@@ -58,6 +76,13 @@ export const BulkActionBar = memo(function BulkActionBar({
       { repos: targets, makePrivate },
       { onSuccess: clearSelection }
     );
+  };
+
+  const confirmStarReset = () => {
+    if (pending) {
+      runBulkToggle(pending.makePrivate);
+    }
+    setPending(null);
   };
 
   if (count === 0) return null;
@@ -130,6 +155,31 @@ export const BulkActionBar = memo(function BulkActionBar({
           </TooltipContent>
         </Tooltip>
       </div>
+
+      <ConfirmDialog
+        open={pending !== null}
+        onOpenChange={(open) => !open && setPending(null)}
+        title="Changing visibility will reset stars"
+        description={
+          pending
+            ? (() => {
+                const action = pending.makePrivate ? "private" : "public";
+                const repoCount = pending.starred.length;
+                const sample = pending.starred
+                  .slice(0, 3)
+                  .map((r) => `${r.name} (${r.stargazers_count.toLocaleString()})`)
+                  .join(", ");
+                const more =
+                  pending.starred.length > 3
+                    ? ` and ${pending.starred.length - 3} more`
+                    : "";
+                return `${repoCount === 1 ? "1 selected repo has" : `${repoCount} selected repos have`} stars (${pending.totalStars.toLocaleString()} total).\n\nChanging visibility to ${action} will reset the star count on GitHub. This cannot be undone.\n\nAffected: ${sample}${more}`;
+              })()
+            : ""
+        }
+        confirmLabel="Change visibility"
+        onConfirm={confirmStarReset}
+      />
     </div>
   );
 });

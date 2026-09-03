@@ -38,6 +38,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useUIStore } from "@/store/ui-store";
 import { useShallow } from "zustand/react/shallow";
 import { formatRepoCount, formatRelativeTime, LANGUAGE_COLORS } from "@/lib/utils";
@@ -146,6 +147,8 @@ export const RepoList = memo(function RepoList({
   }, [currentSection.repos, searchQuery]);
 
   const [page, setPage] = useState(1);
+  const [pendingVisibilityToggle, setPendingVisibilityToggle] =
+    useState<Repository | null>(null);
   const totalPages = Math.max(1, Math.ceil(filteredRepos.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
   const pagedRepos = filteredRepos.slice(
@@ -153,22 +156,21 @@ export const RepoList = memo(function RepoList({
     currentPage * PAGE_SIZE,
   );
 
-  // Wrap onToggleVisibility to warn when changing visibility of a starred
-  // repo. GitHub resets the stargazer count when a repo's visibility changes
-  // (public ↔ private), which is destructive. The warning is per-row, not
-  // bulk — bulk operations assume the user knows what they're doing.
+  // GitHub resets the stargazer count when a repo's visibility changes
+  // (public ↔ private), which is destructive. Warn before toggling.
   const handleToggleVisibility = (repo: Repository) => {
     if (repo.stargazers_count > 0) {
-      const action = repo.private ? "make public" : "make private";
-      const stars = repo.stargazers_count.toLocaleString();
-      const ok = window.confirm(
-        `${repo.name} has ${stars} ${repo.stargazers_count === 1 ? "star" : "stars"}.\n\n` +
-          `Changing visibility to ${action === "make public" ? "public" : "private"} will reset the star count on GitHub.\n\n` +
-          `Continue?`,
-      );
-      if (!ok) return;
+      setPendingVisibilityToggle(repo);
+      return;
     }
     onToggleVisibility(repo);
+  };
+
+  const confirmStarReset = () => {
+    if (pendingVisibilityToggle) {
+      onToggleVisibility(pendingVisibilityToggle);
+    }
+    setPendingVisibilityToggle(null);
   };
 
   if (repos.length === 0) return null;
@@ -342,6 +344,23 @@ export const RepoList = memo(function RepoList({
           </div>
         )}
       </div>
+
+      <ConfirmDialog
+        open={pendingVisibilityToggle !== null}
+        onOpenChange={(open) => !open && setPendingVisibilityToggle(null)}
+        title="Changing visibility will reset stars"
+        description={
+          pendingVisibilityToggle
+            ? (() => {
+                const repo = pendingVisibilityToggle;
+                const action = repo.private ? "public" : "private";
+                return `${repo.name} has ${repo.stargazers_count.toLocaleString()} ${repo.stargazers_count === 1 ? "star" : "stars"}.\n\nChanging visibility to ${action} will reset the star count on GitHub. This cannot be undone.`;
+              })()
+            : ""
+        }
+        confirmLabel="Change visibility"
+        onConfirm={confirmStarReset}
+      />
     </div>
   );
 });
