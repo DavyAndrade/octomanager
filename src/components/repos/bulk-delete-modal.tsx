@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useMemo } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import { useBulkDeleteRepos } from "@/hooks/use-repo-mutations";
 import { useUIStore } from "@/store/ui-store";
 import { useShallow } from "zustand/react/shallow";
@@ -13,6 +13,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { AlertTriangle } from "lucide-react";
 import type { Repository } from "@/types/github";
 
@@ -31,13 +33,26 @@ export const BulkDeleteModal = memo(function BulkDeleteModal({
     })),
   );
   const { mutate: bulkDelete, isPending } = useBulkDeleteRepos();
+  const [confirmText, setConfirmText] = useState("");
 
   const targets = useMemo(
     () => (bulkDeleteOpen ? selectedRepos : []),
     [bulkDeleteOpen, selectedRepos],
   );
 
-  const handleConfirm = () => {
+  // Reset confirmation when modal opens
+  useEffect(() => {
+    if (bulkDeleteOpen) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setConfirmText("");
+    }
+  }, [bulkDeleteOpen]);
+
+  const isConfirmed = confirmText === "DELETE";
+
+  const handleConfirm = (e?: React.FormEvent) => {
+    e?.preventDefault();
+    if (!isConfirmed || targets.length === 0) return;
     bulkDelete(
       targets.map((r) => ({ owner: r.owner.login, repo: r.name, repoId: r.id })),
       {
@@ -78,20 +93,45 @@ export const BulkDeleteModal = memo(function BulkDeleteModal({
           ))}
         </ul>
 
-        <DialogFooter className="gap-2 sm:gap-0">
-          <Button variant="outline" onClick={closeBulkDelete} disabled={isPending}>
-            Cancel
-          </Button>
-          <Button
-            variant="destructive"
-            onClick={handleConfirm}
-            disabled={isPending || targets.length === 0}
-          >
-            {isPending
-              ? "Deleting…"
-              : `Delete ${targets.length} ${targets.length === 1 ? "repository" : "repositories"}`}
-          </Button>
-        </DialogFooter>
+        <form onSubmit={handleConfirm}>
+          <div className="space-y-3 py-2">
+            <Label htmlFor="confirm-bulk-delete" className="text-sm">
+              Type{" "}
+              <code className="rounded bg-muted px-1 py-0.5 font-mono text-xs">
+                DELETE
+              </code>{" "}
+              to confirm:
+            </Label>
+            <Input
+              id="confirm-bulk-delete"
+              value={confirmText}
+              onChange={(e) => setConfirmText(e.target.value)}
+              placeholder="DELETE"
+              autoComplete="off"
+              autoFocus
+            />
+          </div>
+
+          <DialogFooter className="mt-4 gap-2 sm:gap-0">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={closeBulkDelete}
+              disabled={isPending}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              variant="destructive"
+              disabled={!isConfirmed || isPending || targets.length === 0}
+            >
+              {isPending
+                ? "Deleting…"
+                : `Delete ${targets.length} ${targets.length === 1 ? "repository" : "repositories"}`}
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );

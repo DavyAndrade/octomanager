@@ -83,7 +83,7 @@ export function buildRepoColumns(
               >
                 {repo.name}
               </Link>
-              <ExternalLink className="h-3 w-3 shrink-0 text-muted-foreground opacity-60" />
+              <ExternalLink className="h-3 w-3 shrink-0 text-muted-foreground" />
               {repo.fork && (
                 <Tooltip>
                   <TooltipTrigger asChild>

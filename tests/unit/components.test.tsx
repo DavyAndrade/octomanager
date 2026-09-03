@@ -8,14 +8,14 @@ import { RepoListSkeleton } from "@/components/repos/repo-list-skeleton";
 describe("StatePlaceholder — empty", () => {
   it("renders no-repo message", () => {
     render(<StatePlaceholder type="empty" />);
-    expect(screen.getByText("No repositories yet")).toBeInTheDocument();
+    expect(screen.getByText("Your workbench is empty")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /clear/i })).not.toBeInTheDocument();
   });
 
   it("renders filtered message", () => {
     render(<StatePlaceholder type="filtered" />);
     expect(
-      screen.getByText("No repositories match your filters")
+      screen.getByText("Nothing matches your filters")
     ).toBeInTheDocument();
   });
 
@@ -68,15 +68,17 @@ describe("StatePlaceholder — error", () => {
 // ─── RepoListSkeleton ──────────────────────────────────────────────────────
 
 describe("RepoListSkeleton", () => {
-  it("renders default 10 skeleton table rows", () => {
+  it("renders default 12 skeleton rows", () => {
     const { container } = render(<RepoListSkeleton />);
-    const tableRows = container.querySelectorAll("tbody tr");
-    expect(tableRows).toHaveLength(10);
+    const list = container.querySelector(".divide-y");
+    const rows = list?.children;
+    expect(rows).toHaveLength(12);
   });
 
-  it("renders custom count of skeleton table rows", () => {
+  it("renders custom count of skeleton rows", () => {
     const { container } = render(<RepoListSkeleton count={3} />);
-    const tableRows = container.querySelectorAll("tbody tr");
-    expect(tableRows).toHaveLength(3);
+    const list = container.querySelector(".divide-y");
+    const rows = list?.children;
+    expect(rows).toHaveLength(3);
   });
 });

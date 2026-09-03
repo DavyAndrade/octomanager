@@ -39,23 +39,20 @@ async function fetchRepos(
   return json.data;
 }
 
-export function useRepos(page = 1) {
-  const { searchQuery, visibilityFilter, sortBy, sortDirection } = useUIStore(
+export function useRepos() {
+  // Search is intentionally NOT in the query key — it filters client-side
+  // in RepoList so every keystroke is instant instead of triggering a refetch.
+  const { sortBy, sortDirection } = useUIStore(
     useShallow((state) => ({
-      searchQuery: state.searchQuery,
-      visibilityFilter: state.visibilityFilter,
       sortBy: state.sortBy,
       sortDirection: state.sortDirection,
     }))
   );
 
   const params = {
-    type: visibilityFilter,
+    type: "all",
     sort: sortBy,
     direction: sortDirection,
-    per_page: 10,
-    page,
-    ...(searchQuery ? { search: searchQuery } : {}),
   };
 
   return useQuery({
