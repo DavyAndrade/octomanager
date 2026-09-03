@@ -40,9 +40,10 @@ async function fetchRepos(
 }
 
 export function useRepos() {
-  const { searchQuery, sortBy, sortDirection } = useUIStore(
+  // Search is intentionally NOT in the query key — it filters client-side
+  // in RepoList so every keystroke is instant instead of triggering a refetch.
+  const { sortBy, sortDirection } = useUIStore(
     useShallow((state) => ({
-      searchQuery: state.searchQuery,
       sortBy: state.sortBy,
       sortDirection: state.sortDirection,
     }))
@@ -52,7 +53,6 @@ export function useRepos() {
     type: "all",
     sort: sortBy,
     direction: sortDirection,
-    ...(searchQuery ? { search: searchQuery } : {}),
   };
 
   return useQuery({
