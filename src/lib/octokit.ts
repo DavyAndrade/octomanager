@@ -41,11 +41,9 @@ export async function listRepos(
 ): Promise<PaginatedResponse<Repository>> {
   const octokit = getOctokit(token);
   const {
-    type = "owner",
+    type = "all",
     sort = "pushed",
     direction = "desc",
-    per_page = 30,
-    page = 1,
     search,
   } = params;
 
@@ -56,6 +54,9 @@ export async function listRepos(
     type === "forks" || type === "sources" ? "all" : (type as ApiType);
 
   try {
+    // Get viewer login to detect ownership
+    const { data: viewer } = await octokit.rest.users.getAuthenticated();
+
     // Paginate through ALL GitHub pages so total_count reflects the real count,
     // not just the first 100 results. The table paginates locally.
     // Optimization: Map results to include only necessary fields, reducing payload size.
@@ -94,6 +95,19 @@ export async function listRepos(
             default_branch: repo.default_branch,
             size: repo.size,
             homepage: repo.homepage ?? null,
+            permissions: repo.permissions
+              ? {
+                  admin: repo.permissions.admin ?? false,
+                  maintain: repo.permissions.maintain ?? false,
+                  push: repo.permissions.push ?? false,
+                  pull: repo.permissions.pull ?? false,
+                }
+              : undefined,
+            // Owner detection: you own the repo if admin permission AND the owner login is yours
+            // (admin alone isn't enough — org members also have admin on their org repos)
+            isOwner:
+              repo.permissions?.admin === true &&
+              repo.owner.login === viewer.login,
           })
         )
     );
@@ -117,12 +131,13 @@ export async function listRepos(
       );
     }
 
+    // Return all items — client paginates
     return {
       items: repos,
       total_count: repos.length,
-      page,
-      per_page,
-      has_next_page: false, // all pages already fetched
+      page: 1,
+      per_page: repos.length,
+      has_next_page: false,
     };
   } catch (error) {
     handleGitHubError(error);
