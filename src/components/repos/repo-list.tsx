@@ -13,6 +13,8 @@ import {
   User,
   Users,
   RefreshCw,
+  Search,
+  X,
 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
@@ -31,6 +33,11 @@ import {
   PaginationPrevious,
   PaginationEllipsis,
 } from "@/components/ui/pagination";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useUIStore } from "@/store/ui-store";
 import { useShallow } from "zustand/react/shallow";
 import { formatRepoCount, formatRelativeTime, LANGUAGE_COLORS } from "@/lib/utils";
@@ -59,11 +66,12 @@ export const RepoList = memo(function RepoList({
   onReload,
   isReloading,
 }: RepoListProps) {
-  const { activeSection, setActiveSection, searchQuery } = useUIStore(
+  const { activeSection, setActiveSection, searchQuery, setSearchQuery } = useUIStore(
     useShallow((state) => ({
       activeSection: state.activeSection,
       setActiveSection: state.setActiveSection,
       searchQuery: state.searchQuery,
+      setSearchQuery: state.setSearchQuery,
     }))
   );
 
@@ -158,10 +166,56 @@ export const RepoList = memo(function RepoList({
   ];
 
   return (
-    <div className="grid grid-cols-1 gap-6 md:grid-cols-[200px_1fr]">
-      {/* Sidebar nav */}
-      <nav className="md:sticky md:top-20 md:self-start">
-        <ul className="-mx-1 flex gap-1 overflow-x-auto px-1 md:mx-0 md:flex-col md:gap-0.5 md:overflow-visible md:px-0">
+    <div className="grid grid-cols-1 gap-6 md:grid-cols-[240px_1fr]">
+      {/* Sidebar nav — sticky on desktop, horizontal scroll on mobile */}
+      <nav className="space-y-3 md:sticky md:top-20 md:self-start">
+        {/* Search + Reload at the top of the sidebar */}
+        <div className="flex items-center gap-1.5">
+          <div className="relative flex-1">
+            <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search…"
+              className="h-8 w-full rounded-md border border-border bg-background pl-8 pr-7 text-sm text-foreground placeholder:text-muted-foreground focus:border-foreground/30 focus:outline-none"
+              aria-label="Search repositories"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                aria-label="Clear search"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={onReload}
+                disabled={isReloading}
+                className="h-8 w-8 shrink-0 cursor-pointer"
+                aria-label="Reload repositories"
+              >
+                <RefreshCw
+                  className={`h-3.5 w-3.5 ${
+                    isReloading ? "animate-spin" : ""
+                  }`}
+                />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Reload</TooltipContent>
+          </Tooltip>
+        </div>
+
+        {/* Section list */}
+        <ul className="flex gap-1 overflow-x-auto md:flex-col md:gap-0.5 md:overflow-visible">
           {sidebarOrder.map((key) => {
             const section = sections[key];
             const Icon = section.icon;
@@ -195,23 +249,6 @@ export const RepoList = memo(function RepoList({
               </li>
             );
           })}
-          <li className="hidden md:block md:mt-2 md:pt-2 md:border-t md:border-border">
-            <button
-              type="button"
-              onClick={onReload}
-              disabled={isReloading}
-              className="flex w-full items-center gap-2 rounded-md px-3 py-1.5 text-sm text-muted-foreground hover:bg-accent hover:text-foreground disabled:opacity-50"
-            >
-              <RefreshCw
-                className={`h-3.5 w-3.5 shrink-0 ${
-                  isReloading ? "animate-spin" : ""
-                }`}
-              />
-              <span className="truncate">
-                {isReloading ? "Reloading…" : "Reload"}
-              </span>
-            </button>
-          </li>
         </ul>
       </nav>
 
