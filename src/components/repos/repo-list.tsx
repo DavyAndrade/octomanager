@@ -153,6 +153,24 @@ export const RepoList = memo(function RepoList({
     currentPage * PAGE_SIZE,
   );
 
+  // Wrap onToggleVisibility to warn when changing visibility of a starred
+  // repo. GitHub resets the stargazer count when a repo's visibility changes
+  // (public ↔ private), which is destructive. The warning is per-row, not
+  // bulk — bulk operations assume the user knows what they're doing.
+  const handleToggleVisibility = (repo: Repository) => {
+    if (repo.stargazers_count > 0) {
+      const action = repo.private ? "make public" : "make private";
+      const stars = repo.stargazers_count.toLocaleString();
+      const ok = window.confirm(
+        `${repo.name} has ${stars} ${repo.stargazers_count === 1 ? "star" : "stars"}.\n\n` +
+          `Changing visibility to ${action === "make public" ? "public" : "private"} will reset the star count on GitHub.\n\n` +
+          `Continue?`,
+      );
+      if (!ok) return;
+    }
+    onToggleVisibility(repo);
+  };
+
   if (repos.length === 0) return null;
 
   const sidebarOrder: Array<keyof typeof sections> = [
@@ -268,7 +286,7 @@ export const RepoList = memo(function RepoList({
                 onToggleSelect={onToggleSelect}
                 onEdit={onEdit}
                 onDelete={onDelete}
-                onToggleVisibility={onToggleVisibility}
+                onToggleVisibility={handleToggleVisibility}
               />
             ))}
           </ul>

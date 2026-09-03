@@ -10,7 +10,6 @@ import { DeleteRepoModal } from "@/components/repos/delete-repo-modal";
 import { EditRepoModal } from "@/components/repos/edit-repo-modal";
 import { CreateRepoModal } from "@/components/repos/create-repo-modal";
 import { BulkDeleteModal } from "@/components/repos/bulk-delete-modal";
-import { FloatingCreateRepoButton } from "@/components/repos/floating-create-repo-button";
 import { useRepos } from "@/hooks/use-repos";
 import { useUIStore } from "@/store/ui-store";
 import { useShallow } from "zustand/react/shallow";
@@ -127,7 +126,6 @@ export function Dashboard() {
       <EditRepoModal repo={targetEditRepo} />
       <CreateRepoModal />
       <BulkDeleteModal selectedRepos={selectedRows} />
-      <FloatingCreateRepoButton />
     </div>
   );
 }
