@@ -32,6 +32,14 @@ export interface Repository {
   default_branch: string;
   size: number;
   homepage: string | null;
+  permissions?: {
+    admin: boolean;
+    maintain: boolean;
+    push: boolean;
+    pull: boolean;
+  };
+  viewerHasStarred?: boolean;
+  isOwner?: boolean;
 }
 
 export interface RepoUpdatePayload {
@@ -55,7 +63,8 @@ export type RepoTypeFilter =
   | "public"
   | "private"
   | "forks"
-  | "sources";
+  | "sources"
+  | "archived";
 
 export interface RepoListParams {
   type?: RepoTypeFilter;
@@ -64,6 +73,7 @@ export interface RepoListParams {
   per_page?: number;
   page?: number;
   search?: string;
+  viewerLogin?: string;
 }
 
 export interface CreateRepoPayload {

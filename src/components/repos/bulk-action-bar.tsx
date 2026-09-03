@@ -1,7 +1,6 @@
 "use client";
 
-import { memo, useEffect } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { memo, useEffect, useState } from "react";
 import { Trash2, Lock, Globe, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,15 +9,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { KeyboardShortcutHint } from "@/components/ui/keyboard-shortcut-hint";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Separator } from "@/components/ui/separator";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useBulkToggleVisibility } from "@/hooks/use-repo-mutations";
 import { useUIStore } from "@/store/ui-store";
 import { useShallow } from "zustand/react/shallow";
@@ -27,6 +18,12 @@ import type { Repository } from "@/types/github";
 interface BulkActionBarProps {
   selectedRepos: Repository[];
 }
+
+type PendingBulk = {
+  makePrivate: boolean;
+  starred: Repository[];
+  totalStars: number;
+} | null;
 
 export const BulkActionBar = memo(function BulkActionBar({
   selectedRepos,
@@ -39,11 +36,11 @@ export const BulkActionBar = memo(function BulkActionBar({
   );
   const { mutate: bulkToggle, isPending } = useBulkToggleVisibility();
   const count = selectedRepos.length;
+  const [pending, setPending] = useState<PendingBulk>(null);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape" && count > 0) {
-        // Don't clear if focused on an input or textarea
         const activeElement = document.activeElement;
         const isInput =
           activeElement instanceof HTMLInputElement ||
@@ -60,6 +57,16 @@ export const BulkActionBar = memo(function BulkActionBar({
   }, [count, clearSelection]);
 
   const handleToggleVisibility = (makePrivate: boolean) => {
+    const starred = selectedRepos.filter((r) => r.stargazers_count > 0);
+    if (starred.length > 0) {
+      const totalStars = starred.reduce((s, r) => s + r.stargazers_count, 0);
+      setPending({ makePrivate, starred, totalStars });
+      return;
+    }
+    runBulkToggle(makePrivate);
+  };
+
+  const runBulkToggle = (makePrivate: boolean) => {
     const targets = selectedRepos.map((r) => ({
       owner: r.owner.login,
       repo: r.name,
@@ -71,80 +78,108 @@ export const BulkActionBar = memo(function BulkActionBar({
     );
   };
 
+  const confirmStarReset = () => {
+    if (pending) {
+      runBulkToggle(pending.makePrivate);
+    }
+    setPending(null);
+  };
+
+  if (count === 0) return null;
+
   return (
-    <AnimatePresence>
-      {count > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 8 }}
-          transition={{ duration: 0.15 }}
-          className="flex items-center gap-3 rounded-lg border border-border bg-card px-4 py-2.5 shadow-sm"
-        >
-          <span className="text-sm font-medium text-foreground">
-            {count} {count === 1 ? "repository" : "repositories"} selected
-          </span>
+    <div
+      className="mb-2 flex items-center gap-1 rounded-md border border-foreground/20 bg-foreground/[0.03] px-1.5 py-1 dark:bg-foreground/[0.06]"
+      role="region"
+      aria-live="polite"
+      aria-label={`${count} ${count === 1 ? "repository" : "repositories"} selected`}
+    >
+      <span className="flex items-center gap-1.5 px-1.5 text-sm font-medium tabular-nums">
+        {count}
+        <span className="text-muted-foreground">
+          {count === 1 ? "selected" : "selected"}
+        </span>
+      </span>
 
-          <Separator orientation="vertical" className="h-5" />
+      <span className="text-xs text-muted-foreground/60">·</span>
 
-          {/* Visibility bulk action */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" disabled={isPending}>
-                Change visibility
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start">
-              <DropdownMenuLabel>Set selected repos to…</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={() => handleToggleVisibility(false)}
-                className="flex items-center gap-2"
-              >
-                <Globe className="h-4 w-4" />
-                Make public
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => handleToggleVisibility(true)}
-                className="flex items-center gap-2"
-              >
-                <Lock className="h-4 w-4" />
-                Make private
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+      <Button
+        variant="ghost"
+        size="sm"
+        disabled={isPending}
+        onClick={() => handleToggleVisibility(false)}
+        className="h-7 gap-1.5 px-2 text-xs"
+      >
+        <Globe className="h-3 w-3" />
+        Public
+      </Button>
 
-          {/* Bulk delete */}
-          <Button
-            variant="destructive"
-            size="sm"
-            onClick={openBulkDelete}
-            disabled={isPending}
-          >
-            <Trash2 className="mr-1.5 h-3.5 w-3.5" />
-            Delete selected
-          </Button>
+      <Button
+        variant="ghost"
+        size="sm"
+        disabled={isPending}
+        onClick={() => handleToggleVisibility(true)}
+        className="h-7 gap-1.5 px-2 text-xs"
+      >
+        <Lock className="h-3 w-3" />
+        Private
+      </Button>
 
-          {/* Clear selection */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="ml-auto h-7 w-7 text-muted-foreground cursor-pointer"
-                onClick={clearSelection}
-              >
-                <X className="h-4 w-4" />
-                <span className="sr-only">Clear selection</span>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent className="flex items-center gap-2">
-              Clear selection
-              <KeyboardShortcutHint shortcut="Esc" noModifier />
-            </TooltipContent>
-          </Tooltip>
-        </motion.div>
-      )}
-    </AnimatePresence>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={openBulkDelete}
+        disabled={isPending}
+        className="h-7 gap-1.5 px-2 text-xs text-destructive hover:bg-destructive/10 hover:text-destructive"
+      >
+        <Trash2 className="h-3 w-3" />
+        Delete
+      </Button>
+
+      <div className="ml-auto flex items-center">
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7 text-muted-foreground"
+              onClick={clearSelection}
+            >
+              <X className="h-3.5 w-3.5" />
+              <span className="sr-only">Clear selection</span>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent className="flex items-center gap-2">
+            Clear selection
+            <KeyboardShortcutHint shortcut="Esc" noModifier />
+          </TooltipContent>
+        </Tooltip>
+      </div>
+
+      <ConfirmDialog
+        open={pending !== null}
+        onOpenChange={(open) => !open && setPending(null)}
+        title="Changing visibility will reset stars"
+        description={
+          pending
+            ? (() => {
+                const action = pending.makePrivate ? "private" : "public";
+                const repoCount = pending.starred.length;
+                const sample = pending.starred
+                  .slice(0, 3)
+                  .map((r) => `${r.name} (${r.stargazers_count.toLocaleString()})`)
+                  .join(", ");
+                const more =
+                  pending.starred.length > 3
+                    ? ` and ${pending.starred.length - 3} more`
+                    : "";
+                return `${repoCount === 1 ? "1 selected repo has" : `${repoCount} selected repos have`} stars (${pending.totalStars.toLocaleString()} total).\n\nChanging visibility to ${action} will reset the star count on GitHub. This cannot be undone.\n\nAffected: ${sample}${more}`;
+              })()
+            : ""
+        }
+        confirmLabel="Change visibility"
+        onConfirm={confirmStarReset}
+      />
+    </div>
   );
 });

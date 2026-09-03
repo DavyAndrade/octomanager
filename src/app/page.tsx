@@ -43,7 +43,7 @@ export default async function HomePage() {
             href="https://buymeacoffee.com/davyandrade.dev"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1.5 text-xs font-medium text-amber-600 transition-colors hover:text-amber-700 dark:text-amber-500 dark:hover:text-amber-400"
+            className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
           >
             <Coffee className="h-3.5 w-3.5" />
             Buy me a coffee
@@ -61,15 +61,14 @@ export default async function HomePage() {
           GitHub OAuth · No data stored
         </Badge>
 
-        <h1 className="mb-4 max-w-2xl text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
+        <h1 className="mb-4 max-w-2xl text-4xl font-bold tracking-tight text-foreground sm:text-[3.5rem]">
           Manage your GitHub repos{" "}
           <span className="text-muted-foreground">without the friction</span>
         </h1>
 
         <p className="mb-10 max-w-lg text-base text-muted-foreground sm:text-lg">
-          Toggle visibility, update metadata, and delete repositories — all from
-          a single, fast interface. No manual navigation through GitHub
-          settings.
+          Bulk toggle visibility, edit metadata, and delete repos — all from a
+          single, fast interface. No manual navigation through GitHub settings.
         </p>
 
         <div className="flex flex-col items-center gap-4 sm:flex-row">

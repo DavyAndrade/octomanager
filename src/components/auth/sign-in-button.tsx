@@ -1,7 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import { signIn } from "next-auth/react";
-import { Github } from "lucide-react";
+import { Github, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface SignInButtonProps {
@@ -11,17 +12,31 @@ interface SignInButtonProps {
 }
 
 export function SignInButton({ className, size = "lg", dev }: SignInButtonProps) {
+  const [loading, setLoading] = useState(false);
+
+  const handleClick = () => {
+    setLoading(true);
+    void signIn(dev ? "dev-github" : "github", { callbackUrl: "/dashboard" });
+  };
+
   return (
     <Button
       size={size}
       variant={dev ? "outline" : "default"}
       className={className}
-      onClick={() =>
-        void signIn(dev ? "dev-github" : "github", { callbackUrl: "/dashboard" })
-      }
+      disabled={loading}
+      onClick={handleClick}
     >
-      <Github className="mr-2 h-5 w-5" />
-      {dev ? "Sign in (Dev Mode)" : "Continue with GitHub"}
+      {loading ? (
+        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+      ) : (
+        <Github className="mr-2 h-5 w-5" />
+      )}
+      {loading
+        ? "Connecting to GitHub…"
+        : dev
+          ? "Sign in (Dev Mode)"
+          : "Continue with GitHub"}
     </Button>
   );
 }

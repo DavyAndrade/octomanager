@@ -1,15 +1,13 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, act } from "@testing-library/react";
 import { SearchBar } from "@/components/repos/search-bar";
-import { FilterBar } from "@/components/repos/filter-bar";
 import { useUIStore } from "@/store/ui-store";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 beforeEach(() => {
-  // Reset Zustand state before each test
   useUIStore.setState({
     searchQuery: "",
-    visibilityFilter: "owner",
+    activeSection: "owner",
   sortBy: "pushed",
     sortDirection: "desc",
     selectedRepoIds: new Set(),
@@ -136,41 +134,5 @@ describe("SearchBar", () => {
     });
 
     expect((input as HTMLInputElement).value).toBe("");
-  });
-});
-
-// ─── FilterBar ─────────────────────────────────────────────────────────────────
-
-describe("FilterBar", () => {
-  it("renders visibility and sort selects", () => {
-    render(<FilterBar />);
-    // My repos option is the default trigger text
-    expect(screen.getByText("My repos")).toBeInTheDocument();
-    expect(screen.getByText("Recently pushed")).toBeInTheDocument();
-  });
-
-  it("does not show Reset button when using defaults", () => {
-    render(<FilterBar />);
-    expect(screen.queryByRole("button", { name: /reset/i })).not.toBeInTheDocument();
-  });
-
-  it("shows Reset button when searchQuery is non-empty", () => {
-    useUIStore.setState({ searchQuery: "octo" });
-    render(<FilterBar />);
-    expect(screen.getByRole("button", { name: /reset/i })).toBeInTheDocument();
-  });
-
-  it("shows Reset button when sortBy is not default", () => {
-    useUIStore.setState({ sortBy: "created" });
-    render(<FilterBar />);
-    expect(screen.getByRole("button", { name: /reset/i })).toBeInTheDocument();
-  });
-
-  it("calls resetFilters on Reset button click", () => {
-    useUIStore.setState({ searchQuery: "octo" });
-    render(<FilterBar />);
-    fireEvent.click(screen.getByRole("button", { name: /reset/i }));
-    expect(useUIStore.getState().searchQuery).toBe("");
-    expect(useUIStore.getState().visibilityFilter).toBe("owner");
   });
 });

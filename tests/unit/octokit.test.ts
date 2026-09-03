@@ -1,17 +1,23 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 // vi.hoisted ensures these are available when vi.mock factory runs (mock hoisting)
-const { mockPaginate, mockReplaceAllTopics, mockRepoGet, mockRepoUpdate, mockRepoDelete } =
-  vi.hoisted(() => ({
-    mockPaginate: vi.fn(),
-    mockReplaceAllTopics: vi.fn(),
-    mockRepoGet: vi.fn(),
-    mockRepoUpdate: vi.fn(),
-    mockRepoDelete: vi.fn(),
-  }));
+const {
+  mockPaginate,
+  mockReplaceAllTopics,
+  mockRepoGet,
+  mockRepoUpdate,
+  mockRepoDelete,
+  mockGetAuthenticated,
+} = vi.hoisted(() => ({
+  mockPaginate: vi.fn(),
+  mockReplaceAllTopics: vi.fn(),
+  mockRepoGet: vi.fn(),
+  mockRepoUpdate: vi.fn(),
+  mockRepoDelete: vi.fn(),
+  mockGetAuthenticated: vi.fn(),
+}));
 
 vi.mock("octokit", () => {
-  // Use a class so `new Octokit()` works correctly
   class MockOctokit {
     paginate = mockPaginate;
     rest = {
@@ -21,6 +27,9 @@ vi.mock("octokit", () => {
         get: mockRepoGet,
         update: mockRepoUpdate,
         delete: mockRepoDelete,
+      },
+      users: {
+        getAuthenticated: mockGetAuthenticated,
       },
     };
   }
@@ -55,6 +64,9 @@ const fakeRepo = (overrides = {}) => ({
 
 beforeEach(() => {
   vi.clearAllMocks();
+  mockGetAuthenticated.mockResolvedValue({
+    data: { login: "user" },
+  });
 });
 
 // ─── listRepos ─────────────────────────────────────────────────────────────────
