@@ -64,6 +64,9 @@ const fakeRepo = (overrides = {}) => ({
 
 beforeEach(() => {
   vi.clearAllMocks();
+  mockGetAuthenticated.mockResolvedValue({
+    data: { login: "user" },
+  });
 });
 
 // ─── listRepos ─────────────────────────────────────────────────────────────────

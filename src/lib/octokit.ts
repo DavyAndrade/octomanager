@@ -35,6 +35,25 @@ function handleGitHubError(error: unknown): never {
   throw new Error("An unexpected error occurred");
 }
 
+/**
+ * Decode the GitHub login from an OAuth access token JWT.
+ * GitHub OAuth access tokens are JWTs that include the user's login in the
+ * payload. This lets us detect ownership without an extra API round trip.
+ *
+ * Returns undefined if the token isn't a JWT or the claim is missing.
+ */
+function decodeGitHubLoginFromToken(token: string): string | undefined {
+  if (!token || token.split(".").length !== 3) return undefined;
+  try {
+    const [, payload] = token.split(".");
+    const decoded = atob(payload.replace(/-/g, "+").replace(/_/g, "/"));
+    const claims = JSON.parse(decoded) as { login?: string };
+    return claims.login;
+  } catch {
+    return undefined;
+  }
+}
+
 export async function listRepos(
   token: string,
   params: RepoListParams = {}
@@ -55,6 +74,22 @@ export async function listRepos(
     type === "forks" || type === "sources" ? "all" : (type as ApiType);
 
   try {
+    // Try to get viewer login for ownership detection.
+    // Priority: explicit param > getAuthenticated > token JWT decode.
+    let viewerLogin: string | undefined = params.viewerLogin;
+    if (!viewerLogin) {
+      try {
+        const { data: viewer } = await octokit.rest.users.getAuthenticated();
+        viewerLogin = viewer.login;
+      } catch {
+        // Fall through to JWT decode
+      }
+    }
+    if (!viewerLogin) {
+      // Decode the OAuth JWT — GitHub tokens include the user's login
+      viewerLogin = decodeGitHubLoginFromToken(token);
+    }
+
     // Paginate through ALL GitHub pages so total_count reflects the real count,
     // not just the first 100 results. The table paginates locally.
     // Optimization: Map results to include only necessary fields, reducing payload size.
@@ -101,8 +136,9 @@ export async function listRepos(
                   pull: repo.permissions.pull ?? false,
                 }
               : undefined,
-            // Owner detection: viewerLogin comes from the session (already on
-            // the JWT cookie). Falls back to a more permissive check if missing.
+            // Owner detection: viewerLogin match is the source of truth.
+            // If we don't have it, fall back to permissions.admin (over-counts
+            // for org members, but never returns 0 when the data is real).
             isOwner:
               viewerLogin !== undefined
                 ? repo.owner.login === viewerLogin
