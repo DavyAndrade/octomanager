@@ -1,11 +1,20 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
-import type { RepoTypeFilter, RepoSortField } from "@/types/github";
+import type { RepoSortField } from "@/types/github";
+
+export type RepoSectionId =
+  | "all"
+  | "owner"
+  | "public"
+  | "private"
+  | "collabs"
+  | "forks"
+  | "archived";
 
 interface UIState {
   // Search & filters
   searchQuery: string;
-  visibilityFilter: RepoTypeFilter;
+  activeSection: RepoSectionId;
   sortBy: RepoSortField;
   sortDirection: "asc" | "desc";
 
@@ -20,7 +29,7 @@ interface UIState {
 
   // Actions — filters
   setSearchQuery: (query: string) => void;
-  setVisibilityFilter: (filter: RepoTypeFilter) => void;
+  setActiveSection: (section: RepoSectionId) => void;
   setSortBy: (field: RepoSortField) => void;
   setSortDirection: (dir: "asc" | "desc") => void;
   resetFilters: () => void;
@@ -44,7 +53,7 @@ interface UIState {
 
 const defaultState = {
   searchQuery: "",
-  visibilityFilter: "owner" as RepoTypeFilter,
+  activeSection: "owner" as RepoSectionId,
   sortBy: "pushed" as RepoSortField,
   sortDirection: "desc" as const,
   selectedRepoIds: new Set<number>(),
@@ -61,13 +70,13 @@ export const useUIStore = create<UIState>()(
 
       // Filters
       setSearchQuery: (query) => set({ searchQuery: query }),
-      setVisibilityFilter: (filter) => set({ visibilityFilter: filter }),
+      setActiveSection: (section) => set({ activeSection: section }),
       setSortBy: (field) => set({ sortBy: field }),
       setSortDirection: (dir) => set({ sortDirection: dir }),
       resetFilters: () =>
         set({
           searchQuery: defaultState.searchQuery,
-          visibilityFilter: defaultState.visibilityFilter,
+          activeSection: defaultState.activeSection,
           sortBy: defaultState.sortBy,
           sortDirection: defaultState.sortDirection,
         }),

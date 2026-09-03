@@ -40,7 +40,10 @@ export async function GET(request: Request): Promise<NextResponse> {
   }
 
   try {
-    const result = await listRepos(session.accessToken, parseResult.data);
+    const result = await listRepos(session.accessToken, {
+      ...parseResult.data,
+      viewerLogin: session.user?.login,
+    });
     return NextResponse.json({ data: result });
   } catch (error) {
     return mapGitHubError(error, "fetching repositories");

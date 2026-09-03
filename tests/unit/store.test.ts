@@ -3,7 +3,7 @@ import { useUIStore } from "@/store/ui-store";
 
 const initialState = {
   searchQuery: "",
-  visibilityFilter: "owner",
+  activeSection: "owner",
   sortBy: "pushed",
   sortDirection: "desc",
   selectedRepoIds: new Set<number>(),
@@ -31,25 +31,20 @@ describe("setSearchQuery", () => {
   });
 });
 
-describe("setVisibilityFilter", () => {
-  it("updates visibilityFilter to public", () => {
-    useUIStore.getState().setVisibilityFilter("public");
-    expect(useUIStore.getState().visibilityFilter).toBe("public");
+describe("setActiveSection", () => {
+  it("updates activeSection to public", () => {
+    useUIStore.getState().setActiveSection("public");
+    expect(useUIStore.getState().activeSection).toBe("public");
   });
 
-  it("updates visibilityFilter to private", () => {
-    useUIStore.getState().setVisibilityFilter("private");
-    expect(useUIStore.getState().visibilityFilter).toBe("private");
+  it("updates activeSection to owner", () => {
+    useUIStore.getState().setActiveSection("owner");
+    expect(useUIStore.getState().activeSection).toBe("owner");
   });
 
-  it("updates visibilityFilter to owner", () => {
-    useUIStore.getState().setVisibilityFilter("owner");
-    expect(useUIStore.getState().visibilityFilter).toBe("owner");
-  });
-
-  it("updates visibilityFilter to all", () => {
-    useUIStore.getState().setVisibilityFilter("all");
-    expect(useUIStore.getState().visibilityFilter).toBe("all");
+  it("updates activeSection to all", () => {
+    useUIStore.getState().setActiveSection("all");
+    expect(useUIStore.getState().activeSection).toBe("all");
   });
 });
 
@@ -70,16 +65,16 @@ describe("setSortDirection", () => {
 describe("resetFilters", () => {
   it("restores all filter defaults", () => {
     useUIStore.getState().setSearchQuery("hello");
-    useUIStore.getState().setVisibilityFilter("private");
+    useUIStore.getState().setActiveSection("private");
     useUIStore.getState().setSortBy("created");
     useUIStore.getState().setSortDirection("asc");
 
     useUIStore.getState().resetFilters();
 
-    const { searchQuery, visibilityFilter, sortBy, sortDirection } =
+    const { searchQuery, activeSection, sortBy, sortDirection } =
       useUIStore.getState();
     expect(searchQuery).toBe("");
-    expect(visibilityFilter).toBe("owner");
+    expect(activeSection).toBe("owner");
     expect(sortBy).toBe("pushed");
     expect(sortDirection).toBe("desc");
   });
@@ -180,7 +175,7 @@ describe("initial state", () => {
   it("has correct defaults", () => {
     const state = useUIStore.getState();
     expect(state.searchQuery).toBe("");
-    expect(state.visibilityFilter).toBe("owner");
+    expect(state.activeSection).toBe("owner");
     expect(state.sortBy).toBe("pushed");
     expect(state.sortDirection).toBe("desc");
     expect(state.selectedRepoIds.size).toBe(0);

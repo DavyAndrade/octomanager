@@ -1,0 +1,138 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-01T00:00:00Z",
+  "title": "Design System: OctoManager",
+  "extensions": {
+    "colorMeta": {
+      "background": { "role": "neutral", "displayName": "Paper White", "canonical": "#ffffff", "tonalRamp": ["#09090b", "#18181b", "#27272a", "#3f3f46", "#52525b", "#a1a1aa", "#d4d4d8", "#fafafa"] },
+      "foreground": { "role": "neutral", "displayName": "Ink Black", "canonical": "#09090b", "tonalRamp": ["#09090b", "#18181b", "#27272a", "#3f3f46", "#52525b", "#a1a1aa", "#d4d4d8", "#fafafa"] },
+      "primary": { "role": "primary", "displayName": "Obsidian", "canonical": "#18181b", "tonalRamp": ["#09090b", "#18181b", "#27272a", "#3f3f46", "#52525b", "#71717a", "#a1a1aa", "#d4d4d8"] },
+      "primary-foreground": { "role": "primary", "displayName": "Snow", "canonical": "#fafafa", "tonalRamp": ["#d4d4d8", "#e4e4e7", "#f4f4f5", "#fafafa", "#ffffff", "#ffffff", "#ffffff", "#ffffff"] },
+      "secondary": { "role": "secondary", "displayName": "Cloud", "canonical": "#f4f4f5", "tonalRamp": ["#e4e4e7", "#f4f4f5", "#fafafa", "#ffffff", "#ffffff", "#ffffff", "#ffffff", "#ffffff"] },
+      "muted-foreground": { "role": "neutral", "displayName": "Slate", "canonical": "#71717a", "tonalRamp": ["#3f3f46", "#52525b", "#71717a", "#a1a1aa", "#d4d4d8", "#e4e4e7", "#f4f4f5", "#fafafa"] },
+      "destructive": { "role": "destructive", "displayName": "Crimson", "canonical": "#ef4444", "tonalRamp": ["#7f1d1d", "#991b1b", "#dc2626", "#ef4444", "#f87171", "#fca5a5", "#fecaca", "#fef2f2"] },
+      "switch-active": { "role": "functional", "displayName": "Azure", "canonical": "#3b82f6", "tonalRamp": ["#1e3a5f", "#1d4ed8", "#2563eb", "#3b82f6", "#60a5fa", "#93c5fd", "#bfdbfe", "#dbeafe"] },
+      "border": { "role": "neutral", "displayName": "Edge", "canonical": "#e4e4e7", "tonalRamp": ["#3f3f46", "#52525b", "#71717a", "#a1a1aa", "#d4d4d8", "#e4e4e7", "#f4f4f5", "#fafafa"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Hero headlines on landing page only" },
+      "headline": { "displayName": "Headline", "purpose": "Section titles, dashboard headings" },
+      "body": { "displayName": "Body", "purpose": "Default text, descriptions, paragraphs" },
+      "label": { "displayName": "Label", "purpose": "Button text, navigation, interactive elements" },
+      "caption": { "displayName": "Caption", "purpose": "Timestamps, metadata, badges" }
+    },
+    "shadows": [
+      { "name": "subtle-lift", "value": "0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)", "purpose": "Cards, floating action bar, dropdowns — the only shadow level" }
+    ],
+    "motion": [
+      { "name": "ease-standard", "value": "cubic-bezier(0.4, 0, 0.2, 1)", "purpose": "Default easing for state transitions" },
+      { "name": "duration-fast", "value": "150ms", "purpose": "Hover states, subtle feedback" },
+      { "name": "duration-normal", "value": "200ms", "purpose": "Toggle switches, moderate transitions" },
+      { "name": "duration-entrance", "value": "0.15s", "purpose": "Floating action bar appear/disappear" }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" },
+      { "name": "xl", "value": "1280px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Default action button for primary workflows",
+      "html": "<button class=\"ds-btn-primary\">Save Changes</button>",
+      "css": ".ds-btn-primary { background: var(--primary); color: var(--primary-foreground); padding: 8px 16px; border-radius: 8px; font-size: 0.875rem; font-weight: 500; border: none; cursor: pointer; transition: opacity 150ms; } .ds-btn-primary:hover { opacity: 0.9; } .ds-btn-primary:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; } .ds-btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }"
+    },
+    {
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "Secondary actions, filter triggers, dropdown triggers",
+      "html": "<button class=\"ds-btn-outline\">Change visibility</button>",
+      "css": ".ds-btn-outline { background: transparent; color: var(--foreground); padding: 8px 16px; border-radius: 8px; font-size: 0.875rem; font-weight: 500; border: 1px solid var(--border); cursor: pointer; transition: background 150ms; } .ds-btn-outline:hover { background: var(--accent); } .ds-btn-outline:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Toolbar actions, navigation, icon-only buttons",
+      "html": "<button class=\"ds-btn-ghost\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M18 6L6 18M6 6l12 12\"/></svg></button>",
+      "css": ".ds-btn-ghost { background: transparent; color: var(--foreground); padding: 8px; border-radius: 8px; font-size: 0.875rem; font-weight: 500; border: none; cursor: pointer; transition: background 150ms; } .ds-btn-ghost:hover { background: var(--accent); } .ds-btn-ghost:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }"
+    },
+    {
+      "name": "Destructive Button",
+      "kind": "button",
+      "refersTo": "button-destructive",
+      "description": "Delete actions — used sparingly, always Crimson",
+      "html": "<button class=\"ds-btn-destructive\">Delete selected</button>",
+      "css": ".ds-btn-destructive { background: var(--destructive); color: var(--destructive-foreground); padding: 8px 16px; border-radius: 8px; font-size: 0.875rem; font-weight: 500; border: 1px solid transparent; cursor: pointer; transition: opacity 150ms; } .ds-btn-destructive:hover { opacity: 0.9; } .ds-btn-destructive:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }"
+    },
+    {
+      "name": "Input Field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Text inputs with optional icon prefix",
+      "html": "<div class=\"ds-input-wrapper\"><input class=\"ds-input\" type=\"text\" placeholder=\"Search repositories...\" /></div>",
+      "css": ".ds-input-wrapper { position: relative; } .ds-input { width: 100%; height: 36px; padding: 8px 12px; background: transparent; color: var(--foreground); border: 1px solid var(--border); border-radius: 8px; font-size: 0.875rem; transition: border-color 150ms, box-shadow 150ms; } .ds-input::placeholder { color: var(--muted-foreground); } .ds-input:focus { outline: none; border-color: var(--ring); box-shadow: 0 0 0 2px var(--ring); } .ds-input:disabled { opacity: 0.5; cursor: not-allowed; }"
+    },
+    {
+      "name": "Badge",
+      "kind": "chip",
+      "refersTo": "badge",
+      "description": "Status indicators, tags, metadata labels",
+      "html": "<span class=\"ds-badge\">Public</span>",
+      "css": ".ds-badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 4px; font-size: 0.6875rem; font-weight: 500; line-height: 1.4; background: var(--secondary); color: var(--secondary-foreground); } .ds-badge-outline { background: transparent; border: 1px solid var(--border); color: var(--muted-foreground); } .ds-badge-destructive { background: var(--destructive); color: var(--destructive-foreground); }"
+    },
+    {
+      "name": "Table Row",
+      "kind": "card",
+      "refersTo": "table-row",
+      "description": "Repository list items with hover and selection states",
+      "html": "<tr class=\"ds-table-row\"><td>Repo Name</td><td>Public</td></tr>",
+      "css": ".ds-table-row { transition: background 150ms; } .ds-table-row:hover { background: var(--accent); } .ds-table-row[data-state=\"selected\"] { background: var(--accent); } .ds-table-row td { padding: 12px 16px; font-size: 0.875rem; border-bottom: 1px solid var(--border); }"
+    },
+    {
+      "name": "Floating Action Bar",
+      "kind": "card",
+      "refersTo": "bulk-action-bar",
+      "description": "Contextual toolbar for bulk operations — the only elevated surface",
+      "html": "<div class=\"ds-floating-bar\"><span>3 repositories selected</span><button class=\"ds-btn-outline\">Change visibility</button><button class=\"ds-btn-destructive\">Delete selected</button></div>",
+      "css": ".ds-floating-bar { display: flex; align-items: center; gap: 12px; padding: 10px 16px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Developer's Workbench",
+    "overview": "OctoManager's visual identity is rooted in the workbench metaphor — a clean, organized space where every tool has its place and nothing gets in the way. The aesthetic is clinical precision meets warm craft: the cold efficiency of a terminal married to the tactile satisfaction of well-made tools.\n\nThe system operates on a strict monochromatic Zinc palette, trusting that restraint in color forces better hierarchy through typography, spacing, and weight. Color appears only where it must: destructive actions (red), active states (blue), and language indicators (tiny dots). Everything else lives in the grayscale spectrum, letting content and structure do the talking.",
+    "keyCharacteristics": [
+      "Monochromatic Zinc palette with no decorative color",
+      "Soft, tactile component feel with subtle elevation",
+      "Typographic hierarchy driven by weight and size, not color",
+      "Minimal shadow vocabulary — one level for elevated surfaces",
+      "Keyboard-first interaction patterns (Cmd+K search, Esc to clear)"
+    ],
+    "rules": [
+      { "name": "The Zinc Rule", "body": "All surfaces, backgrounds, and text use only the Zinc scale. No decorative colors appear anywhere in the interface. The sole exceptions are Crimson for destructive actions and Switch Active for toggle states — their rarity is the point.", "section": "colors" },
+      { "name": "The Weight Rule", "body": "Hierarchy is expressed through font-weight, not color. Bold text is always interactive or a heading; regular text is always content.", "section": "typography" },
+      { "name": "The Flat-By-Default Rule", "body": "Surfaces are flat at rest. The single shadow level appears only on surfaces that float above the base layer. Interactive elements never have shadows.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do use font-weight to signal hierarchy: bold for interactive/heading, regular for content",
+      "Do keep the Zinc palette sacred — no decorative colors anywhere",
+      "Do use the single shadow level only for floating surfaces (cards, modals, action bars)",
+      "Do maintain 4px grid alignment for all spacing values",
+      "Do use Ghost buttons for toolbar actions and secondary navigation",
+      "Do show destructive actions in Crimson, never in any other color"
+    ],
+    "donts": [
+      "Don't add shadows to buttons, inputs, or table rows",
+      "Don't use color to distinguish interactive states — use background shifts and borders",
+      "Don't exceed 12px border-radius on any component",
+      "Don't add decorative gradients, patterns, or textures to backgrounds",
+      "Don't use blue, green, yellow, or any accent color outside the Switch component",
+      "Don't create visual hierarchy through color when font-weight can do the job"
+    ]
+  }
+}
