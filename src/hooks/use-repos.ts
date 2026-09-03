@@ -39,22 +39,19 @@ async function fetchRepos(
   return json.data;
 }
 
-export function useRepos(page = 1) {
-  const { searchQuery, visibilityFilter, sortBy, sortDirection } = useUIStore(
+export function useRepos() {
+  const { searchQuery, sortBy, sortDirection } = useUIStore(
     useShallow((state) => ({
       searchQuery: state.searchQuery,
-      visibilityFilter: state.visibilityFilter,
       sortBy: state.sortBy,
       sortDirection: state.sortDirection,
     }))
   );
 
   const params = {
-    type: visibilityFilter,
+    type: "all",
     sort: sortBy,
     direction: sortDirection,
-    per_page: 10,
-    page,
     ...(searchQuery ? { search: searchQuery } : {}),
   };
 
