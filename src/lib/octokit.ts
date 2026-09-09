@@ -64,7 +64,6 @@ export async function listRepos(
     sort = "pushed",
     direction = "desc",
     search,
-    viewerLogin,
   } = params;
 
   // GitHub API only accepts these values for listForAuthenticatedUser.
@@ -199,7 +198,7 @@ export async function updateRepo(
 
     const { topics: _topics, ...repoPayload } = payload;
 
-    if (Object.keys(repoPayload).length === 0 && payload.topics !== undefined) {
+    if (Object.keys(repoPayload).length === 0 && _topics !== undefined) {
       // Only topics were updated; fetch updated repo
       const { data } = await octokit.rest.repos.get({ owner, repo });
       return data as unknown as Repository;
