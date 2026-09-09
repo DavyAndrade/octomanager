@@ -1,0 +1,25 @@
+{
+  "id": "/",
+  "name": "OctoManager",
+  "short_name": "OctoMgr",
+  "description": "Manage your GitHub repositories from a clean, fast UI.",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "theme_color": "#18181b",
+  "background_color": "#18181b",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait"
+}
