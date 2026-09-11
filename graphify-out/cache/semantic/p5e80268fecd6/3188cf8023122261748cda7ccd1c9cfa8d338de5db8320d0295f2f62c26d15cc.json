@@ -1,0 +1,1 @@
+{"nodes": [{"id": "docs_claude", "label": "Claude AI Agent Guide", "file_type": "document", "source_file": "docs/CLAUDE.md", "rationale": "Project architecture and security guardrails for OctoManager (Next.js 16, Auth.js v5, Octokit)."}], "edges": [], "hyperedges": []}
