@@ -2,6 +2,57 @@ import NextAuth from "next-auth";
 import GitHub from "next-auth/providers/github";
 import Credentials from "next-auth/providers/credentials";
 
+type GitHubRefreshResponse = {
+  access_token?: unknown;
+  expires_in?: unknown;
+  refresh_token?: unknown;
+};
+
+async function refreshGitHubAccessToken(token: Record<string, unknown>) {
+  const refreshToken = token.refreshToken;
+
+  if (typeof refreshToken !== "string") {
+    return { ...token, error: "RefreshAccessTokenError" };
+  }
+
+  try {
+    const response = await fetch("https://github.com/login/oauth/access_token", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams({
+        client_id: process.env.AUTH_GITHUB_ID ?? "",
+        client_secret: process.env.AUTH_GITHUB_SECRET ?? "",
+        grant_type: "refresh_token",
+        refresh_token: refreshToken,
+      }),
+    });
+    const refreshed = (await response.json()) as GitHubRefreshResponse;
+
+    if (!response.ok || typeof refreshed.access_token !== "string") {
+      throw new Error("GitHub token refresh failed");
+    }
+
+    return {
+      ...token,
+      accessToken: refreshed.access_token,
+      accessTokenExpiresAt:
+        typeof refreshed.expires_in === "number"
+          ? Date.now() + refreshed.expires_in * 1_000
+          : undefined,
+      refreshToken:
+        typeof refreshed.refresh_token === "string"
+          ? refreshed.refresh_token
+          : refreshToken,
+      error: undefined,
+    };
+  } catch {
+    return { ...token, error: "RefreshAccessTokenError" };
+  }
+}
+
 // Dev-only: fetch GitHub user info using the local gh CLI token so the app
 // can be tested without a registered OAuth App.
 async function fetchGitHubUser(token: string) {
@@ -63,6 +114,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       // GitHub OAuth provider — token comes from account
       if (account?.access_token) {
         token.accessToken = account.access_token;
+        token.accessTokenExpiresAt = account.expires_at
+          ? account.expires_at * 1_000
+          : undefined;
+        token.refreshToken = account.refresh_token;
       }
       if (profile) {
         token.login = (profile as { login?: string }).login;
@@ -74,18 +129,20 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (user && "login" in user) {
         token.login = user.login as string;
       }
+
+      const expiresAt = token.accessTokenExpiresAt;
+      if (
+        typeof expiresAt === "number" &&
+        Date.now() >= expiresAt - 60_000
+      ) {
+        return refreshGitHubAccessToken(token);
+      }
+
       return token;
     },
     async session({ session, token }) {
-      // IMPORTANT: accessToken is intentionally forwarded through the session
-      // so that server-side API route handlers (using `auth()`) can access it.
-      //
-      // DO NOT remove this line or replace `auth()` with `getToken()` in API routes.
-      // Auth.js v5 changed the session cookie name from `next-auth.session-token`
-      // to `authjs.session-token`, which breaks `getToken()` from `next-auth/jwt`
-      // in this setup. The token is only readable server-side (never sent to the
-      // browser as plain text) because Next.js API routes run exclusively on the
-      // server. The session cookie itself is HttpOnly and encrypted.
+      // API routes receive this through server-side auth(). The auth session route
+      // removes it before SessionProvider exposes the session to the browser.
       session.accessToken = token.accessToken as string | undefined;
       if (session.user) {
         session.user.login = token.login as string | undefined;

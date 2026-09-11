@@ -1,1 +1,0 @@
-{"nodes": [{"id": "opencode_skills_design_system_references_token_architecture", "label": "Token Architecture", "file_type": "document", "source_file": ".opencode/skills/design-system/references/token-architecture.md", "rationale": "Defines the three-layer token system: Primitive -> Semantic -> Component."}], "edges": [], "hyperedges": []}
